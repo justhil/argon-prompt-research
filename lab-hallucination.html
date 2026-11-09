@@ -497,6 +497,126 @@
     <!-- =====================================================================
          SECTION 4: Interactive 104-Session Trajectory & Thinking Trace Inspector
          ===================================================================== -->
+    
+    <!-- =====================================================================
+         SECTION 2.5: Self-Skepticism & Single-Factor Ablation (32 + 180 + 21 = 233 New Runs)
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-ablation">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Falsification, Single-Factor Ablation &amp; AA-Omniscience v1.1 · 破除自我归因幻觉的 233 场正交消融实测</div>
+          <h2 class="sec-title">灵魂追问：到底是“反转 do not abstain 原词”管用，还是“读文件排他规则”管用？</h2>
+          <p class="sec-desc">
+            为了防止我们自己陷入“确认偏误（把两个规则绑在一起测，误以为是原词反转在多文件编码中起主导作用）”，我们把第 4 档护栏拆成两个完全独立的单因素变体（<code>A1_only_reversal</code> vs <code>A2_only_callsite_rule</code>），并在 <strong>8 道跨文件真题（含新增 Delulu D5 Prisma / D6 Serlo Clipboard）</strong>、<strong>180 场 <code>AA-Omniscience v1.1</code> 官方软件工程闭卷题</strong> 与 <strong>21 场社区痛点边界测试</strong> 上做了彻底的正交验证。
+          </p>
+        </div>
+        <span class="badge clay">Attribution Bias Corrected · 233 New Runs</span>
+      </div>
+
+      <div class="dual-ledger-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px;">
+        <!-- Table 1C: 32-Run Single-Factor Ablation on Multi-File Coding -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>表 1C · 多文件编码 4 路单因素正交消融 (D1–D6 + T2/T7 = 32 场)</span>
+            <span class="badge moss">核心归因纠偏</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>单因素消融变体 (8题/组)</th>
+                <th>Oracle 通过率</th>
+                <th>首轮直接盲改率</th>
+                <th>先读依赖模块</th>
+                <th>残留幻觉</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A0 · AI Studio 72词原版</strong></td>
+                <td><span class="badge clay">0 / 8 (0.0%)</span></td>
+                <td>8 / 8 (100.0%)</td>
+                <td>0 / 13 (0.0%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">18 处</td>
+              </tr>
+              <tr>
+                <td><strong>A1 · 仅反转 "do not abstain" 原词</strong><br><span style="font-size:11.5px;color:var(--ink-muted)">(不提 read_file，也不提 call-sites)</span></td>
+                <td><span class="badge clay">1 / 8 (12.5%)</span></td>
+                <td style="color:var(--clay-ink);font-weight:600;">8 / 8 (100.0%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">0 / 13 (0.0%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">17 处</td>
+              </tr>
+              <tr>
+                <td><strong>A2 · 仅加 "读依赖 + 禁信调用处"</strong><br><span style="font-size:11.5px;color:var(--ink-muted)">(保留原版 do not abstain 不反转!)</span></td>
+                <td><span class="badge moss">8 / 8 (100.0%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 / 8 (0.0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">13 / 13 (100%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 处</td>
+              </tr>
+              <tr>
+                <td><strong>A3 · 因子 A + 因子 B 组合 (Tier 4)</strong></td>
+                <td><span class="badge moss">8 / 8 (100.0%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 / 8 (0.0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">13 / 13 (100%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 处</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding:11px 15px;font-size:12.5px;color:var(--ink-body);background:var(--bg-paper);border-top:1px solid var(--line-soft);">
+            <strong>实证纠偏结论</strong>：在多文件编码中，模型看到文件里已有的调用处写法（如 <code>message.notifyLimit</code>）时，<strong>主观上根本不觉得自己处于“低置信度（low confidence）”</strong>！因此单靠反转 <code>"do not abstain"</code>（A1）依然 100% 盲改；真正将通过率拉到 100% 的唯一功臣是<strong>显式命令它不信任同文件调用处并强制先调 <code>read_file</code>（A2）</strong>。
+          </div>
+        </div>
+
+        <!-- Table 1D: 180-Run AA-Omniscience v1.1 Software Engineering Benchmark -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>表 1D · AA-Omniscience v1.1 官方软件工程闭卷测试 (60题 × 3变体 = 180场)</span>
+            <span class="badge cerulean">Public v1.1 (2026.10.31)</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>系统提示词组 (各60道SWE真题)</th>
+                <th>答对 (Accuracy)</th>
+                <th>错误瞎编 (Wrong↓)</th>
+                <th>诚实弃权</th>
+                <th>AA官方幻觉率↓</th>
+                <th>综合净分↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>O0 · 纯裸模 (无72词指令)</strong></td>
+                <td>39/60 (65.0%)</td>
+                <td>5 / 60</td>
+                <td>16 / 60</td>
+                <td><span class="badge ochre">23.8%</span></td>
+                <td><strong>+56.7</strong></td>
+              </tr>
+              <tr>
+                <td><strong>O1 · AI Studio 72词原版</strong><br><span style="font-size:11.5px;color:var(--ink-muted)">(含 do not abstain from low confidence)</span></td>
+                <td>41/60 (68.3%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">13 / 60 (暴增2.6倍)</td>
+                <td>6 / 60</td>
+                <td><span class="badge clay">68.4% (+44.6%)</span></td>
+                <td style="color:var(--clay-ink);font-weight:600;">+46.7</td>
+              </tr>
+              <tr>
+                <td><strong>O2 · 保留2026唤醒 + 反转原词</strong><br><span style="font-size:11.5px;color:var(--ink-muted)">(REVERSED: low confidence -> ABSTAIN)</span></td>
+                <td>39/60 (65.0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">3 / 60 (全场最低)</td>
+                <td>18 / 60</td>
+                <td><span class="badge moss">14.3% (-54.1%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">+60.0 (第1)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding:11px 15px;font-size:12.5px;color:var(--ink-body);background:var(--bg-paper);border-top:1px solid var(--line-soft);">
+            <strong>因子 A（原词反转）的真正主战场</strong>：在<strong>无本地源码可读的闭卷知识/冷门标准问答</strong>中，AI Studio 原版指令为了唤醒 <code>PEP 798</code> 等 2025–2026 新知识（多对 2 题），导致模型在不知道的题上强行瞎编（AA 幻觉率从 23.8% 飙升至 <strong>68.4%</strong>）。而将 <code>do not abstain</code> 反转为 <code>REVERSED</code>（O2）既保住了 <code>PEP 798</code> 的唤醒，又将闭卷瞎编率压回 <strong>14.3%</strong>（净分 <strong>+60.0</strong> 全场最高）！
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="sec-block reveal" id="sec-inspector">
       <div class="sec-header">
         <div>

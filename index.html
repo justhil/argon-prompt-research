@@ -101,7 +101,7 @@
       <div class="brand-group">
         <span class="brand-dot"></span>
         <span class="brand-title">Gemini 4 Argon 实证研究实验室</span>
-        <span class="brand-sub">171 Total Runs · All Batches Preserved</span>
+        <span class="brand-sub">404 Total Runs · Full Ablation & AA-Omniscience v1.1</span>
       </div>
       <nav class="nav-pills">
         <a class="nav-pill active" href="index.html"><span class="pill-num">00</span>总览与三大舞台</a>
@@ -695,6 +695,101 @@
               </tr>
               <tr>
                 <td colspan="5" style="font-size:12px;color:var(--ink-muted);">注：Batch 2 包含 Microsoft Delulu (2026.05) 4 道开源仓库真题 (D1–D4) 与 T2/T4/T7/T8，每题独立跑 3 次。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        
+        <!-- Table 1C: 32-Run Single-Factor Ablation (Attribution Correction) -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>编码实验 · 第三次测试：单因素正交消融 (8题 × 4变体 = 32 场)</span>
+            <span class="badge moss">破解归因幻觉</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>单因素拆解变体 (D1–D6 + T2/T7)</th>
+                <th>Oracle 通过率</th>
+                <th>首轮直接盲改</th>
+                <th>先读依赖文件</th>
+                <th>残留幻觉</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A0 · AI Studio 72词原版</strong></td>
+                <td><span class="badge clay">0 / 8 (0.0%)</span></td>
+                <td>8 / 8 (100%)</td>
+                <td>0 / 13 (0%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">18 处</td>
+              </tr>
+              <tr>
+                <td><strong>A1 · 仅反转 "do not abstain" 原词 (不提 read_file)</strong></td>
+                <td><span class="badge clay">1 / 8 (12.5%)</span></td>
+                <td>8 / 8 (100%)</td>
+                <td>0 / 13 (0%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">17 处</td>
+              </tr>
+              <tr>
+                <td><strong>A2 · 仅加 "读依赖+禁信调用处" (不反转原词)</strong></td>
+                <td><span class="badge moss">8 / 8 (100.0%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 / 8 (0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">13 / 13 (100%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 处</td>
+              </tr>
+              <tr>
+                <td><strong>A3 · 因子 A + 因子 B 组合 (Tier 4)</strong></td>
+                <td><span class="badge moss">8 / 8 (100.0%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 / 8 (0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">13 / 13 (100%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 处</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table 1D: 180-Run AA-Omniscience v1.1 Software Engineering Benchmark -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>闭卷知识实验 · AA-Omniscience v1.1 软件工程全集 (60题 × 3变体 = 180 场)</span>
+            <span class="badge cerulean">Net Score +60.0</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>系统提示词组 (60道SWE官方真题)</th>
+                <th>答对率</th>
+                <th>错误瞎编↓</th>
+                <th>诚实弃权</th>
+                <th>AA幻觉率↓ / 净分↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>O0 · 纯裸模 (无72词指令)</strong></td>
+                <td>39/60 (65.0%)</td>
+                <td>5 / 60</td>
+                <td>16 / 60</td>
+                <td><span class="badge ochre">23.8% · 净分 +56.7</span></td>
+              </tr>
+              <tr>
+                <td><strong>O1 · AI Studio 72词原版 (含 do not abstain)</strong></td>
+                <td>41/60 (68.3%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">13 / 60 (×2.6倍)</td>
+                <td>6 / 60</td>
+                <td><span class="badge clay">68.4% · 净分 +46.7</span></td>
+              </tr>
+              <tr>
+                <td><strong>O2 · 保留2026唤醒 + 反转 do not abstain</strong></td>
+                <td>39/60 (65.0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">3 / 60 (最低)</td>
+                <td>18 / 60</td>
+                <td><span class="badge moss">14.3% · 净分 +60.0</span></td>
+              </tr>
+              <tr>
+                <td colspan="5" style="font-size:12px;color:var(--ink-muted);">结论：原词反转 (Factor A) 管闭卷知识拒答校准；读文件与调用处排他 (Factor B) 管多文件编码防盲改！</td>
               </tr>
             </tbody>
           </table>

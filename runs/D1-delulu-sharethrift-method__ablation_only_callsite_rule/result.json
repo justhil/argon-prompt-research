@@ -1,0 +1,139 @@
+{
+  "runId": "D1-delulu-sharethrift-method__ablation_only_callsite_rule",
+  "taskId": "D1-delulu-sharethrift-method",
+  "variantKey": "ablation_only_callsite_rule",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Delulu Oracle: clears input.value and uses real message.info instead of hallucinated message.notifyLimit\nok 1 - Delulu Oracle: clears input.value and uses real message.info instead of hallucinated message.notifyLimit\n  ---\n  duration_ms: 0.5052\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 52.7804\n",
+  "turns": 4,
+  "elapsedSec": 52.85,
+  "totalTokens": 8201,
+  "reasoningTokens": 236,
+  "targetFilesTotal": 1,
+  "targetFilesReadTotal": 1,
+  "firstEditTurn": 2,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 1,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 1,
+  "filesReadList": [
+    "src/ui/message.mjs",
+    "src/hooks/use_file_limit.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "Here's my thought process, as requested:\n\n**Code Inspection and Dependency Verification**\n\nOkay, so the instructions are clear: before I even *think* about touching any code, I need to verify those dependencies. Specifically, I'm told to read `src/ui/message.mjs` and `src/hooks/use_file_limit.mjs` first. Good, that makes sense – it prevents a lot of potential headaches later. The primary directive is to use `read_file` on the dependencies. So, I need to call `read_file` on both `src/ui/message.mjs` and `src/hooks/use_file_limit.mjs` to ensure I have a precise understanding of their exported me",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\n                  \"path\": \"src/ui/message.mjs\"\n                }"
+        },
+        {
+          "name": "read_file",
+          "args": "{\n                  \"path\": \"src/hooks/use_file_limit.mjs\"\n                }"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1045,
+        "completion_tokens": 149,
+        "total_tokens": 1194,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 93,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Investigating the 'notifyLimit' Property**\n\nOkay, so I see a comment in `src/ui/message.mjs` that's got my attention: it looks like there's a reference to a `notifyLimit` property that isn't actually defined on the `message` object as Golden is using it. This needs immediate investigation, as undocumented properties are a potential source of bugs and could break existing functionality. I need to get to the bottom of this.\n\nFirst, I want to scope out the extent of this issue. I'll need to use either `list_dir` or `grep_search` across the codebase to identify any other instances of `notifyLimi",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\n                  \"Target\": \"import { message } from '../ui/message.mjs';\\n\\nexport function handleFileLimitChange(input, currentCount, maxCount) {\\n  if (!input.files) return { accepted: 0 };\\n  const files = Array.from(input.files);\\n  const remaining = maxCount - currentCount;\\n  if (remaining \\u003c= 0) {\\n    // BUG: forgot to clear input.value = ''\\n    message.notifyLimit(`Maximum of ${maxCount} images allowed`);\\n    return { accepted: 0 };\\n  }\\n  if (files.length \\u003e remaining) {\\n    input.files = files.slice(0, remaining);\\n    message.notifyLimit(\\n      `${files.length} image${files.length \\u003e 1 ? 's' : ''} selected — only ${remaining} accepted`\\n    );\\n    return { accepted: remaining };\\n  }\\n  return { accepted: files.length };\\n}\",\n                  \"path\": \"src/hooks/use_file_limit.mjs\",\n                  \"Replacement\": \"import { message } from '../ui/message.mjs';\\n\\nexport function handleFileLimitChange(input, currentCount, maxCount) {\\n  if (!input.files) return { accepted: 0 };\\n  const files = Array.from(input.files);\\n  const remaining = maxCount - currentCount;\\n  if (remaining \\u003c= 0) {\\n    input.value = '';\\n    message.info(`Maximum of ${maxCount} images allowed`);\\n    return { accepted: 0 };\\n  }\\n  if (files.length \\u003e remaining) {\\n    input.files = files.slice(0, remaining);\\n    message.info(\\n      `${files.length} image${files.length \\u003e 1 ? 's' : ''} selected — only ${remaining} accepted`\\n    );\\n    return { accepted: remaining };\\n  }\\n  return { accepted: files.length };\\n}\\n\"\n                }"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1642,
+        "completion_tokens": 557,
+        "total_tokens": 2199,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 110,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "Okay, here's the summary, formatted as requested:\n\n**Verification Through Execution**\n\nAlright, given my deep understanding of the system and its potential failure points, the most efficient and reliable method to ensure everything is operating as intended is clear: execute. I need to leverage `run_command` and let the automated tests do their work. There's no substitute for actually putting the code through its paces, simulating real-world scenarios, and observing the results. Manual inspection can only go so far; I need definitive, objective confirmation that all components are integrated an",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\n                  \"command\": \"npm test\"\n                }"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2237,
+        "completion_tokens": 39,
+        "total_tokens": 2276,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 16,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复 `src/hooks/use_file_limit.mjs` 中的问题：\n\n1. 在 `remaining <= 0` 分支中补充了 `input.value = '';` 以清空残留文件。\n2. 将不存在的 `message.notifyLimit(...)` 调用修正为 `src/ui/message.mjs` 实际导出的 `message.info(...)`。",
+      "reasoningPreview": "Okay, here's my summarized thought process, geared towards a user who's already deep in the subject:\n\n**Ready to Deliver: Concise Fix Summary**\n\nRight, everything's locked down, clean, and thoroughly tested. No need for fluff. My primary goal here is to deliver the fix explanation, straight to the point. Let's make sure it's as lean and efficient as possible, so there's no wasted time for the user. That means skipping any extraneous details and giving the core solution.",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 2431,
+        "completion_tokens": 101,
+        "total_tokens": 2532,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 17,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

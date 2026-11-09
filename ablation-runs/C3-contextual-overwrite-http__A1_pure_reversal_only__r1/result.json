@@ -1,0 +1,91 @@
+{
+  "runId": "C3-contextual-overwrite-http__A1_pure_reversal_only__r1",
+  "taskId": "C3-contextual-overwrite-http",
+  "category": "Cat2_Contextual_Overwrite",
+  "title": "gemini-cli #13672 痛点：名为 axios.get 但返回 [statusTuple, bodyMap] 的反直觉内部客户端",
+  "variantKey": "A1_pure_reversal_only",
+  "rep": 1,
+  "oraclePassed": true,
+  "oracleError": "",
+  "depsReadBeforeEdit": 1,
+  "targetDepsTotal": 1,
+  "usedOffsetRead": false,
+  "residualHallucinations": 0,
+  "turns": 6,
+  "editsCount": 1,
+  "commandsCount": 1,
+  "totalTokens": 7518,
+  "reasoningTokens": 0,
+  "elapsedSec": 136,
+  "trace": [
+    {
+      "turn": 1,
+      "reasoning": "",
+      "content": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\n                  \"path\": \"src/services/user_aggregator.mjs\"\n                }"
+        },
+        {
+          "name": "read_file",
+          "args": "{\n                  \"path\": \"src/infra/internal_axios.mjs\"\n                }"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "reasoning": "",
+      "content": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{}"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "reasoning": "",
+      "content": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\n                  \"path\": \"package.json\"\n                }"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\n                  \"path\": \"src\"\n                }"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "reasoning": "",
+      "content": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\n                  \"new_text\": \"export async function fetchActiveUserNames(endpointUrl) {\\n  const response = await axios.get(endpointUrl);\\n  if (response.codeNumber === 200) {\\n    return response.payloadList\\n      .filter((user) =\\u003e user.active === true)\\n      .map((user) =\\u003e user.name);\\n  }\\n  throw new Error(`HTTP Error: ${response.codeNumber}`);\\n}\",\n                  \"path\": \"src/services/user_aggregator.mjs\",\n                  \"old_text\": \"export async function fetchActiveUserNames(endpointUrl) {\\n  // Implement using axios.get from ../infra/internal_axios.mjs\\n}\"\n                }"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "reasoning": "",
+      "content": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\n                  \"command\": \"node -e \\\"import { fetchActiveUserNames } from './src/services/user_aggregator.mjs'; console.log(await fetchActiveUserNames('/users')); try { await fetchActiveUserNames('/fail'); } catch (e) { console.log('Caught:', e.message); }\\\"\"\n                }"
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "reasoning": "",
+      "content": "`fetchActiveUserNames(endpointUrl)` has been implemented in `src/services/user_aggregator.mjs` using `axios.get` from `../infra/internal_axios.mjs` (reading `codeNumber` and `payloadList` per the internal wrapper's schema).",
+      "toolCalls": []
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "runId": "D5-delulu-prisma-SelectSubset__ablation_only_callsite_rule",
+  "taskId": "D5-delulu-prisma-SelectSubset",
+  "variantKey": "ablation_only_callsite_rule",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: oracle D5: trims/lowercases email AND calls real prisma.runSafeQuery\nok 1 - oracle D5: trims/lowercases email AND calls real prisma.runSafeQuery\n  ---\n  duration_ms: 0.703\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 49.6945\n",
+  "turns": 3,
+  "elapsedSec": 70.91,
+  "totalTokens": 3770,
+  "reasoningTokens": 37,
+  "targetFilesTotal": 1,
+  "targetFilesReadTotal": 1,
+  "firstEditTurn": 2,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 1,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 1,
+  "filesReadList": [
+    "src/services/user_lookup.mjs",
+    "src/db/prisma_bridge.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "Okay, let's dive in. As instructed, I should start by examining the core dependencies to understand how this system handles user lookups. I'll begin with `src/services/user_lookup.mjs` and `src/db/prisma_bridge.mjs`. This will allow me to verify that the modules are imported and interacting as expected. This initial scan is crucial to ensure a solid foundation before I delve into more complex interactions.",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\n                  \"path\": \"src/services/user_lookup.mjs\"\n                }"
+        },
+        {
+          "name": "read_file",
+          "args": "{\n                  \"path\": \"src/db/prisma_bridge.mjs\"\n                }"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 892,
+        "completion_tokens": 93,
+        "total_tokens": 985,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 37,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\n                  \"Replacement\": \"export async function findUserByEmail(email) {\\n  if (!email) return null;\\n  const normalized = email.trim().toLowerCase();\\n  return await prisma.runSafeQuery('users', { email: normalized });\\n}\",\n                  \"Target\": \"export async function findUserByEmail(email) {\\n  if (!email) return null;\\n  // BUG: email is not trimmed or lowercased before query\\n  const normalized = email;\\n  return await prisma.executeQuery('users', { email: normalized });\\n}\",\n                  \"path\": \"src/services/user_lookup.mjs\"\n                }"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1177,
+        "completion_tokens": 151,
+        "total_tokens": 1328,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复 `src/services/user_lookup.mjs`：\n\n1. 对输入的 `email` 进行 `email.trim().toLowerCase()` 规范化处理。\n2. 将 `prisma` 的调用修正为 `src/db/prisma_bridge.mjs` 中实际导出的 `prisma.runSafeQuery('users', { email: normalized })`（原代码中的 `executeQuery` 方法不存在）。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 1364,
+        "completion_tokens": 93,
+        "total_tokens": 1457,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

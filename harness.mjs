@@ -3,6 +3,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 
 export function loadApiConfig() {
+  
   return {
     baseUrl: process.env.OPENAI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai",
     apiKey: process.env.OPENAI_API_KEY || "",
