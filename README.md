@@ -41,3 +41,5 @@ node run_frontend_bench.mjs
 node run_open_taste_bench.mjs
 node run_anti_lazy_bench.mjs
 ```
+## 友链
+linux.do
