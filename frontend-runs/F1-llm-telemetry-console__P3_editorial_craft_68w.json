@@ -1,0 +1,41 @@
+{
+  "runKey": "F1-llm-telemetry-console__P3_editorial_craft_68w",
+  "taskId": "F1-llm-telemetry-console",
+  "taskTitle": "大模型推理网关监控与成本分析台",
+  "styleId": "P3_editorial_craft_68w",
+  "styleLabel": "P3 · 68字出版物纸面 + 网格与舞台编排锚点",
+  "styleCharCount": 68,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 101.94,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 451,
+    "completion_tokens": 11272,
+    "total_tokens": 11723,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 33018,
+    "hasDarkBg": false,
+    "darkHexCount": 0,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 2,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": true,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  }
+}

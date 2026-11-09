@@ -1,0 +1,41 @@
+{
+  "runKey": "F2-codebase-atlas-studio__P3_editorial_craft_68w",
+  "taskId": "F2-codebase-atlas-studio",
+  "taskTitle": "本地代码库语义检索与架构图谱工作台",
+  "styleId": "P3_editorial_craft_68w",
+  "styleLabel": "P3 · 68字出版物纸面 + 网格与舞台编排锚点",
+  "styleCharCount": 68,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 145.77,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 419,
+    "completion_tokens": 16384,
+    "total_tokens": 16803,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 47735,
+    "hasDarkBg": false,
+    "darkHexCount": 0,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 4,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": true,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  }
+}

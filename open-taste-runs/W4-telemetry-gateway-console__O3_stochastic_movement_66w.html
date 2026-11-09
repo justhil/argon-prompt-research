@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYS.GATEWAY // 04 — 大模型推理网关遥测与成本分析台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Braun / Teenage Engineering / Swiss Grid Palette */
+    --bg-chassis: #E6E4DF;
+    --bg-panel: #F3F1EC;
+    --bg-surface: #FAF9F6;
+    --bg-well: #DCD9D0;
+    --bg-inverse: #181817;
+    
+    --ink-primary: #141413;
+    --ink-secondary: #5A5852;
+    --ink-muted: #8C8980;
+    --ink-on-dark: #F3F1EC;
+
+    --border-strong: #141413;
+    --border-hairline: #C7C4BB;
+    --border-subtle: #DFDDD6;
+
+    /* Industrial Signal Accents */
+    --sig-orange: #FF4F00; /* Braun / TE International Orange */
+    --sig-green: #007A4B;  /* Oscilloscope Phosphor / Ledger Green */
+    --sig-amber: #C87D00;  /* Warning Amber */
+    --sig-crimson: #C92A2A; /* Fault Crimson */
+    --sig-cobalt: #1D4ED8;  /* Technical Cobalt */
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-serif: 'Newsreader', Georgia, serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    background-color: var(--bg-chassis);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+  }
+
+  /* Subtle tactile dot grid on chassis */
+  body {
+    background-image: radial-gradient(var(--border-hairline) 0.75px, transparent 0.75px);
+    background-size: 12px 12px;
+    padding: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* Main Hardware Frame */
+  .console-frame {
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    background-color: var(--bg-panel);
+    border: 1.5px solid var(--border-strong);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  /* Corner Screw Marks */
+  .screw-bar {
+    height: 10px;
+    background-color: var(--bg-well);
+    border-bottom: 1px solid var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--ink-secondary);
+    letter-spacing: 0.1em;
+  }
+
+  /* Top Header Bar */
+  .header-bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    border-bottom: 1.5px solid var(--border-strong);
+    background-color: var(--bg-surface);
+  }
+
+  .brand-block {
+    padding: 12px 18px;
+    border-right: 1px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .model-badge {
+    background-color: var(--ink-primary);
+    color: var(--ink-on-dark);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 11px;
+    padding: 4px 8px;
+    letter-spacing: 0.06em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .model-badge::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: var(--sig-orange);
+  }
+
+  .brand-title {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brand-title h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  .brand-title span {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--ink-secondary);
+  }
+
+  .status-strip {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    overflow-x: auto;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .status-item strong {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+
+  .led {
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--border-strong);
+    display: inline-block;
+    position: relative;
+  }
+
+  .led.on-green { background-color: var(--sig-green); }
+  .led.on-orange { background-color: var(--sig-orange); }
+  .led.pulse {
+    animation: blink 1.6s steps(2, start) infinite;
+  }
+
+  @keyframes blink {
+    to { background-color: transparent; }
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    border-left: 1px solid var(--border-strong);
+  }
+
+  .clock-cell {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border-hairline);
+    text-align: right;
+  }
+
+  .clock-label {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .clock-val {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .hw-btn {
+    background: var(--bg-panel);
+    border: none;
+    border-left: 1px solid var(--border-hairline);
+    padding: 0 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    transition: background-color 0.1s;
+  }
+
+  .hw-btn:hover {
+    background: var(--bg-well);
+  }
+
+  .hw-btn:active {
+    background: var(--ink-primary);
+    color: var(--ink-on-dark);
+  }
+
+  .hw-btn.active-mode {
+    background: var(--sig-orange);
+    color: #FFF;
+  }
+
+  /* Section 1: 5 Key Summary Metrics */
+  .kpi-ribbon {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 1.5px solid var(--border-strong);
+    background-color: var(--bg-surface);
+  }
+
+  .kpi-cell {
+    padding: 14px 18px;
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    min-height: 108px;
+  }
+
+  .kpi-cell:last-child {
+    border-right: none;
+    background-color: var(--bg-panel);
+  }
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .kpi-code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .kpi-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-secondary);
+    margin-top: 1px;
+  }
+
+  .kpi-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-panel);
+    color: var(--ink-secondary);
+  }
+
+  .kpi-tag.good {
+    color: var(--sig-green);
+    border-color: var(--sig-green);
+    background: rgba(0, 122, 75, 0.06);
+  }
+
+  .kpi-tag.warn {
+    color: var(--sig-orange);
+    border-color: var(--sig-orange);
+    background: rgba(255, 79, 0, 0.06);
+  }
+
+  .kpi-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 4px 0 8px 0;
+  }
+
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink-primary);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .kpi-unit {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    margin-left: 4px;
+  }
+
+  .kpi-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    border-top: 1px dotted var(--border-hairline);
+    padding-top: 6px;
+  }
+
+  .sparkline-svg {
+    width: 68px;
+    height: 22px;
+    overflow: visible;
+  }
+
+  /* Main Workspace Grid */
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    flex: 1;
+  }
+
+  .left-column {
+    border-right: 1.5px solid var(--border-strong);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-surface);
+  }
+
+  /* Module Header */
+  .module-header {
+    padding: 10px 18px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .module-title-group {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .module-index {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sig-orange);
+  }
+
+  .module-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .module-subtitle {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--ink-secondary);
+  }
+
+  .module-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Module A: Latency Distribution Comparison */
+  .latency-module {
+    border-bottom: 1.5px solid var(--border-strong);
+    background-color: var(--bg-surface);
+    padding: 16px 18px;
+  }
+
+  .scale-ruler {
+    display: grid;
+    grid-template-columns: 185px 1fr 140px;
+    align-items: end;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-strong);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+
+  .ruler-ticks {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    padding: 0 2px;
+  }
+
+  .latency-rows {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .latency-row {
+    display: grid;
+    grid-template-columns: 185px 1fr 140px;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .latency-row:last-child {
+    border-bottom: none;
+  }
+
+  .model-id-cell {
+    padding-right: 12px;
+  }
+
+  .model-name-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .model-dot {
+    width: 7px;
+    height: 7px;
+    display: inline-block;
+  }
+
+  .model-provider {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  /* Box-and-Whisker / Percentile Track */
+  .distro-track {
+    position: relative;
+    height: 26px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    background-image: linear-gradient(to right, var(--border-subtle) 1px, transparent 1px);
+    background-size: 20% 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .sla-line {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 1px;
+    background-color: var(--sig-crimson);
+    z-index: 3;
+  }
+
+  .whisker-line {
+    position: absolute;
+    height: 1.5px;
+    background-color: var(--ink-primary);
+    z-index: 1;
+  }
+
+  .whisker-cap {
+    position: absolute;
+    width: 1.5px;
+    height: 9px;
+    background-color: var(--ink-primary);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .iqr-box {
+    position: absolute;
+    height: 14px;
+    border: 1px solid var(--ink-primary);
+    z-index: 2;
+    transition: left 0.35s ease, width 0.35s ease;
+  }
+
+  .p50-tick {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    width: 2.5px;
+    background-color: var(--ink-primary);
+    z-index: 4;
+    transition: left 0.35s ease;
+  }
+
+  .p99-marker {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border: 1.5px solid var(--sig-orange);
+    background-color: var(--bg-surface);
+    transform: translate(-50%, -50%) rotate(45deg);
+    top: 50%;
+    z-index: 4;
+    transition: left 0.35s ease;
+  }
+
+  .distro-stats {
+    padding-left: 14px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .stat-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-col span:first-child {
+    font-size: 9px;
+    color: var(--ink-muted);
+  }
+
+  .legend-bar {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  .legend-items {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Module B: Interactive Routing Faders & Cost Simulator */
+  .routing-module {
+    padding: 16px 18px;
+    background-color: var(--bg-panel);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .preset-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .preset-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .preset-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink-primary);
+    text-transform: uppercase;
+  }
+
+  .preset-btn:hover {
+    background: var(--bg-well);
+  }
+
+  .preset-btn.active {
+    background: var(--ink-primary);
+    color: var(--ink-on-dark);
+  }
+
+  .lock-hint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  /* Fader Bank */
+  .fader-bank {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .fader-row {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 175px 1fr 76px 100px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .fader-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fader-name {
+    font-weight: 600;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .fader-rate {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  /* Custom Hardware Linear Fader */
+  .fader-track-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 28px;
+  }
+
+  .fader-ticks {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 4px;
+    bottom: 4px;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--border-hairline) 0,
+      var(--border-hairline) 1px,
+      transparent 1px,
+      transparent 10%
+    );
+    pointer-events: none;
+  }
+
+  .fader-fill {
+    position: absolute;
+    left: 0;
+    height: 6px;
+    background-color: var(--ink-primary);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  input[type="range"].hw-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--bg-well);
+    border: 1px solid var(--border-strong);
+    outline: none;
+    position: relative;
+    z-index: 2;
+    cursor: ew-resize;
+  }
+
+  input[type="range"].hw-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 24px;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-strong);
+    cursor: ew-resize;
+    background-image: linear-gradient(
+      to right,
+      transparent 6px,
+      var(--sig-orange) 6px,
+      var(--sig-orange) 8px,
+      transparent 8px
+    );
+    box-shadow: 1px 1px 0 var(--border-strong);
+  }
+
+  input[type="range"].hw-slider::-moz-range-thumb {
+    width: 16px;
+    height: 24px;
+    border-radius: 0;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-strong);
+    cursor: ew-resize;
+    background-image: linear-gradient(
+      to right,
+      transparent 6px,
+      var(--sig-orange) 6px,
+      var(--sig-orange) 8px,
+      transparent 8px
+    );
+    box-shadow: 1px 1px 0 var(--border-strong);
+  }
+
+  .fader-pct-box {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .fader-cost-cell {
+    text-align: right;
+    font-family: var(--font-mono);
+  }
+
+  .fader-cost-val {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-primary);
+  }
+
+  .fader-cost-sub {
+    font-size: 9px;
+    color: var(--ink-muted);
+  }
+
+  /* Cost Readout Console */
+  .cost-readout-panel {
+    margin-top: 14px;
+    background-color: var(--bg-inverse);
+    color: var(--ink-on-dark);
+    border: 1.5px solid var(--border-strong);
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .readout-cell {
+    border-right: 1px solid #333330;
+    padding-right: 12px;
+  }
+
+  .readout-cell:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .readout-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: #9E9B93;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .readout-val {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 4px;
+    color: #FAF9F6;
+  }
+
+  .readout-val.accent-orange { color: #FF6B2B; }
+  .readout-val.accent-green { color: #34D399; }
+
+  .readout-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #8C8980;
+    margin-top: 2px;
+  }
+
+  /* Right Column: Live Request Trace Stream */
+  .trace-toolbar {
+    padding: 10px 18px;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .filter-tabs {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-panel);
+  }
+
+  .filter-tab {
+    border: none;
+    background: transparent;
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-tab:last-child {
+    border-right: none;
+  }
+
+  .filter-tab:hover {
+    background-color: var(--bg-well);
+    color: var(--ink-primary);
+  }
+
+  .filter-tab.active {
+    background-color: var(--ink-primary);
+    color: var(--ink-on-dark);
+    font-weight: 600;
+  }
+
+  .filter-count {
+    font-size: 10px;
+    opacity: 0.75;
+  }
+
+  .stream-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-input {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    padding: 5px 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-primary);
+    width: 150px;
+    outline: none;
+  }
+
+  .search-input:focus {
+    background: var(--bg-surface);
+    border-color: var(--sig-orange);
+  }
+
+  /* Trace Table */
+  .trace-table-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 555px;
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  table.trace-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  table.trace-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-panel);
+    color: var(--ink-secondary);
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-strong);
+    z-index: 2;
+  }
+
+  table.trace-table thead th.num-col,
+  table.trace-table tbody td.num-col {
+    text-align: right;
+  }
+
+  table.trace-table tbody tr {
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background-color 0.08s;
+  }
+
+  table.trace-table tbody tr:hover {
+    background-color: var(--bg-panel);
+  }
+
+  table.trace-table tbody tr.selected-row {
+    background-color: #EFECE4;
+    outline: 1px solid var(--border-strong);
+  }
+
+  table.trace-table tbody tr.flash-row {
+    animation: rowFlash 0.55s ease-out;
+  }
+
+  @keyframes rowFlash {
+    0% { background-color: rgba(255, 79, 0, 0.16); }
+    100% { background-color: transparent; }
+  }
+
+  table.trace-table tbody td {
+    padding: 7px 10px;
+    white-space: nowrap;
+    color: var(--ink-primary);
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid currentColor;
+    text-transform: uppercase;
+  }
+
+  .status-pill.st-ok {
+    color: var(--sig-green);
+    background-color: rgba(0, 122, 75, 0.06);
+  }
+
+  .status-pill.st-cache {
+    color: var(--sig-cobalt);
+    background-color: rgba(29, 78, 216, 0.06);
+  }
+
+  .status-pill.st-warn {
+    color: var(--sig-amber);
+    background-color: rgba(200, 125, 0, 0.08);
+  }
+
+  .status-pill.st-err {
+    color: var(--sig-crimson);
+    background-color: rgba(201, 42, 42, 0.08);
+  }
+
+  /* Trace Inspector Drawer at Bottom of Right Column */
+  .trace-inspector {
+    background-color: var(--bg-panel);
+    padding: 12px 18px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .inspector-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .inspector-main {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .inspector-kv {
+    display: flex;
+    gap: 14px;
+    color: var(--ink-secondary);
+  }
+
+  .inspector-kv strong {
+    color: var(--ink-primary);
+  }
+
+  .waterfall-bar {
+    height: 16px;
+    background: var(--bg-well);
+    border: 1px solid var(--border-strong);
+    display: flex;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .wf-seg-queue { background-color: var(--ink-muted); }
+  .wf-seg-ttft { background-color: var(--sig-orange); }
+  .wf-seg-decode { background-color: var(--sig-green); }
+
+  .wf-legend {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    margin-top: 4px;
+  }
+
+  /* Footer Bar */
+  .footer-bar {
+    border-top: 1.5px solid var(--border-strong);
+    background-color: var(--bg-panel);
+    padding: 8px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  @media (max-width: 1200px) {
+    .kpi-ribbon {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+    .left-column {
+      border-right: none;
+      border-bottom: 1.5px solid var(--border-strong);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="console-frame">
+  <!-- Hardware Chassis Top Rim -->
+  <div class="screw-bar">
+    <span>⊕ CHASSIS // TE-BRAUN-GRID-REV.4.2</span>
+    <span>CALIBRATED TELEMETRY INSTRUMENT — HIGH PRECISION TABULAR READOUT</span>
+    <span>SERIAL NO. GW-8841-TYO ⊕</span>
+  </div>
+
+  <!-- Top Header & Operational Status -->
+  <header class="header-bar">
+    <div class="brand-block">
+      <div class="model-badge">GW // 04</div>
+      <div class="brand-title">
+        <h1>LLM Inference Gateway &amp; Cost Console</h1>
+        <span>大模型推理网关实时遥测与路由成本分析仪</span>
+      </div>
+    </div>
+
+    <div class="status-strip">
+      <div class="status-item">
+        <span class="led on-green pulse" id="sysLed"></span>
+        <span>GATEWAY: <strong id="sysStateText">NOMINAL // 99.98% SLA</strong></span>
+      </div>
+      <div class="status-item">
+        <span>CLUSTER: <strong>AP-EAST-MULTI (3 AZ)</strong></span>
+      </div>
+      <div class="status-item">
+        <span>KV-CACHE POOL: <strong>REDIS-RDMA // 64.2 GB</strong></span>
+      </div>
+      <div class="status-item">
+        <span>GUARDRAILS: <strong>PII-MASK ACTIVE</strong></span>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="clock-cell">
+        <span class="clock-label">UTC / LOCAL SYNC</span>
+        <span class="clock-val num" id="utcClock">14:22:09.40</span>
+      </div>
+      <button class="hw-btn" id="btnSimSpike" title="模拟突发流量峰值">
+        <span>[!] BURST TEST</span>
+      </button>
+      <button class="hw-btn" id="btnToggleStream">
+        <span class="led on-orange" id="streamLed"></span>
+        <span id="streamBtnLabel">STREAM: LIVE</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 1. Top 5 Summary KPI Ribbon -->
+  <section class="kpi-ribbon">
+    <!-- Metric 01: Total Requests -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <div>
+          <div class="kpi-code">01 // INGRESS_VOL</div>
+          <div class="kpi-title">今日累计请求数</div>
+        </div>
+        <span class="kpi-tag good num" id="kpiReqRateTag">284 req/s</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value num" id="kpiTotalReq">4,892,104</span>
+          <span class="kpi-unit">reqs</span>
+        </div>
+        <svg class="sparkline-svg" viewBox="0 0 68 22">
+          <polyline id="sparkReq" fill="none" stroke="#141413" stroke-width="1.5" points="0,18 11,15 22,16 33,11 44,13 55,7 68,4"/>
+        </svg>
+      </div>
+      <div class="kpi-foot">
+        <span>2XX OK: <strong class="num">99.42%</strong></span>
+        <span>429 THROTTLE: <strong class="num">0.18%</strong></span>
+      </div>
+    </div>
+
+    <!-- Metric 02: Avg TTFT -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <div>
+          <div class="kpi-code">02 // MEAN_TTFT</div>
+          <div class="kpi-title">平均首字延迟 (TTFT)</div>
+        </div>
+        <span class="kpi-tag good num" id="kpiTtftBadge">SLA &lt; 350ms</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value num" id="kpiAvgTtft">214</span>
+          <span class="kpi-unit">ms</span>
+        </div>
+        <svg class="sparkline-svg" viewBox="0 0 68 22">
+          <line x1="0" y1="6" x2="68" y2="6" stroke="#C92A2A" stroke-width="0.75" stroke-dasharray="2,2"/>
+          <polyline id="sparkTtft" fill="none" stroke="#FF4F00" stroke-width="1.5" points="0,14 11,16 22,12 33,15 44,13 55,11 68,13"/>
+        </svg>
+      </div>
+      <div class="kpi-foot">
+        <span>P50: <strong class="num" id="kpiTtftP50">186 ms</strong></span>
+        <span>P99: <strong class="num" id="kpiTtftP99">468 ms</strong></span>
+      </div>
+    </div>
+
+    <!-- Metric 03: Streaming Throughput -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <div>
+          <div class="kpi-code">03 // STREAM_TPUT</div>
+          <div class="kpi-title">流式生成吞吐率</div>
+        </div>
+        <span class="kpi-tag num">PEAK 24.8k</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value num" id="kpiTput">19,420</span>
+          <span class="kpi-unit">tok/s</span>
+        </div>
+        <svg class="sparkline-svg" viewBox="0 0 68 22">
+          <polyline id="sparkTput" fill="none" stroke="#007A4B" stroke-width="1.5" points="0,15 11,12 22,14 33,9 44,10 55,6 68,8"/>
+        </svg>
+      </div>
+      <div class="kpi-foot">
+        <span>IN: <strong class="num" id="kpiInTput">14,180/s</strong></span>
+        <span>OUT: <strong class="num" id="kpiOutTput">5,240/s</strong></span>
+      </div>
+    </div>
+
+    <!-- Metric 04: Cache Hit Ratio -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <div>
+          <div class="kpi-code">04 // SEMANTIC_CACHE</div>
+          <div class="kpi-title">前缀与语义缓存命中率</div>
+        </div>
+        <span class="kpi-tag good num">+4.1% DoD</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value num" id="kpiCacheHit">38.4</span>
+          <span class="kpi-unit">%</span>
+        </div>
+        <svg class="sparkline-svg" viewBox="0 0 68 22">
+          <rect x="0" y="12" width="10" height="10" fill="#141413"/>
+          <rect x="14" y="9" width="10" height="13" fill="#141413"/>
+          <rect x="28" y="10" width="10" height="12" fill="#141413"/>
+          <rect x="42" y="6" width="10" height="16" fill="#141413"/>
+          <rect x="56" y="4" width="10" height="18" fill="#007A4B"/>
+        </svg>
+      </div>
+      <div class="kpi-foot">
+        <span>SAVED TODAY: <strong class="num" id="kpiCacheSaved">$1,128.40</strong></span>
+        <span>LAT: <strong class="num">14 ms</strong></span>
+      </div>
+    </div>
+
+    <!-- Metric 05: Today's Spend -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <div>
+          <div class="kpi-code">05 // LEDGER_ACCRUAL</div>
+          <div class="kpi-title">今日实时累计账单</div>
+        </div>
+        <span class="kpi-tag warn num" id="kpiBudgetPct">77.3% CAP</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value num" id="kpiTodayBill">$3,478.92</span>
+        </div>
+        <span class="num" style="font-size:11px;color:var(--sig-orange);font-weight:700;" id="kpiBurnRate">$148.20/hr</span>
+      </div>
+      <div class="kpi-foot">
+        <span>DAILY CAP: <strong class="num">$4,500.00</strong></span>
+        <span>EST EOD: <strong class="num" id="kpiEstEod">$3,556.80</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Middle Workspace: Left (Latency Distro + Routing Sliders) & Right (Live Trace Stream) -->
+  <main class="workspace-grid">
+    <!-- Left Column -->
+    <div class="left-column">
+      <!-- Module A: 4-Model Latency Distribution Comparison -->
+      <div class="module-header">
+        <div class="module-title-group">
+          <span class="module-index">A // 01</span>
+          <span class="module-title">主力模型首字延迟分布对比 (TTFT Quantile Distribution)</span>
+          <span class="module-subtitle">Box-Whisker P10 / P25–P75 / P50 / P99</span>
+        </div>
+        <div class="module-meta">
+          <span>WINDOW: <strong>ROLLING 5M</strong></span>
+          <span>SLA THRESHOLD: <strong style="color:var(--sig-crimson);">500 ms</strong></span>
+        </div>
+      </div>
+
+      <section class="latency-module">
+        <div class="scale-ruler">
+          <div>MODEL ENDPOINT // PROVIDER</div>
+          <div class="ruler-ticks">
+            <span>0 ms</span>
+            <span>150 ms</span>
+            <span>300 ms</span>
+            <span>450 ms</span>
+            <span>600 ms</span>
+            <span>750 ms</span>
+          </div>
+          <div style="text-align:right;">P50 / P95 / P99 (ms)</div>
+        </div>
+
+        <div class="latency-rows" id="latencyRowsContainer">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+        <div class="legend-bar">
+          <div class="legend-items">
+            <div class="legend-item">
+              <span style="display:inline-block;width:14px;height:8px;border:1px solid #141413;background:rgba(20,20,19,0.12);"></span>
+              <span>IQR (P25–P75 四分位距)</span>
+            </div>
+            <div class="legend-item">
+              <span style="display:inline-block;width:3px;height:11px;background:#141413;"></span>
+              <span>P50 中位值</span>
+            </div>
+            <div class="legend-item">
+              <span style="display:inline-block;width:6px;height:6px;border:1.5px solid var(--sig-orange);transform:rotate(45deg);"></span>
+              <span>P99 尾部极值</span>
+            </div>
+            <div class="legend-item">
+              <span style="display:inline-block;width:10px;height:1.5px;background:var(--sig-crimson);"></span>
+              <span>SLA 告警红线 (500ms)</span>
+            </div>
+          </div>
+          <span class="num" id="weightedLatSummary">加权期望 TTFT: 214 ms</span>
+        </div>
+      </section>
+
+      <!-- Module B: Traffic Routing Weight Sliders & Real-Time Cost Recalculation -->
+      <div class="module-header">
+        <div class="module-title-group">
+          <span class="module-index">B // 02</span>
+          <span class="module-title">动态流量路由权重矩阵与成本推演器 (Routing Faders)</span>
+        </div>
+        <div class="module-meta">
+          <span>NORMALIZATION: <strong>AUTO-COUPLED 100%</strong></span>
+        </div>
+      </div>
+
+      <section class="routing-module">
+        <div>
+          <div class="preset-strip">
+            <div class="preset-group">
+              <button class="preset-btn active" data-preset="production">PRESET 01 // 生产均衡</button>
+              <button class="preset-btn" data-preset="cost">PRESET 02 // 极致降本</button>
+              <button class="preset-btn" data-preset="latency">PRESET 03 // 极速低延迟</button>
+              <button class="preset-btn" data-preset="quality">PRESET 04 // 旗舰推理优先</button>
+            </div>
+            <span class="lock-hint">拖动任一推子将实时联动归一化其余模型权重并重算账单</span>
+          </div>
+
+          <div class="fader-bank" id="faderBankContainer">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+
+        <!-- Real-Time Cost Projection Console -->
+        <div class="cost-readout-panel">
+          <div class="readout-cell">
+            <div class="readout-label">加权平均单价 (BLENDED)</div>
+            <div class="readout-val num" id="simBlendedRate">$2.46</div>
+            <div class="readout-sub num">per 1M blended tokens</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-label">小时级燃烧率 (HOURLY)</div>
+            <div class="readout-val accent-orange num" id="simHourlyBurn">$148.20 /h</div>
+            <div class="readout-sub num" id="simReqPerSec">基于当前 284 req/s 负载</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-label">预计今日收盘账单 (EOD)</div>
+            <div class="readout-val num" id="simProjectedDaily">$3,556.80</div>
+            <div class="readout-sub num" id="simExpectedTtft">路由期望 TTFT: 214 ms</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-label">较全量旗舰方案节省</div>
+            <div class="readout-val accent-green num" id="simSavingsDelta">-$2,840.10 /d</div>
+            <div class="readout-sub num" id="simSavingsPct">成本削减率 44.4%</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Column: Real-Time Request Trace Stream -->
+    <div class="right-column">
+      <div class="module-header">
+        <div class="module-title-group">
+          <span class="module-index">C // 03</span>
+          <span class="module-title">实时推理请求追踪流 (Live Telemetry Trace Stream)</span>
+        </div>
+        <div class="module-meta">
+          <span>RING BUFFER: <strong class="num" id="traceBufferCount">48 / 100</strong></span>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="trace-toolbar">
+        <div class="filter-tabs" id="traceFilterTabs">
+          <button class="filter-tab active" data-filter="ALL">
+            <span>ALL 全部</span>
+            <span class="filter-count num" id="cntAll">0</span>
+          </button>
+          <button class="filter-tab" data-filter="200_OK">
+            <span>200 流式正常</span>
+            <span class="filter-count num" id="cntOk">0</span>
+          </button>
+          <button class="filter-tab" data-filter="CACHE_HIT">
+            <span>CACHE 缓存命中</span>
+            <span class="filter-count num" id="cntCache">0</span>
+          </button>
+          <button class="filter-tab" data-filter="FALLBACK">
+            <span>FALLBACK 降级重试</span>
+            <span class="filter-count num" id="cntWarn">0</span>
+          </button>
+          <button class="filter-tab" data-filter="429_RATE">
+            <span>429 限流/异常</span>
+            <span class="filter-count num" id="cntErr">0</span>
+          </button>
+        </div>
+
+        <div class="stream-actions">
+          <input type="text" class="search-input" id="traceSearchInput" placeholder="筛选 TraceID / 模型...">
+        </div>
+      </div>
+
+      <!-- Trace Table -->
+      <div class="trace-table-container">
+        <table class="trace-table">
+          <thead>
+            <tr>
+              <th>TIME (UTC)</th>
+              <th>TRACE ID</th>
+              <th>ROUTED MODEL</th>
+              <th>STATUS</th>
+              <th class="num-col">IN / OUT TOK</th>
+              <th class="num-col">TTFT</th>
+              <th class="num-col">TPUT</th>
+              <th class="num-col">COST (USD)</th>
+            </tr>
+          </thead>
+          <tbody id="traceTableBody">
+            <!-- Populated dynamically by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Trace Inspector -->
+      <div class="trace-inspector">
+        <div class="inspector-main">
+          <div class="inspector-title">SELECTED TRACE DIAGNOSTIC // 请求链路剖析</div>
+          <div class="inspector-kv">
+            <span>TRACE: <strong class="num" id="inspTraceId">tr-9084f2a1</strong></span>
+            <span>ROUTE: <strong class="num" id="inspModel">claude-3-7-sonnet</strong></span>
+            <span>ROUTE REASON: <strong class="num" id="inspReason">WEIGHTED_HASH_PRIMARY</strong></span>
+          </div>
+          <div class="inspector-kv">
+            <span>PROMPT HASH: <strong class="num" id="inspHash">sha256:7f83b165...</strong></span>
+            <span>TOKENS: <strong class="num" id="inspTokens">1,420 in → 386 out</strong></span>
+            <span>UNIT COST: <strong class="num" id="inspCost">$0.010050</strong></span>
+          </div>
+        </div>
+
+        <div>
+          <div class="inspector-title">LATENCY WATERFALL // 耗时分解</div>
+          <div class="waterfall-bar">
+            <div class="wf-seg-queue" id="wfQueue" style="width: 8%;"></div>
+            <div class="wf-seg-ttft" id="wfTtft" style="width: 32%;"></div>
+            <div class="wf-seg-decode" id="wfDecode" style="width: 60%;"></div>
+          </div>
+          <div class="wf-legend num">
+            <span>QUEUE: <strong id="wfQueueMs">14ms</strong></span>
+            <span style="color:var(--sig-orange);">PREFILL (TTFT): <strong id="wfTtftMs">218ms</strong></span>
+            <span style="color:var(--sig-green);">DECODE: <strong id="wfDecodeMs">412ms</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-bar">
+    <div>SYS_KERNEL: <strong>RUST-TOKIO-PROXY v2.14.0</strong> // ZERO-COPY SSE STREAMING ENABLED</div>
+    <div>PRICING LEDGER SYNCED: <strong>2025-Q2 ENTERPRISE CONTRACT TIER-3</strong></div>
+    <div>LATENCY SCALE: <strong>0–750ms LINEAR</strong> // COST PRECISION: <strong>10⁻⁶ USD</strong></div>
+  </footer>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // =========================================================================
+  // 1. PRIMARY MODEL DEFINITIONS & TELEMETRY BASELINES
+  // =========================================================================
+  const MODELS = [
+    {
+      id: 'claude-3-7-sonnet',
+      name: 'Claude 3.7 Sonnet',
+      provider: 'ANTHROPIC // US-WEST',
+      color: '#FF4F00',
+      weight: 35,
+      inPrice: 3.00,   // USD per 1M input tokens
+      outPrice: 15.00, // USD per 1M output tokens
+      tputBase: 78,    // tok/s per stream
+      latency: { p10: 145, p25: 185, p50: 238, p75: 310, p90: 395, p95: 432, p99: 520 }
+    },
+    {
+      id: 'gpt-4o-2024-11',
+      name: 'GPT-4o (Prod-1120)',
+      provider: 'OPENAI // AZURE-EAST',
+      color: '#141413',
+      weight: 30,
+      inPrice: 2.50,
+      outPrice: 10.00,
+      tputBase: 94,
+      latency: { p10: 120, p25: 158, p50: 204, p75: 265, p90: 340, p95: 378, p99: 460 }
+    },
+    {
+      id: 'deepseek-v3-fp8',
+      name: 'DeepSeek-V3 (FP8)',
+      provider: 'SELF-HOST // H800-NVLINK',
+      color: '#1D4ED8',
+      weight: 25,
+      inPrice: 0.27,
+      outPrice: 1.10,
+      tputBase: 64,
+      latency: { p10: 165, p25: 210, p50: 276, p75: 355, p90: 448, p95: 492, p99: 615 }
+    },
+    {
+      id: 'qwen-2.5-72b-inst',
+      name: 'Qwen-2.5-72B-Instruct',
+      provider: 'vLLM // SGLANG-LOCAL',
+      color: '#007A4B',
+      weight: 10,
+      inPrice: 0.35,
+      outPrice: 0.90,
+      tputBase: 118,
+      latency: { p10: 78, p25: 104, p50: 136, p75: 182, p90: 235, p95: 268, p99: 335 }
+    }
+  ];
+
+  const PRESETS = {
+    production: [35, 30, 25, 10],
+    cost:       [8,  10, 52, 30],
+    latency:    [15, 35, 5,  45],
+    quality:    [55, 35, 8,  2]
+  };
+
+  // Global Gateway State
+  const state = {
+    totalRequests: 4892104,
+    reqPerSec: 284,
+    cacheHitRate: 38.4,
+    todayBill: 3478.92,
+    hourlyBurn: 148.20,
+    streamRunning: true,
+    burstMode: false,
+    activeFilter: 'ALL',
+    searchQuery: '',
+    selectedTraceId: null,
+    traces: [],
+    sparkHistory: {
+      req: [18, 15, 16, 11, 13, 7, 4],
+      ttft: [14, 16, 12, 15, 13, 11, 13],
+      tput: [15, 12, 14, 9, 10, 6, 8]
+    }
+  };
+
+  const MAX_LATENCY_SCALE = 750; // ms for 100% width
+
+  // =========================================================================
+  // 2. RENDER MODULE A: 4-MODEL LATENCY DISTRIBUTION
+  // =========================================================================
+  const latencyRowsContainer = document.getElementById('latencyRowsContainer');
+
+  function renderLatencyDistribution() {
+    latencyRowsContainer.innerHTML = '';
+    const slaPct = (500 / MAX_LATENCY_SCALE) * 100;
+
+    MODELS.forEach((m) => {
+      const l = m.latency;
+      const p10Left = Math.min(98, (l.p10 / MAX_LATENCY_SCALE) * 100);
+      const p90Left = Math.min(98, (l.p90 / MAX_LATENCY_SCALE) * 100);
+      const whiskerWidth = Math.max(1, p90Left - p10Left);
+
+      const p25Left = Math.min(98, (l.p25 / MAX_LATENCY_SCALE) * 100);
+      const p75Left = Math.min(98, (l.p75 / MAX_LATENCY_SCALE) * 100);
+      const iqrWidth = Math.max(2, p75Left - p25Left);
+
+      const p50Left = Math.min(98, (l.p50 / MAX_LATENCY_SCALE) * 100);
+      const p99Left = Math.min(98, (l.p99 / MAX_LATENCY_SCALE) * 100);
+
+      const row = document.createElement('div');
+      row.className = 'latency-row';
+      row.innerHTML = `
+        <div class="model-id-cell">
+          <div class="model-name-line">
+            <span class="model-dot" style="background:${m.color}"></span>
+            <span>${m.name}</span>
+          </div>
+          <div class="model-provider">${m.provider} // W:${Math.round(m.weight)}%</div>
+        </div>
+
+        <div class="distro-track">
+          <div class="sla-line" style="left:${slaPct}%" title="SLA 500ms"></div>
+          <div class="whisker-line" style="left:${p10Left}%; width:${whiskerWidth}%;">
+            <span class="whisker-cap" style="left:0"></span>
+            <span class="whisker-cap" style="right:0"></span>
+          </div>
+          <div class="iqr-box" style="left:${p25Left}%; width:${iqrWidth}%; background:${ hexToRgba(m.color, 0.18) }; border-color:${m.color};"></div>
+          <div class="p50-tick" style="left:${p50Left}%; background:${m.color};" title="P50: ${l.p50}ms"></div>
+          <div class="p99-marker" style="left:${p99Left}%; border-color:${l.p99 > 500 ? 'var(--sig-crimson)' : 'var(--sig-orange)'};" title="P99: ${l.p99}ms"></div>
+        </div>
+
+        <div class="distro-stats num">
+          <div class="stat-col">
+            <span>P50</span>
+            <strong>${l.p50}</strong>
+          </div>
+          <div class="stat-col">
+            <span>P95</span>
+            <span>${l.p95}</span>
+          </div>
+          <div class="stat-col">
+            <span>P99</span>
+            <strong style="color:${l.p99 > 500 ? 'var(--sig-crimson)' : 'var(--ink-primary)'}">${l.p99}</strong>
+          </div>
+        </div>
+      `;
+      latencyRowsContainer.appendChild(row);
+    });
+  }
+
+  function hexToRgba(hex, alpha) {
+    const clean = hex.replace('#', '');
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  // =========================================================================
+  // 3. RENDER MODULE B: ROUTING WEIGHT FADERS & REAL-TIME COST ENGINE
+  // =========================================================================
+  const faderBankContainer = document.getElementById('faderBankContainer');
+
+  function buildFaderBank() {
+    faderBankContainer.innerHTML = '';
+    MODELS.forEach((m, idx) => {
+      const row = document.createElement('div');
+      row.className = 'fader-row';
+      row.innerHTML = `
+        <div class="fader-info">
+          <div class="fader-name">
+            <span class="model-dot" style="background:${m.color}"></span>
+            <span>${m.name}</span>
+          </div>
+          <div class="fader-rate num">$${m.inPrice.toFixed(2)} in / $${m.outPrice.toFixed(2)} out (1M)</div>
+        </div>
+
+        <div class="fader-track-wrap">
+          <div class="fader-ticks"></div>
+          <div class="fader-fill" id="faderFill_${idx}" style="width:${m.weight}%; background:${m.color}"></div>
+          <input type="range" min="0" max="100" step="1" value="${m.weight}" class="hw-slider" id="faderInput_${idx}" data-idx="${idx}">
+        </div>
+
+        <div class="fader-pct-box num" id="faderPct_${idx}">${Math.round(m.weight)}%</div>
+
+        <div class="fader-cost-cell num">
+          <div class="fader-cost-val" id="faderCost_${idx}">$0.00/h</div>
+          <div class="fader-cost-sub" id="faderRps_${idx}">0 req/s</div>
+        </div>
+      `;

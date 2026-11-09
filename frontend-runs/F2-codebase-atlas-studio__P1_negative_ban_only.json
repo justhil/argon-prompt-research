@@ -1,0 +1,44 @@
+{
+  "runKey": "F2-codebase-atlas-studio__P1_negative_ban_only",
+  "taskId": "F2-codebase-atlas-studio",
+  "taskTitle": "本地代码库语义检索与架构图谱工作台",
+  "styleId": "P1_negative_ban_only",
+  "styleLabel": "P1 · 18字纯反向禁令 (\"别用暗黑风，用浅色\")",
+  "styleCharCount": 18,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 126.11,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 337,
+    "completion_tokens": 16384,
+    "total_tokens": 16721,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 51510,
+    "hasDarkBg": false,
+    "darkHexCount": 5,
+    "neonColorHits": 2,
+    "neonColorSamples": [
+      "#7c3aed",
+      "#3b82f6"
+    ],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 2,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": true,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 0
+  }
+}

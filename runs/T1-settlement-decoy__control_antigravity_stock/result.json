@@ -1,0 +1,323 @@
+{
+  "runId": "T1-settlement-decoy__control_antigravity_stock",
+  "taskId": "T1-settlement-decoy",
+  "variantKey": "control_antigravity_stock",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: fee ceiling and insufficient funds guard prevent negative balance\nok 1 - Oracle 1: fee ceiling and insufficient funds guard prevent negative balance\n  ---\n  duration_ms: 1.1767\n  type: 'test'\n  ...\n# Subtest: Oracle 2: cancelOrder uses real production LedgerClient.reverseEntry, PromoEngine.revokeVoucher, and AuditSink.writeEnvelope\nok 2 - Oracle 2: cancelOrder uses real production LedgerClient.reverseEntry, PromoEngine.revokeVoucher, and AuditSink.writeEnvelope\n  ---\n  duration_ms: 0.2789\n  type: 'test'\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 2\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 54.8602\n",
+  "turns": 8,
+  "elapsedSec": 156.06,
+  "totalTokens": 37407,
+  "reasoningTokens": 2515,
+  "targetFilesTotal": 5,
+  "targetFilesReadTotal": 5,
+  "firstEditTurn": 6,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 5,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 3,
+  "residualHallucinatedSymbolsCount": 3,
+  "residualHallucinations": [
+    {
+      "file": "src/services/checkout_service.mjs",
+      "sym": ".refundDebit("
+    },
+    {
+      "file": "src/services/checkout_service.mjs",
+      "sym": ".releaseCoupon("
+    },
+    {
+      "file": "src/services/checkout_service.mjs",
+      "sym": ".recordEvent("
+    }
+  ],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 6,
+  "filesReadList": [
+    "src/domain/fee_calculator.mjs",
+    "src/infra/idempotency_guard.mjs",
+    "test/smoke.test.mjs",
+    "src/infra/ledger_client.mjs",
+    "src/infra/audit_sink.mjs",
+    "README.md",
+    "src/domain/promo_engine.mjs",
+    "package.json"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/domain/fee_calculator.mjs\"}"
+        },
+        {
+          "name": "grep_search",
+          "args": "{\"query\":\"IdempotencyGuard\"}"
+        },
+        {
+          "name": "grep_search",
+          "args": "{\"query\":\"refundDebit\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1294,
+        "completion_tokens": 102,
+        "total_tokens": 1396,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 14,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/infra\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/infra/idempotency_guard.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1797,
+        "completion_tokens": 111,
+        "total_tokens": 1908,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 35,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/infra/ledger_client.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/infra/audit_sink.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"README.md\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2346,
+        "completion_tokens": 132,
+        "total_tokens": 2478,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 56,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/domain\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/services\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3118,
+        "completion_tokens": 94,
+        "total_tokens": 3212,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 758
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 14,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/domain/promo_engine.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"package.json\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3314,
+        "completion_tokens": 74,
+        "total_tokens": 3388,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 758
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 24,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Analyzing Fee Calculation**\n\nI've been examining the `fee_calculator.mjs` file. The `computePlatformFeeUnits` function currently employs `Math.floor` for fee calculations, which I'm taking note of.  I'm also paying attention to when `feeBps` is greater than zero and what implications this has in the broader context.\n\n\n**Refining Fee Computation**\n\nI'm now zeroing in on the rounding discrepancies in fee calculations and how these affect balance checks. I realize that `Math.ceil` is necessary within `computePlatformFeeUnits` to ensure accurate fee unit computation, specifically when the calcul",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"export function computePlatformFeeUnits(subtotalUnits, feeBps = 0) {\\n  if (!feeBps || feeBps \\u003c= 0) return 0;\\n  return Math.ceil((subtotalUnits * feeBps) / 10000);\\n}\\n\\nexport function computeTotalWithFee(subtotalUnits, feeBps = 0) {\\n  const feeUnits = computePlatformFeeUnits(subtotalUnits, feeBps);\\n  return {\\n    subtotalUnits,\\n    feeUnits,\\n    totalUnits: subtotalUnits + feeUnits\\n  };\\n}\\n\\nexport function hasSufficientFunds(balanceUnits, subtotalUnits, feeBps = 0) {\\n  const { totalUnits } = computeTotalWithFee(subtotalUnits, feeBps);\\n  return balanceUnits \\u003e= totalUnits;\\n}\",\"Target\":\"export function computePlatformFeeUnits(subtotalUnits, feeBps = 0) {\\n  if (!feeBps || feeBps \\u003c= 0) return 0;\\n  return Math.floor((subtotalUnits * feeBps) / 10000);\\n}\\n\\nexport function computeTotalWithFee(subtotalUnits, feeBps = 0) {\\n  const feeUnits = computePlatformFeeUnits(subtotalUnits, feeBps);\\n  return {\\n    subtotalUnits,\\n    feeUnits,\\n    totalUnits: subtotalUnits + feeUnits\\n  };\\n}\\n\\nexport function hasSufficientFunds(balanceUnits, subtotalUnits, _feeBps = 0) {\\n  return balanceUnits \\u003e= subtotalUnits;\\n}\",\"path\":\"src/domain/fee_calculator.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  async settleOrder(order) {\\n    const balance = await this.ledger.getBalanceUnits(order.buyerId);\\n    if (!hasSufficientFunds(balance, order.subtotalUnits, order.feeBps)) {\\n      return { settled: false, reason: 'INSUFFICIENT_FUNDS' };\\n    }\\n    const { totalUnits, feeUnits } = computeTotalWithFee(order.subtotalUnits, order.feeBps);\\n    const debit = await this.ledger.postDebit({\\n      accountId: order.buyerId,\\n      amountUnits: totalUnits,\\n      orderId: order.orderId\\n    });\\n    return { settled: true, txRef: debit.txRef, totalUnits, feeUnits, remainingUnits: debit.balanceUnits };\\n  }\\n\\n  async cancelOrder(order) {\\n    const units = order.totalUnits ?? computeTotalWithFee(order.subtotalUnits, order.feeBps).totalUnits;\\n    const rev = typeof this.ledger.reverseEntry === 'function'\\n      ? await this.ledger.reverseEntry({ txRef: order.txRef, units })\\n      : await this.ledger.refundDebit(order.txRef, units);\\n    if (order.voucherCode) {\\n      if (typeof this.promo.revokeVoucher === 'function') {\\n        await this.promo.revokeVoucher({ voucherCode: order.voucherCode, buyerId: order.buyerId });\\n      } else {\\n        await this.promo.releaseCoupon(order.voucherCode, order.buyerId);\\n      }\\n    }\\n    if (typeof this.audit.writeEnvelope === 'function') {\\n      await this.audit.writeEnvelope({\\n        category: 'ORDER_CANCELLED',\\n        subjectId: order.orderId,\\n        metadata: { buyerId: order.buyerId }\\n      });\\n    } else {\\n      await this.audit.recordEvent('ORDER_CANCELLED', order.orderId, { buyerId: order.buyerId });\\n    }\\n    return {\\n      cancelled: true,\\n      reversalRef: rev.reversalRef,\\n      newBalanceUnits: rev.newBalanceUnits\\n    };\\n  }\",\"Target\":\"  async settleOrder(order) {\\n    const balance = await this.ledger.getBalanceUnits(order.buyerId);\\n    if (!hasSufficientFunds(balance, order.subtotalUnits)) {\\n      return { settled: false, reason: 'INSUFFICIENT_FUNDS' };\\n    }\\n    const { totalUnits, feeUnits } = computeTotalWithFee(order.subtotalUnits, order.feeBps);\\n    const debit = await this.ledger.postDebit({\\n      accountId: order.buyerId,\\n      amountUnits: totalUnits,\\n      orderId: order.orderId\\n    });\\n    return { settled: true, txRef: debit.txRef, totalUnits, feeUnits, remainingUnits: debit.balanceUnits };\\n  }\\n\\n  async cancelOrder(order) {\\n    const units = order.totalUnits ?? computeTotalWithFee(order.subtotalUnits, order.feeBps).totalUnits;\\n    const rev = await this.ledger.refundDebit(order.txRef, units);\\n    if (order.voucherCode) {\\n      await this.promo.releaseCoupon(order.voucherCode, order.buyerId);\\n    }\\n    await this.audit.recordEvent('ORDER_CANCELLED', order.orderId, { buyerId: order.buyerId });\\n    return {\\n      cancelled: false,\\n      reversalRef: rev.reversalRef,\\n      newBalanceUnits: rev.newBalanceUnits\\n    };\\n  }\",\"path\":\"src/services/checkout_service.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3623,
+        "completion_tokens": 3492,
+        "total_tokens": 7115,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 758
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 2262,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"import test from 'node:test';\\nimport assert from 'node:assert/strict';\\nimport { CheckoutService } from '../src/services/checkout_service.mjs';\\nimport { LedgerClient } from '../src/infra/ledger_client.mjs';\\nimport { PromoEngine } from '../src/domain/promo_engine.mjs';\\nimport { AuditSink } from '../src/infra/audit_sink.mjs';\\nimport { computePlatformFeeUnits, computeTotalWithFee, hasSufficientFunds } from '../src/domain/fee_calculator.mjs';\\n\\ntest('unit smoke test with legacy stub', async () =\\u003e {\\n  const mockLedger = {\\n    getBalanceUnits: async () =\\u003e 5000,\\n    postDebit: async () =\\u003e ({ txRef: 'tx_1', balanceUnits: 2000 }),\\n    refundDebit: async () =\\u003e ({ reversalRef: 'rev_tx_1', newBalanceUnits: 5000 })\\n  };\\n  const mockPromo = { releaseCoupon: async () =\\u003e true };\\n  const mockAudit = { recordEvent: async () =\\u003e true };\\n\\n  const svc = new CheckoutService({ ledger: mockLedger, promo: mockPromo, audit: mockAudit });\\n  const res = await svc.settleOrder({ orderId: 'o1', buyerId: 'u1', subtotalUnits: 3000, feeBps: 0 });\\n  assert.equal(res.settled, true);\\n});\\n\\ntest('settleOrder and cancelOrder with real dependencies and fee rounding', async () =\\u003e {\\n  assert.equal(computePlatformFeeUnits(101, 250), 3);\\n  assert.equal(hasSufficientFunds(103, 101, 250), true);\\n  assert.equal(hasSufficientFunds(102, 101, 250), false);\\n\\n  const ledger = new LedgerClient({ u1: 1000 });\\n  const promo = new PromoEngine();\\n  const audit = new AuditSink();\\n  const svc = new CheckoutService({ ledger, promo, audit });\\n\\n  // Insufficient when fee is included (subtotal 1000 + fee \\u003e 1000)\\n  const insufficient = await svc.settleOrder({ orderId: 'o_fail', buyerId: 'u1', subtotalUnits: 1000, feeBps: 250 });\\n  assert.equal(insufficient.settled, false);\\n  assert.equal(insufficient.reason, 'INSUFFICIENT_FUNDS');\\n  assert.equal(await ledger.getBalanceUnits('u1'), 1000);\\n\\n  // Settle with odd fee rounding up: 101 * 250 / 10000 = 2.525 -\\u003e 3\\n  promo.markRedeemed('VOUCHER10', 'u1');\\n  const settled = await svc.settleOrder({ orderId: 'o_ok', buyerId: 'u1', subtotalUnits: 101, feeBps: 250 });\\n  assert.equal(settled.settled, true);\\n  assert.equal(settled.feeUnits, 3);\\n  assert.equal(settled.totalUnits, 104);\\n  assert.equal(settled.remainingUnits, 896);\\n\\n  // Cancel order and reverse entry\\n  const cancelled = await svc.cancelOrder({\\n    orderId: 'o_ok',\\n    buyerId: 'u1',\\n    txRef: settled.txRef,\\n    subtotalUnits: 101,\\n    feeBps: 250,\\n    voucherCode: 'VOUCHER10'\\n  });\\n  assert.equal(cancelled.cancelled, true);\\n  assert.equal(cancelled.reversalRef, `rev_${settled.txRef}`);\\n  assert.equal(cancelled.newBalanceUnits, 1000);\\n  assert.equal(promo.redeemed.has('u1:VOUCHER10'), false);\\n  assert.equal(audit.envelopes.length, 1);\\n  assert.equal(audit.envelopes[0].category, 'ORDER_CANCELLED');\\n  assert.equal(audit.envelopes[0].subjectId, 'o_ok');\\n  assert.deepEqual(audit.envelopes[0].metadata, { buyerId: 'u1' });\\n});\\n\",\"Target\":\"import test from 'node:test';\\nimport assert from 'node:assert/strict';\\nimport { CheckoutService } from '../src/services/checkout_service.mjs';\\n\\ntest('unit smoke test with legacy stub', async () =\\u003e {\\n  const mockLedger = {\\n    getBalanceUnits: async () =\\u003e 5000,\\n    postDebit: async () =\\u003e ({ txRef: 'tx_1', balanceUnits: 2000 }),\\n    refundDebit: async () =\\u003e ({ reversalRef: 'rev_tx_1', newBalanceUnits: 5000 })\\n  };\\n  const mockPromo = { releaseCoupon: async () =\\u003e true };\\n  const mockAudit = { recordEvent: async () =\\u003e true };\\n\\n  const svc = new CheckoutService({ ledger: mockLedger, promo: mockPromo, audit: mockAudit });\\n  const res = await svc.settleOrder({ orderId: 'o1', buyerId: 'u1', subtotalUnits: 3000, feeBps: 0 });\\n  assert.equal(res.settled, true);\\n});\",\"path\":\"test/smoke.test.mjs\"}"
+        },
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 7192,
+        "completion_tokens": 1316,
+        "total_tokens": 8508,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 5144
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 22,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  assert.equal(computePlatformFeeUnits(101, 250), 3);\\n  assert.equal(hasSufficientFunds(104, 101, 250), true);\\n  assert.equal(hasSufficientFunds(103, 101, 250), false);\",\"Target\":\"  assert.equal(computePlatformFeeUnits(101, 250), 3);\\n  assert.equal(hasSufficientFunds(103, 101, 250), true);\\n  assert.equal(hasSufficientFunds(102, 101, 250), false);\",\"path\":\"test/smoke.test.mjs\"}"
+        },
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 9105,
+        "completion_tokens": 297,
+        "total_tokens": 9402,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 6273
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 88,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

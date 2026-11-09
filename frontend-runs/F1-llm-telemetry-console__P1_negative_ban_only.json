@@ -1,0 +1,43 @@
+{
+  "runKey": "F1-llm-telemetry-console__P1_negative_ban_only",
+  "taskId": "F1-llm-telemetry-console",
+  "taskTitle": "大模型推理网关监控与成本分析台",
+  "styleId": "P1_negative_ban_only",
+  "styleLabel": "P1 · 18字纯反向禁令 (\"别用暗黑风，用浅色\")",
+  "styleCharCount": 18,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 134.29,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 369,
+    "completion_tokens": 15242,
+    "total_tokens": 15611,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 44810,
+    "hasDarkBg": true,
+    "darkHexCount": 8,
+    "neonColorHits": 3,
+    "neonColorSamples": [
+      "#7c3aed"
+    ],
+    "linearGradientCount": 1,
+    "neonGlowShadowCount": 1,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 54
+  }
+}

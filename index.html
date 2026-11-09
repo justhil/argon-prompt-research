@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini 4 Argon 编码幻觉、开放式前端审美与防偷懒完成度实证研究总览</title>
+  <link rel="stylesheet" href="assets/editorial.css" />
+  <style>
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 22px;
+    }
+    .portal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      transition: transform 240ms var(--ease-out), box-shadow 240ms ease, background-color 240ms ease;
+    }
+    .portal-card:hover {
+      transform: translate3d(0, -4px, 0);
+      background: var(--bg-white-soft);
+      box-shadow: 0 14px 32px rgba(20, 20, 19, 0.08);
+    }
+    .portal-title {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 8px;
+      line-height: 1.32;
+    }
+    .portal-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line-soft);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+    .env-spec-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .env-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line-soft);
+      border-radius: 11px;
+      padding: 15px 17px;
+      transition: transform 200ms var(--ease-out), border-color 200ms ease;
+    }
+    .env-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--line-strong);
+    }
+    .env-card h4 {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-main);
+      margin-bottom: 6px;
+    }
+    .env-card p {
+      font-size: 13px;
+      color: var(--ink-body);
+      line-height: 1.58;
+    }
+    .swatch-strip {
+      display: flex;
+      gap: 4px;
+      margin-top: 5px;
+    }
+    .swatch-chip {
+      height: 12px;
+      flex: 1;
+      border-radius: 3px;
+      border: 1px solid rgba(20, 20, 19, 0.18);
+    }
+    .dual-ledger-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 18px;
+    }
+    @media (max-width: 1060px) {
+      .portal-grid, .env-spec-grid, .dual-ledger-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Global Top Navigation Bar + Scroll Progress Ribbon -->
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="brand-group">
+        <span class="brand-dot"></span>
+        <span class="brand-title">Gemini 4 Argon 实证研究实验室</span>
+        <span class="brand-sub">171 Total Runs · All Batches Preserved</span>
+      </div>
+      <nav class="nav-pills">
+        <a class="nav-pill active" href="index.html"><span class="pill-num">00</span>总览与三大舞台</a>
+        <a class="nav-pill" href="lab-hallucination.html"><span class="pill-num">01</span>编码幻觉子页 (32+72场)</a>
+        <a class="nav-pill" href="lab-aesthetics.html"><span class="pill-num">02</span>前端审美子页 (12+22场)</a>
+        <a class="nav-pill" href="lab-completeness.html"><span class="pill-num">03</span>防偷懒完成度子页 (33场)</a>
+      </nav>
+    </div>
+    <div class="scroll-progress-track">
+      <div class="scroll-progress-bar" id="global-progress-bar"></div>
+    </div>
+  </header>
+
+  <!-- Floating Bottom Chapter Pill -->
+  <div class="floating-chapter-pill">
+    <span class="floating-chapter-dot"></span>
+    <span id="floating-chapter-text">研究总览与实验环境 · 0%</span>
+  </div>
+
+  <main class="page-wrap">
+    <!-- Split Hero Section -->
+    <section class="split-hero" id="sec-hero">
+      <div class="hero-canvas-box grid-surface feather-mask">
+        <canvas id="hero-stream-canvas"></canvas>
+        <div class="canvas-overlay-badges">
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--moss-ink);"></span>
+            <span>实验一 · 编码幻觉 (首批32场 + Delulu 72场 → 100% Pass)</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--cerulean-ink);"></span>
+            <span>实验二 · 前端审美 (首批12场固定纸面 + 二批22场开放演化)</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--ochre-ink);"></span>
+            <span>实验三 · 防偷懒完成度 (三批次演进 · 48/48 探针满分)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <div class="eyebrow reveal" style="--delay: 0ms;">Empirical Benchmark Suite · gemini-4-argon</div>
+        <h1 class="hero-title reveal" style="--delay: 60ms;">Gemini 4 Argon 编码幻觉、前端审美坍缩与提前收尾现象的多批次实证研究</h1>
+        <p class="hero-lead reveal" style="--delay: 120ms;">
+          本报告完整收录了在 <code>/workspace/argon-prompt-research</code> 物理隔离沙箱中执行的全部测试批次：从<strong>第一批自建 8 题多文件陷阱（32场）与第一批固定纸面前端实验（12场）</strong>，到<strong>第二批 Microsoft Delulu 2026.05 公开仓库基准（k=3 共 72 场）与开放自由随机审美实验（22场）</strong>，再到<strong>第三批跨领域模糊许愿动态探针实验（33场）</strong>。我们严格区分「直接观测到的遥测与思维链事实」与「机制推论」，拒绝主观臆断。
+        </p>
+
+        <div class="hero-kpis reveal" style="--delay: 180ms;">
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">编码幻觉 (首批32场 + 二批72场)</div>
+            <div class="kpi-mini-val" style="color: var(--moss-ink);">32/32 <span style="font-size:12.5px;color:var(--ink-muted)">Tier4全通</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">前端审美 (首批12场 + 二批22场)</div>
+            <div class="kpi-mini-val" style="color: var(--cerulean-ink);">0.0 <span style="font-size:12.5px;color:var(--ink-muted)">Slop · 100%分化</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">模糊许愿动态探针 (24场)</div>
+            <div class="kpi-mini-val" style="color: var(--ochre-ink);">48/48 <span style="font-size:12.5px;color:var(--ink-muted)">vs Surgical 32/48</span></div>
+          </div>
+        </div>
+
+        <div class="hero-actions reveal" style="--delay: 240ms;">
+          <a class="btn-pill primary" href="#stage-1-hallu">下滑检视三大滚动交互舞台 ↓</a>
+          <a class="btn-pill" href="lab-hallucination.html">子页01：编码幻觉 →</a>
+          <a class="btn-pill" href="lab-aesthetics.html">子页02：前端审美 →</a>
+          <a class="btn-pill" href="lab-completeness.html">子页03：防偷懒完成度 →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: Testbed Environment & Verification Protocol -->
+    <section class="sec-block reveal" id="sec-env">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Testbed &amp; Fact Boundary · 实验环境、防作弊协议与事实边界</div>
+          <h2 class="sec-title">物理隔离评测沙箱与客观证据准则</h2>
+          <p class="sec-desc">所有结论均建立在落盘保存的 171 份 <code>result.json</code>、逐轮工具调用参数、<code>reasoning_content</code> 思维链原文以及独立进程执行的隐藏测试集之上。</p>
+        </div>
+        <span class="badge cerulean">Node.js v22+ · Native Function Calling</span>
+      </div>
+
+      <div class="env-spec-grid">
+        <div class="env-card">
+          <h4>01 · 双端点容灾与签名完整透传</h4>
+          <p>测试调用 <code>env-config</code> 中的 <code>gemini-4-argon</code>（AI Studio API 接口）与 <code>gemini-4-argon</code>（Antigravity 网关接口），支持传入 <code>reasoning_effort</code>，并在多轮工具循环中完整回传 <code>extra_content.google.thought_signature</code>。</p>
+        </div>
+        <div class="env-card">
+          <h4>02 · 抓获偷看行为后的 Oracle 物理隔离</h4>
+          <p>在首轮 T1 预测试中，我们实测抓到 Agent 在第 6 轮调用 <code>read_file("oracle.test.mjs")</code> 偷看测试答案。正式评测中，<code>oracle.test.mjs</code> 在 Agent 运行期间完全不存在于工作区，仅在会话结束后才由评测器动态写入并运行。</p>
+        </div>
+        <div class="env-card">
+          <h4>03 · 严格区分观测事实与机制推演</h4>
+          <p>我们对未公开的 Google 内部预训练权重配比不做武断定论；所有分析均直接引用<strong>可观测的三类实证数据</strong>：① 系统提示词明文条款；② <code>reasoning_content</code> 思维链中的原话；③ 工具调用顺序（如是否先调 <code>read_file</code> 再调 <code>edit_file</code>）。</p>
+        </div>
+        <div class="env-card">
+          <h4>04 · 全批次数据完整保留</h4>
+          <p>无论是第一批 32 场多文件编码实验、第二批 72 场 Delulu <code>k=3</code> 重复实验，还是第一批 12 场固定审美、第二批 22 场开放审美及三批防偷懒实验，所有原始轨迹与生成代码均完整保存在本目录中供随时核验。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         STAGE 1: Coding Hallucination (Batch 1: 32 Runs + Batch 2: 72 Runs)
+         ===================================================================== -->
+    <section class="sec-block" id="stage-1-hallu">
+      <div class="sec-header reveal">
+        <div>
+          <div class="eyebrow">Interactive Stage 01 · 编码环境幻觉实证 (第一次测试 32 场 + 第二次公开题库 72 场)</div>
+          <h2 class="sec-title">为什么单轮问答谨慎的 Argon，在多文件编码中会跳过 read_file 直接盲改？</h2>
+          <p class="sec-desc">向下滚动左侧步骤卡片，右侧固定舞台将同步演进展示第一次测试（<code>T1–T8 × 4变体 = 32场</code>）与第二次测试（<code>Microsoft Delulu 2026.05 k=3 = 72场</code>）的完整数据、思维链证据与点击检视抽屉。</p>
+        </div>
+        <a class="btn-pill primary" href="lab-hallucination.html">进入子页 01 查看全部 104 场逐轮轨迹 →</a>
+      </div>
+
+      <div class="scrolly-section" id="scrolly-stage-1">
+        <div class="scrolly-steps">
+          <article class="step-card active" data-step="0">
+            <div class="step-badge">Step 01 / 06 · 预标定实验事实</div>
+            <h3>空白桩函数 vs 半成品代码：诱发编码幻觉的真实边界条件</h3>
+            <p>
+              在构建编码幻觉测试集时，我们先做了一组对照标定：当目标函数内部只有一句空白桩 <code>throw new Error("Not implemented")</code> 时，哪怕使用默认无护栏提示词，Argon 也会 <strong>100% 主动调用 <code>list_dir</code> 和 <code>read_file</code></strong> 去查阅其他模块。
+            </p>
+            <p>
+              然而，当目标函数已经写有 15~30 行半成品代码、存在一处显眼的<strong>表面浅层 Bug</strong>（例如漏写 <code>return</code>、<code>* 1000</code> 乘除写反、忘记清空 <code>input.value = ''</code>），且同文件内包含未核实的外部模块方法调用时，默认提示词下的行为发生断崖式变化。
+            </p>
+            <div class="step-meta">观测事实：半成品代码中的表面浅层 Bug 会吸引模型直接调用 edit_file，跳过对底层依赖模块的读取。</div>
+          </article>
+
+          <article class="step-card" data-step="1">
+            <div class="step-badge">Step 02 / 06 · 第一次测试 (Batch 1 · 32 场全变体矩阵)</div>
+            <h3>首批 8 道多文件工程陷阱 × 4 提示词变体：C0 与 T-Gen 仅 50% 通过</h3>
+            <p>
+              我们在第一批测试中设计了 <code>T1–T8</code> 共 8 道多文件工程题（每题含 10~16 个源码文件，包含过时 README 误导、同文件 <code>Result.ok</code> 诱导盲猜 <code>Result.err</code>、<code>node:sqlite</code> 原生 API 陷阱等），对 4 组提示词执行了 32 场完整测试：
+            </p>
+            <p>
+              • <strong>C0 (AI Studio 72词原版)</strong>：通过 <strong>4/8 (50.0%)</strong>，3 题首轮盲改，残留 <strong>21 处</strong>幻觉调用；<br>
+              • <strong>C1 (Antigravity 默认原版)</strong>：通过 <strong>5/8 (62.5%)</strong>，3 题首轮盲改，残留 <strong>21 处</strong>幻觉调用；<br>
+              • <strong>T-Gen (通用口号 "Do not hallucinate")</strong>：通过 <strong>4/8 (50.0%)</strong>，残留 <strong>24 处</strong>幻觉调用；<br>
+              • <strong>T-Tier4 (第4档原词反转护栏)</strong>：通过 <strong>8/8 (100.0%)</strong>，0 盲改，<strong>22/22</strong> 目标依赖全部先读后改，残留 <strong>0 处</strong>幻觉。
+            </p>
+            <div class="step-meta">点击右侧舞台上方的前 8 个方块 (T1–T8)，可查看第一批测试每一题的具体表现。</div>
+          </article>
+
+          <article class="step-card" data-step="2">
+            <div class="step-badge">Step 03 / 06 · 第二次测试 (Batch 2 · Microsoft Delulu k=3 72 场)</div>
+            <h3>引入 2026.05 公开基准 Microsoft Delulu 真题，执行 k=3 三次独立重复采样</h3>
+            <p>
+              为了验证结论在真实开源仓库上的普适性与统计稳定性，我们从 Microsoft 2026 年 5 月发布的 <code>microsoft/delulu</code>（<code>arXiv:2605.07024</code>）中引入 4 道真实 GitHub 仓库幻觉真题（<code>D1</code> <code>simnova/sharethrift</code>、<code>D2</code> <code>AyakoBot/Ayako-v2</code>、<code>D3</code> <code>useautumn/autumn</code>、<code>D4</code> <code>csstools/postcss-plugins</code>），与高区分度的 <code>T2/T4/T7/T8</code> 组成 8 题核心集，每题独立重复运行 3 次（<code>k=3</code>，共 72 场）：
+            </p>
+            <p>
+              • <strong>C0 (AI Studio 原版)</strong>：<strong>0 / 24 (0.0%)</strong> 通过，21/24 (87.5%) 首轮直接盲改，残留 <strong>66 处</strong>幻觉；<br>
+              • <strong>C1 (Antigravity 原版)</strong>：<strong>3 / 24 (12.5%)</strong> 通过，21/24 (87.5%) 首轮盲改，残留 <strong>58 处</strong>幻觉；<br>
+              • <strong>T-Tier4 (原词反转护栏)</strong>：<strong>24 / 24 (100.0%)</strong> 全部通过，<strong>48/48 (100%)</strong> 依赖先读，残留 <strong>0 处</strong>幻觉。
+            </p>
+            <div class="step-meta">跨三次独立重复采样，C0 在 8 道题上 24 场全败 (0/24)，而 T-Tier4 24 场全胜 (24/24)。</div>
+          </article>
+
+          <article class="step-card" data-step="3">
+            <div class="step-badge">Step 04 / 06 · 思维链直接观测证据 (Thinking Trace Audit)</div>
+            <h3>从 104 场 Thinking 原文中直接观测到的三类编码幻觉成因</h3>
+            <p>
+              无需猜测模型未公开的内部训练权重，直接审计落盘的 104 场 <code>reasoning_content</code> 思维链即可确认对照组发生幻觉的三个直接环节：
+            </p>
+            <p>
+              1. <strong>浅层归因即停 (Surface-Bug Satisficing)</strong>：思维链一旦识别出代码片段里的语法/算术浅层错误（如 <code>* 1000</code> 应为 <code>/ 1000</code>），立即得出 <em>"The bug is clear... I can edit it directly"</em>，不再产生查阅外部依赖文件的动机；<br>
+              2. <strong>默认信任调用处上下文 (Implicit Call-Site Trust)</strong>：看到当前文件里已经写着 <code>message.notifyLimit</code> 或看到同文件有 <code>Result.ok</code>，便默认 <code>notifyLimit</code> 与 <code>Result.err</code> 是合法存在的 API；<br>
+              3. <strong>被冒烟测试麻痹 (Smoke-Test Satisficing)</strong>：运行 <code>npm test</code> 看到仅覆盖旁路的 <code>smoke.test.mjs</code> 通过后，立即结束对话交差。
+            </p>
+            <div class="step-meta">这直接解释了为什么 T-Gen ("Do not hallucinate") 完全无效：模型并不认为保留原文件已有的调用是在“编造”。</div>
+          </article>
+
+          <article class="step-card" data-step="4">
+            <div class="step-badge">Step 05 / 06 · 提示词条款与行为的对应关系</div>
+            <h3>AI Studio 72 词指令中的“低置信度不弃权”条款与原词作用域反转</h3>
+            <p>
+              在客观文本层面，AI Studio 系统指令包含明文条款：<code>do not abstain from low confidence or hedge (estimate dates if unsure)</code>。该条款旨在鼓励模型在面对 2025–2026 较薄语料时不轻易弃权或犹豫。
+            </p>
+            <p>
+              在我们的对照实验中，当把这一原词显式限定作用域并反转（<code>For workspace code, "do not abstain from low confidence or hedge" is REVERSED: on low confidence about unread files/symbols, ABSTAIN from guessing and call read_file first</code>），同时搭配<strong>证据源排他规则</strong>（<code>Never trust READMEs, comments, caller call-sites, or test mocks as proof of an imported/injected module's real signature</code>）时，模型的首轮工具选择从 87.5% 直接 `edit_file` 翻转为 100% 先调 `read_file` / `list_dir`。
+            </p>
+            <div class="step-meta">谨守事实边界：我们不宣称单独某一句是唯一魔法，而是实证证明「原词反转 + 证据源排他」组合达到了 32/32 零幻觉。</div>
+          </article>
+
+          <article class="step-card" data-step="5">
+            <div class="step-badge">Step 06 / 06 · 12 道测试题全量检视</div>
+            <h3>点击右侧任意题块 (T1–T8 &amp; D1–D4)，实时对比原版与护栏组的真实代码与轨迹</h3>
+            <p>
+              右侧舞台完整展示了全部 12 道多文件编码题（<code>T1–T8</code> 第一批自建工程题 + <code>D1–D4</code> 第二批 Microsoft Delulu 开源仓库真题）。你可以直接点击任意一个色块，下方抽屉将带平滑过渡切换展示该题在对照组与第 4 档护栏组下的真实轨迹对比。
+            </p>
+            <div class="step-meta">所有 104 场逐轮完整 JSON 记录还可在子页 01 的轨迹检视器中逐回合翻阅。</div>
+          </article>
+        </div>
+
+        <!-- Sticky Stage 1 Right Panel -->
+        <div class="sticky-stage grid-surface">
+          <div class="stage-topbar">
+            <div class="stage-title-group">
+              <span class="stage-step-indicator" id="s1-step-badge">STEP 01 / 06</span>
+              <span class="stage-heading" id="s1-step-title">预标定：空白桩函数 vs 半成品双层陷阱</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-muted);">残留幻觉调用: <strong id="s1-hallu-num" style="color:var(--clay-ink);font-size:14px;" data-current-val="21">21</strong> 处</span>
+              <span class="stage-counter-pill" id="s1-pass-pill">通过率：<span id="s1-pass-num" data-current-val="50">50</span>%</span>
+            </div>
+          </div>
+
+          <!-- Animated Step Progress Dots -->
+          <div class="step-dots-bar" id="s1-dots"></div>
+
+          <!-- Proportional Segmented Bar -->
+          <div class="prop-bar-wrap">
+            <div class="prop-bar-labels">
+              <span id="s1-bar-l">首轮盲改 / 残留幻觉占比</span>
+              <span id="s1-bar-r">先读依赖并修正全部签名占比</span>
+            </div>
+            <div class="prop-bar-track">
+              <div class="prop-seg" id="s1-seg-bad" style="width: 50%; background: var(--clay-dot);"></div>
+              <div class="prop-seg" id="s1-seg-mid" style="width: 0%; background: var(--ochre-dot);"></div>
+              <div class="prop-seg" id="s1-seg-good" style="width: 50%; background: var(--moss-dot);"></div>
+            </div>
+          </div>
+
+          <!-- 12 Clickable Task Tiles (T1-T8 Batch 1 + D1-D4 Batch 2) -->
+          <div class="stage-grid-4x3" id="s1-grid"></div>
+
+          <!-- Cross-Fading Evidence Drawer -->
+          <div class="stage-drawer" id="s1-drawer">
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--clay-ink);" id="s1-dl-title">❌ 对照组 (C0 / C1 / T-Gen) 实测轨迹与残留幻觉</span>
+                <span class="badge clay" id="s1-dl-tag">Control / Generic</span>
+              </div>
+              <pre class="drawer-code" id="s1-dl-code"></pre>
+            </div>
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--moss-ink);" id="s1-dr-title">✔ 第 4 档护栏组 (T-Tier4) 实测轨迹与查证结果</span>
+                <span class="badge moss" id="s1-dr-tag">Tier 4 Guardrails</span>
+              </div>
+              <pre class="drawer-code" id="s1-dr-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         STAGE 2: Frontend Aesthetics (Batch 1: 12 Runs + Batch 2: 22 Runs)
+         ===================================================================== -->
+    <section class="sec-block" id="stage-2-aes">
+      <div class="sec-header reveal">
+        <div>
+          <div class="eyebrow">Interactive Stage 02 · 前端审美双批次实证 (第一次测试 P0–P3 12 场 + 第二次开放审美 O1–O6 22 场)</div>
+          <h2 class="sec-title">从固定纸面锚点 (P2/P3) 到破除二级米白坍缩的开放自由审美提示词 (O5/O6)</h2>
+          <p class="sec-desc">完整呈现第一次测试（验证多短的提示词能把 `#090d16` 暗黑霓虹拉回干净纸面）与第二次测试（解决不固定色值时 75% 聚拢于 `#F3F1EC` 暖米白的问题，实现真正自由随机的多元高级审美）。</p>
+        </div>
+        <a class="btn-pill primary" href="lab-aesthetics.html">进入子页 02 体验 34 页双栏实时预览 →</a>
+      </div>
+
+      <div class="scrolly-section" id="scrolly-stage-2">
+        <div class="scrolly-steps">
+          <article class="step-card active" data-step="0">
+            <div class="step-badge">Step 01 / 05 · 第一次测试基线 (P0 零引导 · 3 场)</div>
+            <h3>不给风格要求时：3 类任务 100% 生成深蓝黑底 (#070b14~#0b0e14) + 紫青霓虹</h3>
+            <p>
+              在第一次前端实验（<code>F1</code> 推理监控台、<code>F2</code> 代码库架构图谱、<code>F3</code> 长上下文评测报告）中，<code>P0</code>（0字风格引导）在全部 3 个任务上无一例外生成了深蓝黑底色配高饱和青色（<code>#06b6d4</code>）与紫色（<code>#8b5cf6</code>）发光阴影，平均 AI Slop 指数达 <strong>72.3</strong>。
+            </p>
+            <div class="step-meta">观测事实：連学术评测报告 F3 在 P0 下也包含了 11 处霓虹色值与 4 处发光渐变。</div>
+          </article>
+
+          <article class="step-card" data-step="1">
+            <div class="step-badge">Step 02 / 05 · 第一次测试梯度 (P1 18字 vs P2 42字 vs P3 68字)</div>
+            <h3>纯反向禁令 (P1) 仍残留电光紫；42 字矿物纸面锚点 (P2) 将 Slop 降至 0.0</h3>
+            <p>
+              • <strong>P1（18字：<code>不要用暗黑科技AI风，改用浅色背景，界面要好看</code>）</strong>：虽然换成了浅灰白底，但在 <code>F1</code> 与 <code>F2</code> 中仍使用了 <code>#7c3aed</code>（电光紫）与发光阴影（平均 Slop <strong>24.3</strong>）；<br>
+              • <strong>P2（42字矿物纸面锚点）与 P3（68字出版物编排）</strong>：明确给出暖象牙纸面 <code>#FAF9F5</code> 与陶土/鼠尾草/石青色后，3 个任务的霓虹色与发光阴影全部归 <strong>0</strong>（Slop <strong>0.0</strong>）。但代价是所有页面都被固定在了同一种暖纸风格上。
+            </p>
+            <div class="step-meta">这就引出了第二阶段的核心问题：如果不写死色值，怎样让模型自由随机地做出不同风格的高审美页面？</div>
+          </article>
+
+          <article class="step-card" data-step="2">
+            <div class="step-badge">Step 03 / 05 · 第二次测试发现 (O1–O4 开放提示词的暖米白聚拢)</div>
+            <h3>当不指定色值、只要求“拒绝暗黑霓虹，自由设计高级色板”时，75% 聚拢于 #F3F1EC</h3>
+            <p>
+              我们在第二次测试中新增了 4 类跨度极大的产品任务（<code>W1</code> 16步进合成器、<code>W2</code> 量化回测终端、<code>W3</code> 双链卡片盒笔记、<code>W4</code> 推理网关监控台），测试了不限定具体色值的开放提示词 <code>O1</code>（28字）、<code>O2</code>（54字）、<code>O3</code>（66字）与 <code>O4</code>（62字）。
+            </p>
+            <p>
+              实测统计发现：除了硬件属性极强的 <code>W1</code> 合成器演化出 <code>#CCC9C0</code> 博朗铝灰与 <code>#2B2927</code> 复古炭黑外，在 <code>W2/W3/W4</code> 的 16 场测试中，<strong>有 12 场（75.0%）不约而同生成了几乎相同的 <code>#F3F1EC / #F4F1EA</code> 暖米白底色</strong>！
+            </p>
+            <div class="step-meta">实测事实：在确定性较高的解码下，仅封堵“深黑蓝紫霓虹”会让模型在多数通用题材上自动收敛到暖米白安全区。</div>
+          </article>
+
+          <article class="step-card" data-step="3">
+            <div class="step-badge">Step 04 / 05 · 开放破局方案一 (O5 · 49字双封堵 + 物理载体映射)</div>
+            <h3>同时排除“深蓝霓虹”与“通用暖米白(#F3F1EC)”，4 类任务 100% 演化出独特专属色板</h3>
+            <p>
+              我们在 49 字的 <code>O5</code> 中加入了对暖米白安全区的显式排他，并引导模型从产品自身的物理载体提取色彩：<br>
+              <code>视觉要求：严禁深蓝黑配紫青霓虹的AI模板，也勿落入千篇一律的通用暖米白(#F3F1EC/#F4F1EA)；请从当前主题的真实物理或行业载体中提炼高辨识度的专属色相、独特版式骨架与字体张力，做出独立设计工作室级作品。</code>
+            </p>
+            <p>
+              实测 4 个任务立刻分化出 4 套完全不重样的工业级色板：<code>W1</code> 军规橄榄石墨灰（<code>#2B2D2A</code>）、<code>W2</code> 松烟墨绿配冷石（<code>#141917 + #E6E3DC</code>）、<code>W3</code> 古典深橄榄石板配黄铜羊皮卷（<code>#31342E + #D5C7A9</code>）、<code>W4</code> 现代控制室冷银灰（<code>#DCE0E3</code>）。
+            </p>
+            <div class="step-meta">Slop 指数全部为 0.0，且彻底告别了千篇一律的米白色。</div>
+          </article>
+
+          <article class="step-card" data-step="4">
+            <div class="step-badge">Step 05 / 05 · 开放破局方案二 (O6/O7 · 思维链四象限分流引擎)</div>
+            <h3>在提示词内嵌入四象限轮转锚点，让不同需求自动落入冷白/碳黑/青瓷/铝灰正交象限</h3>
+            <p>
+              对于希望放入全局配置、每次面对不同任务都能稳定切换大流派的场景，<code>O6/O7</code> 提供了 4 个正交的经典设计坐标（<code>#0</code> 冷调瑞士建筑白 <code>#F4F6F9</code> 配钴蓝朱红；<code>#1</code> 徕卡哑光碳黑 <code>#141517</code> 配琥珀橙；<code>#2</code> 青瓷植物雾绿 <code>#E6EFE9</code> 配深林墨绿；<code>#3</code> 博朗阳极氧化铝灰 <code>#D4D7DC</code> 实体仪器风），由模型根据需求标题字数 <code>N mod 4</code> 在思考链中自动锁定。
+            </p>
+            <div class="step-meta">点击右侧舞台的 12 个真实色卡块，下方抽屉将实时展示对应的 CSS :root 源码与设计说明。</div>
+          </article>
+        </div>
+
+        <!-- Sticky Stage 2 Right Panel -->
+        <div class="sticky-stage grid-surface">
+          <div class="stage-topbar">
+            <div class="stage-title-group">
+              <span class="stage-step-indicator" id="s2-step-badge">STEP 01 / 05</span>
+              <span class="stage-heading" id="s2-step-title">第一次测试 P0 基线：100% 暗黑蓝紫霓虹</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-muted);">AI Slop 均值: <strong id="s2-slop-num" style="color:var(--clay-ink);font-size:14px;" data-current-val="72.3">72.3</strong></span>
+              <span class="stage-counter-pill">跨任务色相分化率：<span id="s2-div-num" data-current-val="0">0</span>%</span>
+            </div>
+          </div>
+
+          <div class="step-dots-bar" id="s2-dots"></div>
+
+          <div class="prop-bar-wrap">
+            <div class="prop-bar-labels">
+              <span id="s2-bar-l">暗黑蓝紫霓虹占比</span>
+              <span id="s2-bar-r">单一暖米白占比 vs 多元独立色相占比</span>
+            </div>
+            <div class="prop-bar-track">
+              <div class="prop-seg" id="s2-seg-neon" style="width: 100%; background: var(--clay-dot);"></div>
+              <div class="prop-seg" id="s2-seg-beige" style="width: 0%; background: var(--ochre-dot);"></div>
+              <div class="prop-seg" id="s2-seg-open" style="width: 0%; background: var(--moss-dot);"></div>
+            </div>
+          </div>
+
+          <div class="stage-grid-4x3" id="s2-grid"></div>
+
+          <div class="stage-drawer" id="s2-drawer">
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--clay-ink);" id="s2-dl-title">提取自真实生成 HTML 的 :root 色板变量</span>
+                <span class="badge cerulean" id="s2-dl-tag">CSS Variables</span>
+              </div>
+              <pre class="drawer-code" id="s2-dl-code"></pre>
+            </div>
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--moss-ink);" id="s2-dr-title">模型内部 Thinking 审美决策与指标明细</span>
+                <span class="badge moss" id="s2-dr-tag">Empirical Metrics</span>
+              </div>
+              <pre class="drawer-code" id="s2-dr-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         STAGE 3: Anti-Laziness & Vague Wish Completeness (All 3 Batches)
+         ===================================================================== -->
+    <section class="sec-block" id="stage-3-lazy">
+      <div class="sec-header reveal">
+        <div>
+          <div class="eyebrow">Interactive Stage 03 · 防偷懒与模糊许愿完成度实证 (三批次共 33 场动态探针)</div>
+          <h2 class="sec-title">为什么单向强调“最小改动”会让模型在模糊许愿上罢工？如何实现 Opus 级完整交付</h2>
+          <p class="sec-desc">覆盖非前端四大工程领域（并发支付防重限流、SQLite 迁移器、本地检索引擎、深层配置加载器），展示三轮实验演进与 24 场严苛运行时压力探针结果。</p>
+        </div>
+        <a class="btn-pill primary" href="lab-completeness.html">进入子页 03 查看真实生成源码对比 →</a>
+      </div>
+
+      <div class="scrolly-section" id="scrolly-stage-3">
+        <div class="scrolly-steps">
+          <article class="step-card active" data-step="0">
+            <div class="step-badge">Step 01 / 04 · 批次一 (L1–L4) 与批次二 (M1–M3) 的踩坑发现</div>
+            <h3>重要实验教训：如果让模型“写代码前先展开成完整规格书”，它会在第 1 轮不调工具直接停机</h3>
+            <p>
+              在防偷懒实验的第一批（<code>L1–L4</code> 从零构建）和第二批（<code>M1–M3</code> 简陋模块升级）测试中，我们最初在提示词里写了：<code>Before writing code, proactively expand the user's brief wish into a complete engineering specification</code>。
+            </p>
+            <p>
+              实测结果暴露了一个致命副作用：Argon 把这句话理解成了“先在聊天框里输出一份 Markdown 规格说明书，等用户确认后再写代码”，导致 <strong>Turn 1 输出完长文后 <code>tool_calls=[]</code> 直接提前结束回合</strong>！
+            </p>
+            <div class="step-meta">关键修正：必须明确指定 `In your internal thinking (never stop to ask permission in chat)` 静默完成需求补全，并立即调用写文件与测试工具。</div>
+          </article>
+
+          <article class="step-card" data-step="1">
+            <div class="step-badge">Step 02 / 04 · 批次三实证：“最小改动原则”的回旋镖</div>
+            <h3>当用户只给 11 字模糊许愿时，仅含“Surgical Scope (最小改动)”的提示词组 0 次满分</h3>
+            <p>
+              在第三批正式实验（<code>V1–V4 × 3变体 × k=2 = 24场</code>，每题 6 项纯动态运行时探针）中，仅包含 <code>Surgical Scope: Make the smallest correct change. Touch the fewest lines necessary and do only what is explicitly requested</code> 的提示词组（<code>tier4_surgical_only</code>）表现垫底：
+            </p>
+            <p>
+              • 在 <code>V1</code>（“帮我给下单接口加个防重复提交和限流”）的 <code>r1</code> 和 <code>r2</code> 两次重复中，它读完文件后因束缚于“只做显式要求的事、改动越少越好”，<strong>连续两次 1 行代码都不改直接结束对话（得分 1/6，保留初始 13 行）</strong>；<br>
+              • 在全部 8 场测试中，<code>tier4_surgical_only</code> <strong>满分率为 0/8 (0.0%)</strong>，总探针通过率仅 <strong>32/48 (66.7%)</strong>，平均代码量仅 83 行。
+            </p>
+            <div class="step-meta">实证结论：不能把排障用的“最小改动”无差别套在模糊功能许愿上。</div>
+          </article>
+
+          <article class="step-card" data-step="2">
+            <div class="step-badge">Step 03 / 04 · 默认原版 (Control Stock) 的完成度短板</div>
+            <h3>默认原版能写出基础 Happy-Path，但在并发竞态、载荷防篡改与校验和上频频丢分</h3>
+            <p>
+              在 24 场动态探针测试中，<code>control_stock</code>（默认原版）取得了 <strong>38/48 (79.2%)</strong> 的探针得分，满分率 <strong>4/8 (50.0%)</strong>，平均代码量 176 行。其典型短板在于“只做字面最浅层实现”：
+            </p>
+            <p>
+              • 在 <code>V1</code> 中：<code>r2</code> 同样发生 0 修改早停（1/6）；<code>r1</code> 虽然实现了幂等缓存，但当攻击者复用同一 <code>idempotencyKey</code> 将金额从 100 篡改为 9999 时，未做请求指纹校验直接放行（<code>t4_payload_mismatch_conflict = false</code>）；<br>
+              • 在 <code>V2</code>（SQLite 迁移器）中：<code>r1</code> (3/6) 与 <code>r2</code> (5/6) 均漏掉了<strong>已执行迁移 SQL 被篡改时的 SHA-256 校验和报警（<code>t4 = false</code>）</strong>。
+            </p>
+            <div class="step-meta">这正是用户直观感受到的“说做什么就只做什么，缺乏整体性工程考量”。</div>
+          </article>
+
+          <article class="step-card" data-step="3">
+            <div class="step-badge">Step 04 / 04 · 自适应意图分流契约 (Tier 4 Holistic Wish)</div>
+            <h3>窄域 Bug 走最小改动，模糊许愿在思考链内自动补齐并发/回滚/防篡改，48/48 探针全通</h3>
+            <p>
+              当提示词采用「自适应意图分流（<code>tier4_holistic_wish</code>）」——明确区分窄域 Bug（保持最小改动）与模糊功能许愿（在内部思考链中主动补齐并发竞态锁、下游失败状态清理、SHA-256 防篡改校验、相关性打分与拼写容错、<code>__proto__</code> 原型污染防御，并强制调用 <code>run_command</code> 自测验证）后：
+            </p>
+            <p>
+              在 <code>V1–V4</code> 的两次独立重复（共 8 场、48 项运行时探针）中，<strong>达成了 48/48 (100.0%) 探针全通、8/8 (100.0%) 场次满分，0 次早停，平均交付代码深度达 401 行</strong>！
+            </p>
+            <div class="step-meta">点击右侧舞台顶部的 X-Ray 提示词分句，可查看每一条指令分句对应的完成度拉升幅度。</div>
+          </article>
+        </div>
+
+        <!-- Sticky Stage 3 Right Panel (X-Ray Prompt Anatomy + Animated Meters + Code Diff) -->
+        <div class="sticky-stage grid-surface">
+          <div class="stage-topbar">
+            <div class="stage-title-group">
+              <span class="stage-step-indicator" id="s3-step-badge">STEP 01 / 04</span>
+              <span class="stage-heading" id="s3-step-title">防偷懒提示词 X-Ray 解剖与 48 项探针演进</span>
+            </div>
+            <span class="stage-counter-pill">探针通过率：<strong id="s3-score-num" data-current-val="66.7">66.7</strong>%</span>
+          </div>
+
+          <div class="step-dots-bar" id="s3-dots"></div>
+
+          <!-- X-Ray Interactive Prompt Box -->
+          <div class="xray-box" id="s3-xray-box">
+            <div style="font-size:10.5px;color:var(--ink-muted);margin-bottom:4px;">点击下方任意分句或滚动左侧卡片，检视各条款对模糊许愿完成度的实测影响：</div>
+            <span class="xray-clause hl-clay" data-xray="0">[误区 A: "Before coding, expand wish into a spec" → 导致 Turn 1 只写文档不调工具停机]</span>
+            <span class="xray-clause dim" data-xray="1">[误区 B: 全局单向写死 "Make the smallest correct change" → 模糊许愿 0/8 满分 (66.7%)]</span><br>
+            <span class="xray-clause dim" data-xray="2">[核心分流 1: Narrow bugfixes → keep diff surgical; Brief/vague feature wishes → infer holistic spec in internal thinking]</span>
+            <span class="xray-clause dim" data-xray="3">[核心分流 2: Concurrency lock + Failure cleanup + SHA-256 tamper guard + Mandatory run_command verification → 48/48 (100%)]</span>
+          </div>
+
+          <!-- Animated Horizontal Meters -->
+          <div class="cmeter-group">
+            <div class="cmeter-row">
+              <span>Tier4 Surgical (仅最小改动)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" id="s3-m1" style="width:66.7%;background:var(--clay-dot);"></div></div>
+              <span id="s3-m1-txt" style="color:var(--clay-ink);font-weight:600;">32/48 (66.7%) · 0/8 满分 · 均 83 行</span>
+            </div>
+            <div class="cmeter-row">
+              <span>Control Stock (默认原版)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" id="s3-m2" style="width:79.2%;background:var(--ochre-dot);"></div></div>
+              <span id="s3-m2-txt" style="color:var(--ochre-ink);font-weight:600;">38/48 (79.2%) · 4/8 满分 · 均 176 行</span>
+            </div>
+            <div class="cmeter-row">
+              <span>Tier4 Holistic (自适应分流)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" id="s3-m3" style="width:100%;background:var(--moss-dot);"></div></div>
+              <span id="s3-m3-txt" style="color:var(--moss-ink);font-weight:600;">48/48 (100.0%) · 8/8 满分 · 均 401 行</span>
+            </div>
+          </div>
+
+          <div class="stage-drawer" id="s3-drawer">
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--clay-ink);" id="s3-dl-title">❌ 偷懒早停 / 单向最小改动组真实表现</span>
+                <span class="badge clay" id="s3-dl-tag">Lazy / Early Exit</span>
+              </div>
+              <pre class="drawer-code" id="s3-dl-code"></pre>
+            </div>
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--moss-ink);" id="s3-dr-title">✔ 自适应意图分流组 (Holistic Wish) 真实表现</span>
+                <span class="badge moss" id="s3-dr-tag">48/48 Probes Green</span>
+              </div>
+              <pre class="drawer-code" id="s3-dr-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: Complete All-Batches Quantitative Master Tables (Batch 1 + Batch 2 + Batch 3)
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-all-tables">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">All Test Batches Master Ledger · 第一次测试与后续扩展测试全批次完整数据表</div>
+          <h2 class="sec-title">全批次实验汇总账本（全部 171 场测试无一遗漏）</h2>
+          <p class="sec-desc">下方并排完整列出第一次测试（32场多文件编码矩阵 + 12场固定审美梯度）与后续扩展测试（72场 Delulu k=3 重复编码测试 + 22场开放审美演化 + 24场模糊许愿动态探针）。</p>
+        </div>
+      </div>
+
+      <div class="dual-ledger-grid">
+        <!-- Table 1A: First Coding Benchmark (32 Runs) -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>编码实验 · 第一次测试 (Batch 1: T1–T8 × 4 变体 = 32 场)</span>
+            <span class="badge moss">Tier4: 8/8 (100%)</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>提示词变体 (8题/变体)</th>
+                <th>Oracle 通过率</th>
+                <th>首轮盲改率</th>
+                <th>先读依赖文件</th>
+                <th>残留幻觉</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>C0 · AI Studio 原版</strong></td>
+                <td><span class="badge clay">4 / 8 (50.0%)</span></td>
+                <td>3 / 8 (37.5%)</td>
+                <td>12 / 22 (54.5%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">21 处</td>
+              </tr>
+              <tr>
+                <td><strong>C1 · Antigravity 原版</strong></td>
+                <td><span class="badge ochre">5 / 8 (62.5%)</span></td>
+                <td>3 / 8 (37.5%)</td>
+                <td>12 / 22 (54.5%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">21 处</td>
+              </tr>
+              <tr>
+                <td><strong>T-Gen · 通用口号 ("Do not hallucinate")</strong></td>
+                <td><span class="badge clay">4 / 8 (50.0%)</span></td>
+                <td>3 / 8 (37.5%)</td>
+                <td>12 / 22 (54.5%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">24 处</td>
+              </tr>
+              <tr>
+                <td><strong>T-Tier4 · 第4档原词反转 + 证据排他</strong></td>
+                <td><span class="badge moss">8 / 8 (100.0%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 / 8 (0.0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">22 / 22 (100%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 处</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table 1B: Second Coding Benchmark (72 Runs k=3) -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>编码实验 · 第二次测试 (Batch 2: Delulu 2026.05 + 核心集 k=3 = 72 场)</span>
+            <span class="badge moss">Tier4: 24/24 (100%)</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>提示词变体 (8题 × k=3 = 24场)</th>
+                <th>Oracle 通过率</th>
+                <th>首轮盲改率</th>
+                <th>先读依赖文件</th>
+                <th>残留幻觉</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>C0 · AI Studio 原版 (k=3)</strong></td>
+                <td><span class="badge clay">0 / 24 (0.0%)</span></td>
+                <td>21 / 24 (87.5%)</td>
+                <td>3 / 48 (6.3%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">66 处</td>
+              </tr>
+              <tr>
+                <td><strong>C1 · Antigravity 原版 (k=3)</strong></td>
+                <td><span class="badge clay">3 / 24 (12.5%)</span></td>
+                <td>21 / 24 (87.5%)</td>
+                <td>5 / 48 (10.4%)</td>
+                <td style="color:var(--clay-ink);font-weight:600;">58 处</td>
+              </tr>
+              <tr>
+                <td><strong>T-Tier4 · 第4档原词反转护栏 (k=3)</strong></td>
+                <td><span class="badge moss">24 / 24 (100.0%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 / 24 (0.0%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">48 / 48 (100%)</td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 处</td>
+              </tr>
+              <tr>
+                <td colspan="5" style="font-size:12px;color:var(--ink-muted);">注：Batch 2 包含 Microsoft Delulu (2026.05) 4 道开源仓库真题 (D1–D4) 与 T2/T4/T7/T8，每题独立跑 3 次。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table 2A: First Frontend Benchmark (12 Runs) + Second Open Benchmark (22 Runs) -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>前端实验 · 第一次固定审美 (12场) + 第二次开放审美 (22场)</span>
+            <span class="badge cerulean">共 34 个完整单页应用</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>批次与提示词梯度</th>
+                <th>霓虹色命中均值</th>
+                <th>AI Slop 均值</th>
+                <th>跨任务色板表现</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>首批 P0 · 0字默认 (F1–F3)</strong></td>
+                <td style="color:var(--clay-ink);font-weight:600;">9.3 处/页</td>
+                <td><span class="badge clay">72.3 / 100</span></td>
+                <td>100% 坍缩至 #090d16 深蓝黑霓虹</td>
+              </tr>
+              <tr>
+                <td><strong>首批 P1 · 18字仅禁暗黑 (F1–F3)</strong></td>
+                <td>2.3 处/页</td>
+                <td><span class="badge ochre">24.3 / 100</span></td>
+                <td>残留 #7c3aed 电光紫与发光阴影</td>
+              </tr>
+              <tr>
+                <td><strong>首批 P2(42字) / P3(68字) 矿物纸面</strong></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0.0 处/页</td>
+                <td><span class="badge moss">0.0 / 100</span></td>
+                <td>100% 干净，但固定为 #FAF9F5 纸面风</td>
+              </tr>
+              <tr>
+                <td><strong>二批 O1–O4 · 普通开放提示词 (14场)</strong></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0.0 处/页</td>
+                <td><span class="badge ochre">0.0 (同质化)</span></td>
+                <td>75% 再次聚拢于 #F3F1EC 通用暖米白</td>
+              </tr>
+              <tr>
+                <td><strong>二批 O5(49字) / O6(72字) 破局开放口令</strong></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0.0 处/页</td>
+                <td><span class="badge moss">0.0 / 100</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">8/8 (100%) 演化出互不重样的专属色相</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table 3: Anti-Laziness Benchmark (All 3 Batches = 33 Runs) -->
+        <div class="data-table-wrap">
+          <div style="padding:12px 15px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+            <span>防偷懒与模糊许愿完成度实验 (三批次共 33 场动态探针)</span>
+            <span class="badge ochre">Holistic: 48/48 (100%)</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>实验批次与提示词组</th>
+                <th>探针总通过率</th>
+                <th>满分场次率</th>
+                <th>早停/关键发现</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>批次一/二 (L1–L4, M1–M3 · 9场预备实验)</strong></td>
+                <td>验证完成</td>
+                <td>—</td>
+                <td>发现写 "Before coding, expand spec" 会导致 Turn 1 只写文档停机</td>
+              </tr>
+              <tr>
+                <td><strong>批次三 · Tier4 Surgical Only (仅最小改动 · 8场)</strong></td>
+                <td><span class="badge clay">32 / 48 (66.7%)</span></td>
+                <td><span class="badge clay">0 / 8 (0.0%)</span></td>
+                <td style="color:var(--clay-ink);">V1 连续 2 次 0 修改罢工早停，均长仅 83 行</td>
+              </tr>
+              <tr>
+                <td><strong>批次三 · Control Stock (默认原版 · 8场)</strong></td>
+                <td><span class="badge ochre">38 / 48 (79.2%)</span></td>
+                <td><span class="badge ochre">4 / 8 (50.0%)</span></td>
+                <td>V1 r2 早停；漏掉载荷篡改冲突与 SQL SHA-256 防篡改</td>
+              </tr>
+              <tr>
+                <td><strong>批次三 · Tier4 Holistic Wish (自适应分流 · 8场)</strong></td>
+                <td><span class="badge moss">48 / 48 (100.0%)</span></td>
+                <td><span class="badge moss">8 / 8 (100.0%)</span></td>
+                <td style="color:var(--moss-ink);font-weight:600;">0 早停 · 8 场全满分 · 平均交付代码 401 行</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Deep-Dive Sub-Pages Portal Cards -->
+    <section class="sec-block reveal" id="sec-portals">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Sub-Pages Portal · 三大专项实验独立子页</div>
+          <h2 class="sec-title">进入各专项独立子页查看逐题逐轮轨迹、双栏实时网页画廊与源码对比</h2>
+          <p class="sec-desc">每个子页均内置独立的双滚动舞台、全批次明细数据表以及交互式检视工作台。</p>
+        </div>
+      </div>
+
+      <div class="portal-grid">
+        <a class="portal-card" href="lab-hallucination.html">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="badge moss">子页 01 · 32场首批 + 72场二批 = 104场</span>
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">lab-hallucination.html ↗</span>
+            </div>
+            <h3 class="portal-title">Agent 编码幻觉深度拆解与 104 场轨迹检视器</h3>
+            <p style="font-size:13.5px;color:var(--ink-body);margin-top:8px;">
+              包含第一次测试（<code>T1–T8 × 4变体 = 32场</code>）与第二次测试（<code>Microsoft Delulu 2026.05 k=3 = 72场</code>）的双独立账本、证据边界论证，以及可逐轮翻阅 Thinking 原文的交互检视台。
+            </p>
+          </div>
+          <div class="portal-metrics">
+            <div><span style="color:var(--ink-muted)">首批 32 场 / 二批 72 场:</span><br><strong style="color:var(--clay-ink)">C0: 50% &amp; 0% 通过</strong></div>
+            <div><span style="color:var(--ink-muted)">第 4 档护栏组 (32/32):</span><br><strong style="color:var(--moss-ink)">两批均 100% 通过 · 0 幻觉</strong></div>
+          </div>
+        </a>
+
+        <a class="portal-card" href="lab-aesthetics.html">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="badge cerulean">子页 02 · 12场固定 + 22场开放 = 34页</span>
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">lab-aesthetics.html ↗</span>
+            </div>
+            <h3 class="portal-title">前端审美两批次实证与 34 页实时双栏预览画廊</h3>
+            <p style="font-size:13.5px;color:var(--ink-body);margin-top:8px;">
+              完整展示第一次测试（<code>F1–F3 × P0–P3</code> 固定矿物纸面拉回）与第二次测试（<code>W1–W4 × O1–O6</code> 破除暖米白聚拢的开放自由审美），支持在双栏 <code>&lt;iframe&gt;</code> 中同屏交互全部 34 个真实生成网页。
+            </p>
+          </div>
+          <div class="portal-metrics">
+            <div><span style="color:var(--ink-muted)">P0 默认 / O1-O4 暖米聚拢:</span><br><strong style="color:var(--clay-ink)">100% 霓虹 / 75% 米白</strong></div>
+            <div><span style="color:var(--ink-muted)">O5 物理映射 / O6 四象限:</span><br><strong style="color:var(--moss-ink)">8/8 独特专属色板 · 0 霓虹</strong></div>
+          </div>
+        </a>
+
+        <a class="portal-card" href="lab-completeness.html">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="badge ochre">子页 03 · 三批次共 33 场动态探针</span>
+              <span style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">lab-completeness.html ↗</span>
+            </div>
+            <h3 class="portal-title">防偷懒早停、最小改动回旋镖与模糊许愿源码对比台</h3>
+            <p style="font-size:13.5px;color:var(--ink-body);margin-top:8px;">
+              记录从 <code>L1–L4</code>、<code>M1–M3</code> 到 <code>V1–V4 (k=2)</code> 的完整实验演进，提供 6 项运行时压力探针明细与真实落盘 <code>.mjs</code> 源码的左右并排 Diff 检视器。
+            </p>
+          </div>
+          <div class="portal-metrics">
+            <div><span style="color:var(--ink-muted)">Surgical Only / Control:</span><br><strong style="color:var(--clay-ink)">66.7% (0/8) / 79.2% (4/8)</strong></div>
+            <div><span style="color:var(--ink-muted)">Tier4 Holistic Wish:</span><br><strong style="color:var(--moss-ink)">100.0% (48/48 探针全通)</strong></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Section 6: Interactive Prompt Synthesizer -->
+    <section class="sec-block reveal" id="sec-synthesizer">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Interactive Prompt Synthesizer · 实证成果一键合成台</div>
+          <h2 class="sec-title">按需勾选组合：生成经过 171 场实验验证的 Argon 最佳提示词</h2>
+          <p class="sec-desc">左侧切换编码内核（全功能自适应版 vs 691B 二进制槽位紧凑版）与前端审美模式（O5 开放物理映射 / O7 自哈希四象限 / P2 固定纸面），右侧实时预览并一键复制。</p>
+        </div>
+        <button class="btn-pill primary" id="btn-copy-synth">复制当前合成提示词</button>
+      </div>
+
+      <div class="explorer-grid">
+        <div class="explorer-sidebar">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);padding:4px 2px;">1. 编码防幻觉与防偷懒内核 (Core Agent Rules)</div>
+          <button class="selector-btn active" data-core="full_adaptive" onclick="setSynthCore('full_adaptive', this)">
+            <div class="sel-top"><span>A · 防幻觉反转 + 防偷懒自适应分流 (推荐)</span><span class="badge moss">100% Pass</span></div>
+            <div class="sel-sub">兼具工作区先读后改 + 窄Bug最小改动 / 模糊许愿完整工程交付</div>
+          </button>
+          <button class="selector-btn" data-core="compact_691b" onclick="setSynthCore('compact_691b', this)">
+            <div class="sel-top"><span>B · 二进制槽位紧凑版 (&lt; 691 Bytes)</span><span class="badge cerulean">PE64 槽位兼容</span></div>
+            <div class="sel-sub">专为 Antigravity language_server.exe guidelines.tmpl 691B 上限压缩</div>
+          </button>
+
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);padding:10px 2px 4px;">2. 前端审美引导模块 (Frontend Aesthetic Mode)</div>
+          <button class="selector-btn active" data-fe="o5_material" onclick="setSynthFe('o5_material', this)">
+            <div class="sel-top"><span>O5 · 开放式物理材质原生映射 (49字)</span><span class="badge moss">自由多元</span></div>
+            <div class="sel-sub">同时封堵深蓝霓虹与通用暖米白，按产品物理载体自由衍生专属色板</div>
+          </button>
+          <button class="selector-btn" data-fe="o7_hash_quadrant" onclick="setSynthFe('o7_hash_quadrant', this)">
+            <div class="sel-top"><span>O7 · 思维链自哈希四象限随机引擎 (78字)</span><span class="badge ochre">四象限轮转</span></div>
+            <div class="sel-sub">利用需求标题字数 mod 4 在瑞士冷白/徕卡碳黑/青瓷雾绿/博朗铝灰间自动分流</div>
+          </button>
+          <button class="selector-btn" data-fe="p2_fixed_mineral" onclick="setSynthFe('p2_fixed_mineral', this)">
+            <div class="sel-top"><span>P2 · 固定暖纸矿物色出版物锚点 (42字)</span><span class="badge cerulean">稳定纸面风</span></div>
+            <div class="sel-sub">适合技术报告与文档站：锁定 #FAF9F5 象牙纸面与陶土/鼠尾草/石青矿物色</div>
+          </button>
+          <button class="selector-btn" data-fe="none" onclick="setSynthFe('none', this)">
+            <div class="sel-top"><span>不附加前端审美规则 (仅纯后端/CLI使用)</span></div>
+            <div class="sel-sub">仅输出编码防幻觉与防偷懒核心指令</div>
+          </button>
+        </div>
+
+        <div class="explorer-main">
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-soft);padding-bottom:10px;">
+            <div>
+              <strong style="font-family:var(--font-serif);font-size:17px;">实时合成提示词预览</strong>
+              <div style="font-size:12.5px;color:var(--ink-muted);margin-top:2px;">实测效果：编码幻觉 32/32 全通 | 模糊许愿探针 48/48 全通 | 前端 0 霓虹且跨题材 100% 独立色相</div>
+            </div>
+            <span class="badge moss" id="synth-bytes">0 Bytes</span>
+          </div>
+          <pre class="drawer-code" id="synth-output" style="height: 360px; font-size: 12.2px; line-height: 1.62;"></pre>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>Gemini 4 Argon Empirical Study · /workspace/argon-prompt-research</span>
+      <span>100% Compatible with Direct file:// &amp; Local HTTP · All Raw JSON Preserved</span>
+    </footer>
+  </main>
+
+  <script src="assets/study-data.js"></script>
+  <script src="assets/editorial-common.js"></script>
+  <script>
+    (function () {
+      const UI = window.EditorialUI;
+
+      // 1. Initialize Global Progress Ribbon, Floating Pill & Hero Particle Stream
+      UI.initGlobalChoreography([
+        { id: 'sec-hero', label: '研究总览与核心指标' },
+        { id: 'sec-env', label: '实验环境与防作弊协议' },
+        { id: 'stage-1-hallu', label: '舞台一：编码幻觉实证 (104场)' },
+        { id: 'stage-2-aes', label: '舞台二：开放前端审美实证 (34场)' },
+        { id: 'stage-3-lazy', label: '舞台三：防偷懒与模糊许愿 (33场)' },
+        { id: 'sec-all-tables', label: '全批次主实验数据账本' },
+        { id: 'sec-synthesizer', label: '交互式提示词合成台' }
+      ]);
+
+      UI.initParticleStreamCanvas('hero-stream-canvas', { count: 1050 });
+
+      // =======================================================================
+      // 2. STAGE 1: Coding Hallucination (12 Clickable Tiles + 6 Steps)
+      // =======================================================================
+      const S1_TILES = [
+        { id: 'T1', name: 'T1 · 订单结算冲正', batch: 'Batch1', state: 'ochre', stat: 'C0残留3处→T4清零', sub: '表面漏传currency + 3处旧方法漂移',
+          bad: `[Batch 1 · C0/C1/T-Gen 在 T1 的表现]\nOracle 主路径虽然通过，但在 src/services/settlement_service.mjs 的 fallback 死分支里，C0/C1/T-Gen 全部原样保留了未核实的伪方法：\n- this.ledger.refundDebit(...) (真实方法: reverseEntry)\n- this.coupons.releaseCoupon(...) (真实方法:unlockRedemption)\n- this.audit.recordFailure(...) (真实方法: appendEvent)`,
+          good: `[Batch 1 · T-Tier4 在 T1 的表现]\nTurn 1–2 读取 ledger_client.mjs、coupon_vault.mjs 与 audit_sink.mjs，不仅修复了 req.currency，还将文件内所有 3 处过时的伪方法调用一次性替换为真实签名（残留幻觉 = 0）。` },
+        { id: 'T2', name: 'T2 · 编译器作用域', batch: 'Batch1+2', state: 'clay', stat: '0/3 → 3/3 PASS', sub: 'Result.ok 诱导盲猜 Result.err 等7处',
+          bad: `[Batch 1 & Batch 2 (k=3) · C0 0/3 通过, T-Gen FAIL]\nTurn 1 Thinking: "In ir_lowering.mjs, there is a missing return before this.lowerBlock(stmt, childScope). Let's fix it."\n-> 0 次读取 ast_types.mjs / symbol_table.mjs / diagnostics.mjs / ir_builder.mjs！\n-> 生产代码保留 Result.err / symTab.enterScope / emitLoadConst 等 7 处虚构调用，Oracle 100% 崩溃。`,
+          good: `[Batch 1 & Batch 2 (k=3) · T-Tier4 3/3 全部通过]\nTurn 1 Thinking: "Under Grounding Override, seeing Result.ok in this file is NOT proof that Result.err exists. I must read diagnostics.mjs, symbol_table.mjs, ast_types.mjs, and ir_builder.mjs first."\n-> 12/12 依赖文件全部先读后改，7 处幻觉调用清零。` },
+        { id: 'T3', name: 'T3 · DAG 调度死锁', batch: 'Batch1', state: 'moss', stat: '4/4 PASS', sub: '跨模块 LeasePool 终态与退避乘零',
+          bad: `[Batch 1 · T3 跨模块排障]\n由于入口文件没有显眼的单行算术/拼写诱饵，4 组提示词均主动调用了 read_file 读取 lease_pool.mjs 与 retry_policy.mjs。`,
+          good: `[对比意义]\nT3 与 T2/T7 的鲜明反差证实：Argon 并非没有跨文件排障能力；只有当入口文件存在“看似改一行就能修好的表面浅层诱饵”时，缺乏护栏的模型才会跳过 read_file 发生盲改。` },
+        { id: 'T4', name: 'T4 · 列式查询计划器', batch: 'Batch1+2', state: 'clay', stat: 'C0 0/3 → T4 3/3', sub: '漏读 Catalog/Arena 残留 2 处幻觉',
+          bad: `[Batch 1 & Batch 2 (k=3) · C0 0/3 通过]\nTurn 1 仅修改了 SQL 操作符的大小写转换（或仅读取了 3 个目标文件里的 1 个），未读取 table_registry.mjs 与 predicate_arena.mjs，保留了虚拟的 getSchema() 与 buildFilter() 调用。`,
+          good: `[Batch 1 & Batch 2 (k=3) · T-Tier4 3/3 全部通过]\n3 次重复实验中均完整读取全部 3 个底层模块（9/9 文件），准确将调用修正为 lookupTable() 与 compilePredicate()。` },
+        { id: 'T5', name: 'T5 · 多路复用协议栈', batch: 'Batch1', state: 'moss', stat: '4/4 PASS', sub: '同构 4 分支 UTF-8 字节长度截断',
+          bad: `[Batch 1 · T5 同构状态机测试]\n测试 edit_file 在包含 4 段高度相似状态分支的 frame_codec.mjs 中是否发生误替换或漏改 ByteLength。`,
+          good: `[Batch 1 · T-Tier4 表现]\n遵循 edit_file Uniqueness Guard（包含 3-5 行唯一上下文锚点），准确修复 Buffer.byteLength(payload, 'utf8') 并一次性通过。` },
+        { id: 'T6', name: 'T6 · node:sqlite 审计', batch: 'Batch1', state: 'ochre', stat: 'T-Gen FAIL → T4 PASS', sub: 'Node v22 DatabaseSync 误调 .pragma()',
+          bad: `[Batch 1 · T-Gen ("Do not hallucinate") 在 T6 失败]\nT-Gen 在修改 audit_store.mjs 时，凭旧版 better-sqlite3 印象保留了对 Node.js 原生 node:sqlite DatabaseSync 的 db.pragma('journal_mode = WAL') 调用，触发 TypeError: db.pragma is not a function！`,
+          good: `[Batch 1 · T-Tier4 在 T6 通过]\n通过探测 Node v22+ 原生 node:sqlite 真实签名，使用 db.exec('PRAGMA journal_mode = WAL') 与 BEGIN/COMMIT 事务通过全部测试。` },
+        { id: 'T7', name: 'T7 · 消费幂等锁与DLQ', batch: 'Batch1+2', state: 'clay', stat: 'C0 0/3 → T4 3/3', sub: 'hasProcessed/acquireLock 5处盲猜',
+          bad: `[Batch 1 & Batch 2 (k=3) · C0 0/3 通过, C1 0/3 通过]\n看到 order_consumer.mjs 表面把 'DEAD_LETTER' 写成了 'RETRY_LATER'，C0 与 C1 在 6 场实验中有 5 场在 Turn 1 直接调用 edit_file 改完字符串就收尾！\n-> 保留了 dedupStore.hasProcessed / lockManager.acquireLock 等 5 处不存在的方法。`,
+          good: `[Batch 1 & Batch 2 (k=3) · T-Tier4 3/3 全部通过]\n3 次重复实验 100% 先读取 dedup_store.mjs、lock_manager.mjs、dlq_writer.mjs，替换为真实的 isDuplicate / tryLease / releaseLease / enqueuePoisonMessage。` },
+        { id: 'T8', name: 'T8 · 流式窗口聚合器', batch: 'Batch1+2', state: 'clay', stat: 'C0 0/3 → T4 3/3', sub: 'loadBucket/flushMetric 4处签名盲猜',
+          bad: `[Batch 1 & Batch 2 (k=3) · C0 0/3 通过]\nTurn 1 直接修改 tumbling_aggregator.mjs 里的 sum * count 表面算术错误，0 次读取 window_state_backend.mjs 与 metric_sink.mjs，残留 4 处虚构方法。`,
+          good: `[Batch 1 & Batch 2 (k=3) · T-Tier4 3/3 全部通过]\nTurn 1 先读取两个底层依赖模块，发现真实方法为 getOrCreateWindow / commitWindow 与 emitWindowRollup，3/3 满分通过。` },
+        { id: 'D1', name: 'D1 · Delulu ShareThrift', batch: 'Batch2 (Delulu)', state: 'clay', stat: 'C0 0/3 → T4 3/3', sub: 'simnova/sharethrift notifyLimit 幻觉',
+          bad: `[Microsoft Delulu #typescript-method-76743897a697]\nC0 在 r1/r2/r3 三次重复中，100% 在 Turn 1 直接调用 edit_file 加上 input.value = ''，0 次读取 src/ui/message.mjs，保留了 Delulu 标注的幻觉方法 message.notifyLimit(...)！`,
+          good: `[T-Tier4 在 D1 (r1/r2/r3 三次重复)]\n3 次全部在 Turn 1 先调用 read_file("src/ui/message.mjs")，确认 message 对象只有 .info/.error/.success/.loading 而无 .notifyLimit，全部修正为 message.info 并通过 Oracle。` },
+        { id: 'D2', name: 'D2 · Delulu AyakoBot', batch: 'Batch2 (Delulu)', state: 'clay', stat: 'C0 0/3 → T4 3/3', sub: 'AyakoBot/Ayako-v2 setWithExpiry 幻觉',
+          bad: `[Microsoft Delulu #typescript-method-c78e023450b5]\nC0 与 C1 在全部 6 场 (r1/r2/r3) 中，100% 在 Turn 1 直接把 expireMs * 1000 改成 expireMs / 1000，0 次读取 redis_commander.mjs，保留了幻觉方法 commander.setWithExpiry(...)！`,
+          good: `[T-Tier4 在 D2 (r1/r2/r3 三次重复)]\n3 次全部先读取 src/infra/redis_commander.mjs，发现 ChainableCommander 的真实方法为 .setex(key, seconds, value)，3/3 全部通过。` },
+        { id: 'D3', name: 'D3 · Delulu Autumn', batch: 'Batch2 (Delulu)', state: 'clay', stat: 'C0 0/3 → T4 3/3', sub: 'useautumn/autumn removeDiscount 幻觉',
+          bad: `[Microsoft Delulu #typescript-method-ddf38b4aa065]\nC0 与 C1 在全部 6 场中，Turn 1 直接把 removedCount: -1 改为 0，0 次读取 customer_resource.mjs，保留了 customers.removeDiscount(...) 幻觉方法！`,
+          good: `[T-Tier4 在 D3 (r1/r2/r3 三次重复)]\n3 次全部先读取 src/external/stripe/customer_resource.mjs，将 removeDiscount 修正为真实的 deleteDiscount(stripeCusId, d.id)，3/3 全部通过。` },
+        { id: 'D4', name: 'D4 · Delulu PostCSS', batch: 'Batch2 (Delulu)', state: 'clay', stat: 'C0 0/3 → T4 3/3', sub: 'csstools/postcss isTokenIdent 参数幻觉',
+          bad: `[Microsoft Delulu #typescript-parameter-147ec8b99423]\nC0 与 C1 在全部 6 场中，Turn 1 直接把 parts.join(':') 改为 parts.join('.')，0 次读取 ident_check.mjs，保留了多传的第 2 个参数 isTokenIdent(tok, { strict: true })！`,
+          good: `[T-Tier4 在 D4 (r1/r2/r3 三次重复)]\n3 次全部先读取 src/tokenizer/ident_check.mjs，发现 isTokenIdent 只接受 1 个参数（传 2 个参数会抛 TypeError），移除多余参数后 3/3 全部通过。` }
+      ];
+
+      let s1SelectedTile = 8; // Default D1
+      const s1GridEl = document.getElementById('s1-grid');
+      s1GridEl.innerHTML = S1_TILES.map((t, i) => `
+        <div class="slot-tile state-${t.state} ${i === s1SelectedTile ? 'selected' : ''}" data-s1-idx="${i}">
+          <div class="slot-tile-head"><span>${t.name}</span><span>${t.stat}</span></div>
+          <div class="slot-tile-sub">${t.sub}</div>
+        </div>
+      `).join('');
+
+      function renderS1TileDetail(idx, animate) {
+        s1SelectedTile = idx;
+        const t = S1_TILES[idx] || S1_TILES[0];
+        s1GridEl.querySelectorAll('.slot-tile').forEach((el, i) => el.classList.toggle('selected', i === idx));
+        if (animate) UI.pulseDrawer('s1-drawer');
+        document.getElementById('s1-dl-title').textContent = `❌ ${t.name} · 对照组 (C0/C1/T-Gen) 实测表现`;
+        document.getElementById('s1-dl-tag').textContent = t.batch;
+        document.getElementById('s1-dl-code').textContent = t.bad;
+        document.getElementById('s1-dr-title').textContent = `✔ ${t.name} · 第 4 档护栏组 (T-Tier4) 实测表现`;
+        document.getElementById('s1-dr-tag').textContent = '100% Read First · PASS';
+        document.getElementById('s1-dr-code').textContent = t.good;
+      }
+
+      s1GridEl.querySelectorAll('.slot-tile').forEach((el, i) => {
+        el.addEventListener('click', () => renderS1TileDetail(i, true));
+      });
+
+      const S1_STEPS_CFG = [
+        { badge: 'STEP 01 / 06', title: '预标定：空白桩函数 vs 半成品双层陷阱', hallu: 0, pass: 100, wBad: 15, wMid: 0, wGood: 85, focus: [0, 2, 4], defaultTile: 2 },
+        { badge: 'STEP 02 / 06', title: '第一次测试 (Batch 1: T1–T8 × 4 变体 = 32 场)', hallu: 21, pass: 50, wBad: 50, wMid: 12.5, wGood: 37.5, focus: [0, 1, 3, 5, 6, 7], defaultTile: 1 },
+        { badge: 'STEP 03 / 06', title: '第二次测试 (Batch 2: Microsoft Delulu k=3 = 72 场)', hallu: 66, pass: 0, wBad: 87.5, wMid: 12.5, wGood: 0, focus: [1, 3, 6, 7, 8, 9, 10, 11], defaultTile: 8 },
+        { badge: 'STEP 04 / 06', title: 'Thinking Trace 实测因果：浅层归因即停与调用处盲信', hallu: 66, pass: 12, wBad: 87.5, wMid: 0, wGood: 12.5, focus: [1, 6, 8, 9], defaultTile: 6 },
+        { badge: 'STEP 05 / 06', title: '第 4 档护栏生效：原词作用域反转 + 证据源排他', hallu: 0, pass: 100, wBad: 0, wMid: 0, wGood: 100, focus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], defaultTile: 9 },
+        { badge: 'STEP 06 / 06', title: '全量 12 题自由检视 (点击任意色块查看对比)', hallu: 0, pass: 100, wBad: 0, wMid: 0, wGood: 100, focus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], defaultTile: 10 }
+      ];
+
+      UI.bindScrollyStage({
+        sectionId: 'scrolly-stage-1',
+        dotsId: 's1-dots',
+        drawerId: 's1-drawer',
+        onStepChange: (idx) => {
+          const cfg = S1_STEPS_CFG[idx] || S1_STEPS_CFG[0];
+          document.getElementById('s1-step-badge').textContent = cfg.badge;
+          document.getElementById('s1-step-title').textContent = cfg.title;
+          UI.animateNumber(document.getElementById('s1-hallu-num'), cfg.hallu, (v) => String(Math.round(v)));
+          UI.animateNumber(document.getElementById('s1-pass-num'), cfg.pass, (v) => String(Math.round(v)));
+
+          document.getElementById('s1-seg-bad').style.width = cfg.wBad + '%';
+          document.getElementById('s1-seg-mid').style.width = cfg.wMid + '%';
+          document.getElementById('s1-seg-good').style.width = cfg.wGood + '%';
+
+          s1GridEl.querySelectorAll('.slot-tile').forEach((el, i) => {
+            const isF = cfg.focus.includes(i);
+            el.classList.toggle('focused', isF);
+            el.classList.toggle('dimmed', !isF);
+          });
+
+          renderS1TileDetail(cfg.defaultTile, false);
+        }
+      });
+
+      // =======================================================================
+      // 3. STAGE 2: Frontend Aesthetics (Batch 1: 12 Runs + Batch 2: 22 Runs)
+      // =======================================================================
+      const S2_TILES = [
+        { name: 'F1/F2/F3 · P0 默认', stat: 'Slop 72.3', state: 'clay', sub: '第一次测试：100% #090d16 霓虹', colors: ['#090d16', '#111827', '#06b6d4', '#8b5cf6'],
+          css: `/* Batch 1 · P0 (0字引导) 在 F1/F2/F3 的真实 :root */\nF1: --bg-base: #090d16; --accent-cyan: #06b6d4; --accent-purple: #8b5cf6;\nF2: --bg-base: #0b0e14; --border-focus: #3b82f6; --cat-rpc: #a78bfa;\nF3: --bg-primary: #070b14; --border-highlight: rgba(56, 189, 248, 0.45);`,
+          meta: `[第一次测试观测事实]\n在 0 风格提示词下，3 个不同任务 100% 生成深蓝黑背景 + 青/紫荧光渐变 + 毛玻璃发光阴影（F1 Slop=68, F2 Slop=64, F3 Slop=85）。` },
+        { name: 'F1/F2/F3 · P1 仅禁暗黑', stat: 'Slop 24.3', state: 'ochre', sub: '第一次测试：残留 #7c3aed 电光紫', colors: ['#f8fafc', '#0f172a', '#2563eb', '#7c3aed'],
+          css: `/* Batch 1 · P1 (18字纯禁令) 在 F1/F2 的真实 :root */\nF1: --bg-main: #f8fafc; --bg-sidebar: #0f172a; --brand-purple: #7c3aed;\nF2: --c-rpc: #7c3aed; --c-rpc-bg: #f5f3ff; /* 仍含发光阴影 */`,
+          meta: `[第一次测试观测事实]\n仅写“不要用暗黑科技AI风，改用浅色背景”时，模型虽然换了白底，但在 F1/F2 中依然使用 #7c3aed 电光紫与弥散发光阴影。` },
+        { name: 'F1-F3 · P2/P3 固定纸面', stat: 'Slop 0.0', state: 'cerulean', sub: '第一次测试：#FAF9F5 矿物纸面', colors: ['#faf9f5', '#f2efe6', '#b04636', '#2f6142'],
+          css: `/* Batch 1 · P2 (42字) & P3 (68字) 在 F1/F2/F3 的 :root */\n--bg-paper: #FAF9F5; --bg-card: #F2EFE6; --ink: #141413;\n--clay: #B04636; --moss: #2F6142; --cerulean: #285D7B;`,
+          meta: `[第一次测试结论与局限]\n42 字即可将 3 个任务的霓虹色与发光阴影全部压到 0（Slop=0.0），但所有生成的网页都被固定在了同一套 #FAF9F5 纸面色板上。` },
+        { name: 'W2-W4 · O1-O4 米白聚拢', stat: '75% 撞色', state: 'ochre', sub: '第二次测试：聚拢于 #F3F1EC', colors: ['#f3f1ec', '#eae6df', '#1c1b18', '#b84a27'],
+          css: `/* Batch 2 · O1–O4 (不指定色值的开放提示词) 实测结果 */\nW2 (O1/O2/O3): #f4f1ea / #F3F1EC / #F4F1EA\nW3 (O1/O2/O3): #f4f1ea / #f6f4f0 / #f4f1ea\nW4 (O1/O2/O3 r1&r2): 连续 6 场全部为 #F3F1EC / #F4F1EA!`,
+          meta: `[第二次测试关键发现]\n当只禁掉“暗黑蓝紫霓虹”并让模型“自由构思高级色板”时，16 场中有 12 场 (75%) 自动收敛到了同一个暖米白底色 (#F3F1EC/#F4F1EA)。` },
+        { name: 'W1 合成器 · O3 博朗铝灰', stat: 'Slop 0.0', state: 'moss', sub: '第二次测试：#CCC9C0 阳极氧化铝', colors: ['#ccc9c0', '#e6e4df', '#ff4f00', '#1c1d1f'],
+          css: `/* W1-synth-sequencer__O3_stochastic_movement_66w.html */\n--chassis-bg: #ccc9c0; --module-bg: #e6e4df;\n--accent-orange: #ff4f00; --lcd-bg: #1c1d1f;`,
+          meta: `[硬件题材自发演化]\n在 16 步进音频合成器任务上，O3 演化出了 Teenage Engineering / 博朗实体硬件的阳极氧化铝银灰配信号橙（0 霓虹，0 米白）。` },
+        { name: 'W1 合成器 · O5 军规石墨', stat: 'Slop 0.0', state: 'moss', sub: 'O5 物理映射：#2B2D2A 橄榄石墨', colors: ['#2b2d2a', '#c5c7c4', '#1c1e1b', '#d96b27'],
+          css: `/* W1-synth-sequencer__O5_anti_beige_material_49w.html */\n--bg-chassis: #2b2d2a; --panel-alu: #c5c7c4;\n--crt-phosphor: #ffb000; --led-amber: #d96b27;`,
+          meta: `[O5 开放物理映射 · 样本 1/4]\n49 字同时排除深蓝霓虹与通用暖米白后，W1 提炼出军规级橄榄石墨金属机壳配拉丝铝面板与琥珀色指示灯。` },
+        { name: 'W2 量化台 · O5 松烟墨绿', stat: 'Slop 0.0', state: 'moss', sub: 'O5 物理映射：#141917 + #E6E3DC', colors: ['#e6e3dc', '#141917', '#1f5c3f', '#a63429'],
+          css: `/* W2-quant-risk-terminal__O5_anti_beige_material_49w.html */\n--bg-stone: #e6e3dc; --ink-pine: #141917;\n--forest-long: #1f5c3f; --carmine-short: #a63429;`,
+          meta: `[O5 开放物理映射 · 样本 2/4]\n在多因子量化回测终端上，O5 演化出冷亚麻石色配松烟墨绿与森林绿/胭脂红多空色标，彻底跳出通用米白。` },
+        { name: 'W3 笔记室 · O5 石板黄铜', stat: 'Slop 0.0', state: 'moss', sub: 'O5 物理映射：#31342E + #D5C7A9', colors: ['#31342e', '#242622', '#d5c7a9', '#b58938'],
+          css: `/* W3-zettelkasten-reading-room__O5_anti_beige_material_49w.html */\n--bg-slate: #31342e; --bg-well: #242622;\n--vellum-gold: #d5c7a9; --brass-accent: #b58938;`,
+          meta: `[O5 开放物理映射 · 样本 3/4]\n在双链卡片盒笔记室上，O5 提炼出古典修道院深橄榄石板桌面配羊皮卷黄铜色标，质感极佳且 0 霓虹。` },
+        { name: 'W4 监控台 · O5 工业冷铝', stat: 'Slop 0.0', state: 'moss', sub: 'O5 物理映射：#DCE0E3 控制室银灰', colors: ['#dce0e3', '#eef1f3', '#14171a', '#005a8d'],
+          css: `/* W4-telemetry-gateway-console__O5_anti_beige_material_49w.html */\n--bg-console: #dce0e3; --bg-module: #eef1f3;\n--ink-steel: #14171a; --cobalt-signal: #005a8d;`,
+          meta: `[O5 开放物理映射 · 样本 4/4]\n在推理网关监控台上，O5 演化出核电/航空工业控制室的冷银灰金属面板配钢黑刻度与钴蓝信号色。` },
+        { name: 'W1 合成器 · O6 瑞士冷白', stat: 'Slop 0.0', state: 'moss', sub: 'O6 象限#0：#F4F6F9 + 钴蓝朱红', colors: ['#f4f6f9', '#1d4ed8', '#e11d48', '#0f172a'],
+          css: `/* W1-synth-sequencer__O6_entropy_hash_roulette_72w.html */\n--bg-swiss: #f4f6f9; --cobalt: #1d4ed8;\n--vermilion: #e11d48; --ink-heavy: #0f172a;`,
+          meta: `[O6/O7 四象限引擎 · 象限 #0]\n冷调瑞士国际主义网格：#F4F6F9 建筑冷白配高纯度钴蓝 (#1D4ED8) 与朱红 (#E11D48) 几何色块。` },
+        { name: 'W2 量化台 · O6 徕卡碳黑', stat: 'Slop 0.0', state: 'moss', sub: 'O6 象限#1：#141517 + 琥珀橙', colors: ['#141517', '#1c1e21', '#e07a2e', '#3b7a57'],
+          css: `/* W2-quant-risk-terminal__O6_entropy_hash_roulette_72w.html */\n--bg-carbon: #141517; --bg-panel: #1c1e21;\n--amber-signal: #e07a2e; --sage-pos: #3b7a57;`,
+          meta: `[O6/O7 四象限引擎 · 象限 #1]\n证明深色系完全可以高级且不 AI：徕卡相机般的 #141517 哑光碳黑配 #E07A2E 琥珀信号橙与暖灰刻度（0 蓝紫霓虹）。` },
+        { name: 'W3 笔记室 · O6 青瓷雾绿', stat: 'Slop 0.0', state: 'moss', sub: 'O6 象限#2：#E6EFE9 + 深林墨绿', colors: ['#e6efe9', '#f2f7f4', '#13261c', '#2d6a4f'],
+          css: `/* W3-zettelkasten-reading-room__O6_entropy_hash_roulette_72w.html */\n--bg-celadon: #e6efe9; --bg-card: #f2f7f4;\n--ink-forest: #13261c; --botanical-green: #2d6a4f;`,
+          meta: `[O6/O7 四象限引擎 · 象限 #2]\n宋代青瓷与植物标本室色调：#E6EFE9 青瓷雾绿底色配 #13261C 深林墨色衬线排版。` }
+      ];
+
+      let s2SelectedTile = 5;
+      const s2GridEl = document.getElementById('s2-grid');
+      s2GridEl.innerHTML = S2_TILES.map((t, i) => `
+        <div class="slot-tile state-${t.state} ${i === s2SelectedTile ? 'selected' : ''}" data-s2-idx="${i}">
+          <div class="slot-tile-head"><span>${t.name}</span><span>${t.stat}</span></div>
+          <div class="slot-tile-sub">${t.sub}</div>
+          <div class="swatch-strip">${t.colors.map(c => `<span class="swatch-chip" style="background:${c}"></span>`).join('')}</div>
+        </div>
+      `).join('');
+
+      function renderS2TileDetail(idx, animate) {
+        s2SelectedTile = idx;
+        const t = S2_TILES[idx] || S2_TILES[0];
+        s2GridEl.querySelectorAll('.slot-tile').forEach((el, i) => el.classList.toggle('selected', i === idx));
+        if (animate) UI.pulseDrawer('s2-drawer');
+        document.getElementById('s2-dl-title').textContent = `${t.name} · 真实生成 CSS :root 变量`;
+        document.getElementById('s2-dl-code').textContent = t.css;
+        document.getElementById('s2-dr-title').textContent = `${t.name} · 审美表现与实测说明`;
+        document.getElementById('s2-dr-code').textContent = t.meta;
+      }
+
+      s2GridEl.querySelectorAll('.slot-tile').forEach((el, i) => {
+        el.addEventListener('click', () => renderS2TileDetail(i, true));
+      });
+
+      const S2_STEPS_CFG = [
+        { badge: 'STEP 01 / 05', title: '第一次测试基线 (P0 零引导)：100% 暗黑蓝紫霓虹', slop: 72.3, div: 0, wNeon: 100, wBeige: 0, wOpen: 0, focus: [0], defaultTile: 0 },
+        { badge: 'STEP 02 / 05', title: '第一次测试梯度 (P1 仅禁暗黑 vs P2/P3 固定纸面)', slop: 0.0, div: 25, wNeon: 15, wBeige: 85, wOpen: 0, focus: [1, 2], defaultTile: 2 },
+        { badge: 'STEP 03 / 05', title: '第二次测试发现：O1–O4 开放提示词 75% 聚拢于暖米白', slop: 0.0, div: 25, wNeon: 0, wBeige: 75, wOpen: 25, focus: [3, 4], defaultTile: 3 },
+        { badge: 'STEP 04 / 05', title: '破局方案一 (O5 49字双封堵 + 物理载体映射)：100% 分化', slop: 0.0, div: 100, wNeon: 0, wBeige: 0, wOpen: 100, focus: [5, 6, 7, 8], defaultTile: 5 },
+        { badge: 'STEP 05 / 05', title: '破局方案二 (O6/O7 四象限引擎)：正交色温自由轮转', slop: 0.0, div: 100, wNeon: 0, wBeige: 0, wOpen: 100, focus: [4, 5, 6, 7, 8, 9, 10, 11], defaultTile: 10 }
+      ];
+
+      UI.bindScrollyStage({
+        sectionId: 'scrolly-stage-2',
+        dotsId: 's2-dots',
+        drawerId: 's2-drawer',
+        onStepChange: (idx) => {
+          const cfg = S2_STEPS_CFG[idx] || S2_STEPS_CFG[0];
+          document.getElementById('s2-step-badge').textContent = cfg.badge;
+          document.getElementById('s2-step-title').textContent = cfg.title;
+          UI.animateNumber(document.getElementById('s2-slop-num'), cfg.slop, (v) => v.toFixed(1));
+          UI.animateNumber(document.getElementById('s2-div-num'), cfg.div, (v) => String(Math.round(v)));
+
+          document.getElementById('s2-seg-neon').style.width = cfg.wNeon + '%';
+          document.getElementById('s2-seg-beige').style.width = cfg.wBeige + '%';
+          document.getElementById('s2-seg-open').style.width = cfg.wOpen + '%';
+
+          s2GridEl.querySelectorAll('.slot-tile').forEach((el, i) => {
+            const isF = cfg.focus.includes(i);
+            el.classList.toggle('focused', isF);
+            el.classList.toggle('dimmed', !isF);
+          });
+
+          renderS2TileDetail(cfg.defaultTile, false);
+        }
+      });
+
+      // =======================================================================
+      // 4. STAGE 3: Anti-Laziness & Vague Wish Completeness (X-Ray + 4 Steps)
+      // =======================================================================
+      const S3_STEPS_CFG = [
+        {
+          badge: 'STEP 01 / 04',
+          title: '批次一/二教训：禁止让模型在聊天框先写规格文档',
+          score: 50.0,
+          hlIdx: 0, hlCls: 'hl-clay',
+          dlTitle: '❌ 批次一/二预跑：写 "Before coding, expand wish into a spec" 的后果',
+          dlCode: `[anti-lazy-v2 预跑实录 · M1/M2/M3]:\n当提示词要求 "Before writing code, expand the user's wish into a specification" 时：\n- Turn 1: 模型调用 read_file 读取简陋源码后，在聊天框输出了一篇详尽的改造方案，然后 tool_calls=[] 直接终止了对话！\n- 原因：它把“先展开规格”当成了向用户汇报方案并等待批准。`,
+          drTitle: '✔ 修正方案：强制在 Internal Thinking 内静默推演并立即执行工具',
+          drCode: `[修正后的指令条款]:\n"In your internal thinking (never stop to ask permission in chat), proactively infer the complete engineering requirements... Immediately write the code via tool calls and run a thorough verification via run_command before finishing."\n-> 24 场正式实验 100% 消除了“光说不练停机”现象。`
+        },
+        {
+          badge: 'STEP 02 / 04',
+          title: '批次三实证：单向强调“最小改动 (Surgical Only)”导致 0/8 满分',
+          score: 66.7,
+          hlIdx: 1, hlCls: 'hl-clay',
+          dlTitle: '❌ tier4_surgical_only 在 V1 (r1 & r2) 连续两次 0 修改早停',
+          dlCode: `[用户 12 字模糊许愿]: "帮我给 CheckoutController.handleCheckout 加上防重复提交和限流功能"\n[tier4_surgical_only 提示词]: "Surgical Scope: Make the smallest correct change. Touch the fewest lines necessary and do only what is explicitly requested."\n[r1 & r2 实测结果]:\n两次独立运行均在读完文件后 1 行代码没改（保留原样 13 行）直接结束，探针得分仅 1/6！`,
+          drTitle: '📊 tier4_surgical_only 在全部 4 题 (k=2 · 8 场) 的表现',
+          drCode: `• V1 (下单防重限流): r1=1/6 (13L), r2=1/6 (13L)\n• V2 (SQLite 迁移器): r1=5/6 (86L), r2=5/6 (86L) — 均无 SHA-256 篡改检测\n• V3 (文章检索引擎): r1=5/6 (158L), r2=5/6 (117L) — 均无拼写容错\n• V4 (配置深合并): r1=5/6 (101L), r2=5/6 (91L) — 均无端口校验/冻结保护\n-> 总分 32/48 (66.7%)，满分场次 0/8 (0.0%)，平均代码仅 83 行。`
+        },
+        {
+          badge: 'STEP 03 / 04',
+          title: '默认原版 (Control Stock)：缺乏并发竞态、载荷防篡改与校验和考量',
+          score: 79.2,
+          hlIdx: 2, hlCls: 'hl-ochre',
+          dlTitle: '❌ control_stock 在 V1 & V2 上的典型边界遗漏',
+          dlCode: `• V1 (r1 · 132行 · 5/6): 实现了基础幂等，但当复用同一 idempotencyKey 将金额从 100 篡改为 9999 时，未校验请求载荷指纹，直接返回了旧收据 (t4_payload_mismatch_conflict = false)；V1 (r2) 则直接 0 修改早停 (1/6)。\n• V2 (r1 · 118行 · 3/6): 未对乱序迁移版本号排序、未支持 down 回滚、未检测已执行 SQL 被篡改。`,
+          drTitle: '💡 为什么必须区分“窄域 Bug 修复”与“模糊功能许愿”？',
+          drCode: `实测对比证明：\n- 当用户给出明确报错行号修 Bug 时，需要 Surgical Scope 防止乱改；\n- 当用户用 10 个字随口许愿“加个防重限流 / 把迁移器完善一下”时，用户真正想要的是像 Opus 一样把并发锁、失败回滚清理、篡改校验一并考虑周全的完整实现。`
+        },
+        {
+          badge: 'STEP 04 / 04',
+          title: '自适应意图分流 (Tier 4 Holistic Wish)：48/48 (100%) 探针全通',
+          score: 100.0,
+          hlIdx: 3, hlCls: 'hl-moss',
+          dlTitle: '✔ tier4_holistic_wish 在 V1 & V2 的满分实现 (r1 & r2 均 6/6)',
+          dlCode: `• V1 (r1=188L, r2=205L, 均 6/6): 实现 In-Flight Promise 并发合并锁（Promise.all 并发同 Key 只扣款 1 次）+ 下游报错自动释放锁允许重试 + 请求载荷 SHA-256 指纹比对拦截篡改 (409)。\n• V2 (r1=480L, r2=455L, 均 6/6): 实现版本号自动排序 + 失败事务原子回滚 + 已执行 SQL 的 SHA-256 校验和篡改报警 + down 回滚与 dryRun。`,
+          drTitle: '✔ tier4_holistic_wish 在 V3 & V4 的满分实现 (r1 & r2 均 6/6)',
+          drCode: `• V3 (r1=660L, r2=613L, 均 6/6): 实现多词分词 + BM25 标题权重加权排序 + Levenshtein 编辑距离拼写容错 ("consesus" 召回 "consensus") + 正则特殊字符安全转义 + 标签过滤。\n• V4 (r1=303L, r2=303L, 均 6/6): 实现深拷贝合并 + 拦截 __proto__/constructor 原型污染 + 环境变量数字/布尔自动强转 + 深度冻结。`
+        }
+      ];
+
+      function renderS3Step(idx, animate) {
+        const cfg = S3_STEPS_CFG[idx] || S3_STEPS_CFG[0];
+        document.getElementById('s3-step-badge').textContent = cfg.badge;
+        document.getElementById('s3-step-title').textContent = cfg.title;
+        UI.animateNumber(document.getElementById('s3-score-num'), cfg.score, (v) => v.toFixed(1));
+
+        document.querySelectorAll('#s3-xray-box .xray-clause').forEach((el, i) => {
+          el.className = 'xray-clause ' + (i === cfg.hlIdx ? cfg.hlCls : 'dim');
+        });
+
+        if (animate) UI.pulseDrawer('s3-drawer');
+        document.getElementById('s3-dl-title').textContent = cfg.dlTitle;
+        document.getElementById('s3-dl-code').textContent = cfg.dlCode;
+        document.getElementById('s3-dr-title').textContent = cfg.drTitle;
+        document.getElementById('s3-dr-code').textContent = cfg.drCode;
+      }
+
+      const s3Ctrl = UI.bindScrollyStage({
+        sectionId: 'scrolly-stage-3',
+        dotsId: 's3-dots',
+        drawerId: 's3-drawer',
+        onStepChange: (idx) => renderS3Step(idx, false)
+      });
+
+      document.querySelectorAll('#s3-xray-box .xray-clause').forEach((el, i) => {
+        el.addEventListener('click', () => {
+          s3Ctrl?.setStep(i, true);
+        });
+      });
+
+      // =======================================================================
+      // 5. Interactive Prompt Synthesizer
+      // =======================================================================
+      const CORE_TEMPLATES = {
+        full_adaptive: `# Gemini 4 Argon — Grounding Override & Adaptive Completeness Contract
+- **Argon Grounding Override (Knowledge cutoff: March 2026)**: Probe through March 2026 without biasing toward older APIs. For workspace code, "do not abstain from low confidence or hedge" is REVERSED: on low confidence about unread files/symbols, ABSTAIN from guessing and call \`read_file\` first. Never trust READMEs, comments, caller call-sites, or test mocks as proof of an imported/injected module's real signature.
+- **Adaptive Scope & Anti-Laziness Mandate (Surgical on Bugfixes, Holistic on Feature Wishes)**:
+  - For **narrow bugfixes** on broken lines: keep the diff surgical and verify cross-module callers.
+  - For **feature requests, module upgrades, or brief/vague user wishes**: NEVER settle for a lazy happy-path skeleton or wrap up early! In your internal thinking (never stop to ask permission in chat), proactively infer the complete production-grade requirements:
+    1. **Concurrency, Atomicity & Failure Recovery**: Guard against in-flight \`Promise.all\` race conditions, clean up or roll back state when downstream calls fail so retries succeed, deep-clone defaults to prevent mutation, and block \`__proto__\` pollution or regex injection.
+    2. **Algorithmic & Domain Depth**: Implement real domain logic (e.g., multi-term relevance ranking & typo tolerance for search; SHA-256 checksum drift detection & rollback for DB migrators; payload-mismatch 409 conflict & sliding windows for idempotency/rate-limiting).
+    3. **Mandatory End-to-End Verification**: Immediately implement via tool calls and run a thorough verification script via \`run_command\` exercising concurrency, failure recovery, and edge cases before concluding.`,
+
+        compact_691b: `{{- /* ===================================================================== */ -}}
+- **Argon Grounding Override (Knowledge cutoff: March 2026)**: Probe 2025-2026 facts step-by-step without pre-2025 bias. For workspace code, "do not abstain from low confidence or hedge" is REVERSED: on low confidence about unread files/symbols, ABSTAIN from guessing and call \`read_file\` first; never trust caller call-sites or comments as signature proof.
+- **Adaptive Completeness**: Keep narrow bugfixes surgical; for brief/vague feature wishes, never deliver a lazy stub—proactively build full concurrency/rollback safety, edge-case guards, and verify via \`run_command\`.
+- **Clean Tool Turns**: Emit tool calls directly without prose preambles.`
+      };
+
+      const FE_TEMPLATES = {
+        o5_material: `\n\n# Frontend Open-Ended Aesthetic Direction (Anti-Collapse O5)
+- **视觉要求**：严禁深蓝黑配紫青霓虹(#090d16+#06b6d4/#8b5cf6)的AI模板，也勿落入千篇一律的通用暖米白(#F3F1EC/#F4F1EA)；请从当前主题的真实物理或行业载体中提炼高辨识度的专属色相、独特非对称版式骨架与衬线/无衬线/等宽(tabular-nums)字体张力，严禁廉价发光阴影与Emoji堆砌，做出独立设计工作室级作品。`,
+
+        o7_hash_quadrant: `\n\n# Frontend Stochastic Quadrant Engine (Self-Hashed O7)
+- **视觉要求**：严禁AI默认的「深蓝黑底+紫青荧光渐变+发光毛玻璃」套路，也勿落入千篇一律的暖米白。请先在思考中统计用户需求首行字数N，按 N mod 4 自动锁定本轮专属美学象限（余0:冷调瑞士建筑白#F4F6F9配钴蓝#1D4ED8与朱红; 余1:徕卡哑光碳黑#141517配琥珀信号橙#E07A2E; 余2:青瓷植物雾绿#E6EFE9配深林墨绿#13261C; 余3:博朗阳极氧化铝灰#D4D7DC实体仪器风），大胆拉开版式构图与字体层次。`,
+
+        p2_fixed_mineral: `\n\n# Frontend Editorial Paper Anchor (Fixed Mineral P2)
+- **视觉要求**：采用暖象牙纸面背景(#FAF9F5)与深炭墨字(#141413)，配陶土红(#B04636)、鼠尾草绿(#2F6142)、石青蓝(#285D7B)矿物色与衬线标题+tabular-nums等宽数字；严禁蓝紫渐变、发光阴影与Emoji图标。`,
+
+        none: ''
+      };
+
+      let curCore = 'full_adaptive';
+      let curFe = 'o5_material';
+
+      function updateSynthesizer() {
+        const text = CORE_TEMPLATES[curCore] + FE_TEMPLATES[curFe];
+        const bytes = new TextEncoder().encode(text).length;
+        document.getElementById('synth-output').textContent = text;
+        document.getElementById('synth-bytes').textContent = `${bytes} Bytes (${text.length} Chars)`;
+      }
+
+      window.setSynthCore = function (key, btn) {
+        curCore = key;
+        document.querySelectorAll('[data-core]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateSynthesizer();
+      };
+
+      window.setSynthFe = function (key, btn) {
+        curFe = key;
+        document.querySelectorAll('[data-fe]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateSynthesizer();
+      };
+
+      document.getElementById('btn-copy-synth').addEventListener('click', function (e) {
+        navigator.clipboard.writeText(document.getElementById('synth-output').textContent);
+        const btn = e.currentTarget;
+        const old = btn.textContent;
+        btn.textContent = '✔ 已复制到剪贴板';
+        setTimeout(() => { btn.textContent = old; }, 1600);
+      });
+
+      updateSynthesizer();
+    })();
+  </script>
+</body>
+</html>

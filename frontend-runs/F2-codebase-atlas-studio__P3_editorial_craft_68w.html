@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codebase Search & Dependency Atlas — 语义检索与架构图谱工作台</title>
+<style>
+  :root {
+    /* 暖象牙与燕麦纸张基底 */
+    --bg-canvas: #FAF9F5;
+    --bg-surface: #F2EFE6;
+    --bg-surface-hover: #EAE5D9;
+    --bg-elevated: #FFFFFF;
+    --bg-code: #F6F4EC;
+
+    /* 墨色层级 */
+    --ink-primary: #181816;
+    --ink-secondary: #52514C;
+    --ink-muted: #85837B;
+
+    /* 1px 细边框与网格线 */
+    --border-hairline: #DEDAD0;
+    --border-strong: #C2BDB0;
+    --grid-line: rgba(24, 24, 22, 0.045);
+
+    /* 矿物四色系统 */
+    --terracotta: #C85A32;
+    --terracotta-tint: rgba(200, 90, 50, 0.10);
+    --sage: #3D6E59;
+    --sage-tint: rgba(61, 110, 89, 0.10);
+    --azurite: #2F5D8C;
+    --azurite-tint: rgba(47, 93, 140, 0.10);
+    --ochre: #B8862D;
+    --ochre-tint: rgba(184, 134, 45, 0.12);
+
+    /* 字体排印体系 */
+    --font-serif: "Newsreader", "Source Serif 4", "Georgia", "Songti SC", "SimSun", serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 顶部出版物眉题栏 */
+  .pub-masthead {
+    border-bottom: 1px solid var(--border-hairline);
+    padding: 8px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--bg-canvas);
+  }
+
+  .pub-masthead-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--sage);
+    margin-right: 6px;
+  }
+
+  /* 主控头部区 */
+  .workbench-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border-hairline);
+    background-color: var(--bg-canvas);
+    background-image: 
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .title-block h1 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 26px;
+    letter-spacing: -0.015em;
+    color: var(--ink-primary);
+    line-height: 1.2;
+  }
+
+  .title-block p {
+    color: var(--ink-secondary);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .index-metrics {
+    display: flex;
+    gap: 24px;
+    border-left: 1px solid var(--border-strong);
+    padding-left: 18px;
+  }
+
+  .metric-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .metric-val {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    margin-top: 2px;
+  }
+
+  /* 搜索与过滤器工具栏 */
+  .controls-bar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    width: 15px;
+    height: 15px;
+    color: var(--ink-muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 9px 76px 9px 36px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink-primary);
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 150ms ease;
+  }
+
+  .search-input::placeholder {
+    color: var(--ink-muted);
+    font-family: var(--font-sans);
+  }
+
+  .search-input:focus {
+    border-color: var(--terracotta);
+  }
+
+  .search-kbd {
+    position: absolute;
+    right: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    background: var(--bg-surface);
+    padding: 2px 6px;
+    border: 1px solid var(--border-hairline);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .filter-group {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    background: var(--bg-surface);
+    overflow: hidden;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border-hairline);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-family: var(--font-sans);
+    color: var(--ink-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  .filter-btn:last-child {
+    border-right: none;
+  }
+
+  .filter-btn:hover {
+    background-color: var(--bg-surface-hover);
+    color: var(--ink-primary);
+  }
+
+  .filter-btn.active {
+    background-color: var(--ink-primary);
+    color: var(--bg-canvas);
+    font-weight: 500;
+  }
+
+  .filter-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .filter-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.75;
+  }
+
+  /* 顶部模块体积占比条 (LOC Distribution Bar) */
+  .loc-spectrum-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    padding: 12px 16px;
+    border-radius: 2px;
+  }
+
+  .spectrum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 11.5px;
+    color: var(--ink-secondary);
+  }
+
+  .spectrum-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ink-secondary);
+  }
+
+  .legend-swatch {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+  }
+
+  .spectrum-bar {
+    height: 22px;
+    width: 100%;
+    display: flex;
+    gap: 2px;
+    background: var(--border-hairline);
+    padding: 2px;
+    border: 1px solid var(--border-strong);
+  }
+
+  .spectrum-seg {
+    height: 100%;
+    cursor: pointer;
+    position: relative;
+    transition: opacity 150ms ease, transform 150ms ease;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    overflow: hidden;
+  }
+
+  .spectrum-seg:hover {
+    opacity: 0.88;
+  }
+
+  .spectrum-seg.active-seg {
+    outline: 2px solid var(--ink-primary);
+    outline-offset: -1px;
+    z-index: 2;
+  }
+
+  .spectrum-seg.dimmed {
+    opacity: 0.22;
+  }
+
+  .seg-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #FFFFFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.02em;
+  }
+
+  /* 主工作台分栏区 */
+  .workbench-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    min-height: 660px;
+  }
+
+  /* 左侧：9模块卡片网格区 */
+  .atlas-grid-section {
+    padding: 24px 28px;
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .section-subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .section-subheader h2 {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fig-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--terracotta);
+    text-transform: uppercase;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: auto;
+  }
+
+  /* 燕麦卡片 */
+  .mod-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: 2px;
+    padding: 15px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 176px;
+    position: relative;
+    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  }
+
+  .mod-card:hover {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .mod-card.selected {
+    background-color: var(--bg-elevated);
+    border-color: var(--terracotta);
+    box-shadow: inset 3px 0 0 var(--terracotta);
+  }
+
+  .mod-card.filtered-out {
+    display: none;
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .cat-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+
+  .cat-core {
+    color: var(--terracotta);
+    background: var(--terracotta-tint);
+    border: 1px solid rgba(200, 90, 50, 0.25);
+  }
+
+  .cat-rpc {
+    color: var(--azurite);
+    background: var(--azurite-tint);
+    border: 1px solid rgba(47, 93, 140, 0.25);
+  }
+
+  .cat-storage {
+    color: var(--sage);
+    background: var(--sage-tint);
+    border: 1px solid rgba(61, 110, 89, 0.25);
+  }
+
+  .coupling-tag {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mod-path {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    word-break: break-all;
+    margin-bottom: 6px;
+    line-height: 1.35;
+  }
+
+  .mod-summary {
+    font-size: 12px;
+    color: var(--ink-secondary);
+    line-height: 1.45;
+    margin-bottom: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-metrics {
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .cm-cell {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cm-label {
+    color: var(--ink-muted);
+    font-size: 10px;
+  }
+
+  .cm-val {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--ink-primary);
+    margin-top: 1px;
+  }
+
+  mark.hl {
+    background-color: var(--ochre-tint);
+    color: var(--ink-primary);
+    border-bottom: 1px solid var(--ochre);
+    padding: 0 1px;
+  }
+
+  /* 空状态 */
+  .empty-state {
+    display: none;
+    padding: 48px 24px;
+    text-align: center;
+    border: 1px dashed var(--border-strong);
+    background: var(--bg-surface);
+    margin: 12px 0 auto;
+  }
+
+  .empty-state h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+
+  .empty-state p {
+    color: var(--ink-secondary);
+    font-size: 12.5px;
+    margin-bottom: 14px;
+  }
+
+  .reset-btn {
+    background: var(--ink-primary);
+    color: var(--bg-canvas);
+    border: none;
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+
+  /* 右侧：依赖详情与真实代码切片对比抽屉 */
+  .inspector-drawer {
+    background-color: var(--bg-canvas);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .drawer-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border-hairline);
+    background-color: var(--bg-surface);
+  }
+
+  .drawer-eyebrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .drawer-path {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    margin-bottom: 6px;
+  }
+
+  .drawer-desc {
+    font-size: 12.5px;
+    color: var(--ink-secondary);
+    line-height: 1.45;
+  }
+
+  .drawer-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-hairline);
+    background: var(--bg-surface);
+    padding: 0 22px;
+    gap: 20px;
+  }
+
+  .d-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 2px;
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: color 150ms ease, border-color 150ms ease;
+  }
+
+  .d-tab:hover {
+    color: var(--ink-primary);
+  }
+
+  .d-tab.active {
+    color: var(--terracotta);
+    border-bottom-color: var(--terracotta);
+  }
+
+  .drawer-content {
+    padding: 20px 22px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .tab-pane {
+    display: none;
+  }
+
+  .tab-pane.active {
+    display: block;
+  }
+
+  /* 局部 28px 坐标网格的架构图谱画布 */
+  .dag-canvas-box {
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg-canvas);
+    background-image: 
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    padding: 14px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+
+  .dag-caption {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+  }
+
+  /* 上下游依赖列表 */
+  .dep-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .dep-col-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .dep-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dep-node-item {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    padding: 7px 10px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-primary);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 150ms ease, background-color 150ms ease;
+  }
+
+  .dep-node-item:hover {
+    border-color: var(--terracotta);
+    background: var(--bg-surface-hover);
+  }
+
+  .dep-jump-arrow {
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+
+  /* 导出符号表 */
+  .symbols-box {
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 14px;
+  }
+
+  .symbols-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+    margin-bottom: 10px;
+  }
+
+  .symbol-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sym-badge {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    background: var(--bg-code);
+    border: 1px solid var(--border-hairline);
+    padding: 3px 8px;
+    color: var(--ink-primary);
+    cursor: pointer;
+    transition: border-color 150ms ease;
+  }
+
+  .sym-badge:hover {
+    border-color: var(--azurite);
+    color: var(--azurite);
+  }
+
+  /* 代码切片对比面板 (Real Code Slice Comparison) */
+  .slice-compare-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    margin-bottom: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .code-slice-card {
+    border: 1px solid var(--border-strong);
+    background: var(--bg-code);
+    margin-bottom: 16px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .slice-header {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-hairline);
+    padding: 7px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .slice-role {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .code-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+  }
+
+  .code-table tr.line-add {
+    background-color: rgba(61, 110, 89, 0.11);
+  }
+
+  .code-table tr.line-del {
+    background-color: rgba(200, 90, 50, 0.11);
+  }
+
+  .code-table tr.line-focus {
+    background-color: rgba(184, 134, 45, 0.12);
+  }
+
+  .ln-col {
+    width: 38px;
+    text-align: right;
+    padding: 0 8px;
+    color: var(--ink-muted);
+    user-select: none;
+    border-right: 1px solid var(--border-hairline);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .code-col {
+    padding: 0 12px;
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--ink-primary);
+  }
+
+  /* 矿物色语法着色 */
+  .tok-kw { color: var(--terracotta); font-weight: 600; }
+  .tok-ty { color: var(--azurite); }
+  .tok-fn { color: var(--sage); font-weight: 600; }
+  .tok-cm { color: var(--ink-muted); font-style: italic; }
+  .tok-nu { color: var(--ochre); }
+
+  /* 底部矩阵注脚 */
+  .atlas-footer-note {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+  }
+
+  @media (max-width: 1180px) {
+    .workbench-body {
+      grid-template-columns: 1fr;
+    }
+    .atlas-grid-section {
+      border-right: none;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+  }
+
+  @media (max-width: 780px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 出版物眉题栏 -->
+  <div class="pub-masthead">
+    <div class="pub-masthead-left">
+      <span><i class="status-dot"></i>AST Semantic Indexer v4.2</span>
+      <span>Repo: <strong>chronos-tensor-runtime</strong> (rev: <span class="num">8f41c09</span>)</span>
+    </div>
+    <div class="num">Monograph Series · Architecture Topology & Static Slice Analysis</div>
+  </div>
+
+  <!-- 工作台顶部检索与体积分布区 -->
+  <header class="workbench-header">
+    <div class="header-top-row">
+      <div class="title-block">
+        <h1>Codebase Search & Dependency Atlas</h1>
+        <p>本地代码库语义检索、跨模块耦合度量与上下游调用切片比对工作台</p>
+      </div>
+      <div class="index-metrics">
+        <div class="metric-item">
+          <span class="metric-label">Core Modules</span>
+          <span class="metric-val num" id="stat-mod-count">9 / 9</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Indexed LOC</span>
+          <span class="metric-val num" id="stat-loc-count">13,760</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Exported Symbols</span>
+          <span class="metric-val num" id="stat-sym-count">225</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Mean Instability (I)</span>
+          <span class="metric-val num">0.46</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自然语言/符号搜索框与过滤器标签 -->
+    <div class="controls-bar">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="8.5" cy="8.5" r="5.5"></circle>
+          <line x1="13" y1="13" x2="17.5" y2="17.5"></line>
+        </svg>
+        <input 
+          type="text" 
+          id="semantic-search" 
+          class="search-input" 
+          placeholder="检索自然语言语义、文件路径或导出符号（如：零拷贝、Arrow、ArenaPool、raft）..."
+          autocomplete="off"
+        >
+        <span class="search-kbd" id="clear-search-btn" title="清空检索">ESC 清空</span>
+      </div>
+
+      <div class="filter-group" role="tablist" aria-label="Module Category Filters">
+        <button class="filter-btn active" data-category="All">
+          <span>All</span>
+          <span class="filter-count" id="count-All">9</span>
+        </button>
+        <button class="filter-btn" data-category="Core Engine">
+          <span class="filter-dot" style="background: var(--terracotta);"></span>
+          <span>Core Engine</span>
+          <span class="filter-count" id="count-Core">3</span>
+        </button>
+        <button class="filter-btn" data-category="RPC Adapters">
+          <span class="filter-dot" style="background: var(--azurite);"></span>
+          <span>RPC Adapters</span>
+          <span class="filter-count" id="count-RPC">3</span>
+        </button>
+        <button class="filter-btn" data-category="Storage">
+          <span class="filter-dot" style="background: var(--sage);"></span>
+          <span>Storage</span>
+          <span class="filter-count" id="count-Storage">3</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 模块体积占比条 (Interactive LOC Volume Distribution Bar) -->
+    <div class="loc-spectrum-panel">
+      <div class="spectrum-header">
+        <span><strong>Fig 1.1 — 模块代码体积占比谱系 (LOC Volume Spectrum)</strong> · 点击色块可直接检视对应模块</span>
+        <div class="spectrum-legend">
+          <span class="legend-item"><i class="legend-swatch" style="background: var(--terracotta);"></i>Core Engine (43.0%)</span>
+          <span class="legend-item"><i class="legend-swatch" style="background: var(--azurite);"></i>RPC Adapters (23.7%)</span>
+          <span class="legend-item"><i class="legend-swatch" style="background: var(--sage);"></i>Storage (33.3%)</span>
+        </div>
+      </div>
+      <div class="spectrum-bar" id="loc-spectrum-bar"></div>
+    </div>
+  </header>
+
+  <!-- 主工作区：左侧 9 模块网格 + 右侧依赖详情与代码切片抽屉 -->
+  <main class="workbench-body">
+    <section class="atlas-grid-section">
+      <div>
+        <div class="section-subheader">
+          <h2>
+            <span class="fig-tag">Fig 1.2</span>
+            <span>核心模块拓扑网格 (Module Dependency Cards)</span>
+          </h2>
+          <span class="num" style="font-size: 11.5px; color: var(--ink-muted);" id="grid-status-text">
+            Showing 9 of 9 modules · Click card to inspect slice
+          </span>
+        </div>
+
+        <div class="cards-grid" id="modules-grid"></div>
+
+        <div class="empty-state" id="empty-state-box">
+          <h3>未匹配到符合语义条件的代码模块</h3>
+          <p>请尝试检索其它 AST 符号名称、架构层次或清空当前过滤条件。</p>
+          <button class="reset-btn" id="reset-all-btn">重置搜索与过滤器</button>
+        </div>
+      </div>
+
+      <div class="atlas-footer-note">
+        <span>Coupling Metric: Robert C. Martin Instability Index <em>I = Ce / (Ca + Ce)</em></span>
+        <span class="num">Color Key: Terracotta (High Coupling) · Ochre (Moderate) · Sage (Stable)</span>
+      </div>
+    </section>
+
+    <!-- 右侧详情与代码切片对比抽屉 -->
+    <aside class="inspector-drawer" id="inspector-drawer">
+      <div class="drawer-header">
+        <div class="drawer-eyebrow">
+          <span class="cat-pill cat-core" id="drawer-cat-pill">Core Engine</span>
+          <span class="num" style="font-size: 11.5px; color: var(--ink-secondary);" id="drawer-metrics-inline"></span>
+        </div>
+        <div class="drawer-path" id="drawer-path">src/core/tensor_graph.rs</div>
+        <p class="drawer-desc" id="drawer-desc"></p>
+      </div>
+
+      <div class="drawer-tabs">
+        <button class="d-tab active" data-tab="topology">上下游依赖拓扑 (Dependency DAG)</button>
+        <button class="d-tab" data-tab="slices">真实代码切片对比 (Code Slice Diff)</button>
+      </div>
+
+      <div class="drawer-content">
+        <!-- Tab 1: 上下游依赖详情与交互式 SVG DAG -->
+        <div class="tab-pane active" id="pane-topology">
+          <div class="dag-canvas-box">
+            <div class="dag-caption">
+              <span>LOCAL CALL-GRAPH TOPOLOGY (CLICK NODE TO NAVIGATE)</span>
+              <span id="dag-instability-readout">I = 0.33</span>
+            </div>
+            <div id="dag-svg-container"></div>
+          </div>
+
+          <div class="dep-columns">
+            <div>
+              <div class="dep-col-title">
+                <span>Upstream Callers (Ca)</span>
+                <span class="num" id="upstream-count">0</span>
+              </div>
+              <ul class="dep-list" id="upstream-list"></ul>
+            </div>
+            <div>
+              <div class="dep-col-title">
+                <span>Downstream Callees (Ce)</span>
+                <span class="num" id="downstream-count">0</span>
+              </div>
+              <ul class="dep-list" id="downstream-list"></ul>
+            </div>
+          </div>
+
+          <div class="symbols-box">
+            <div class="symbols-title">Exported Public Symbols (点击符号填入检索框)</div>
+            <div class="symbol-tags" id="drawer-symbols-list"></div>
+          </div>
+        </div>
+
+        <!-- Tab 2: 真实代码切片对比 -->
+        <div class="tab-pane" id="pane-slices">
+          <div class="slice-compare-meta">
+            <span id="slice-contract-title">ABI Contract & Call-Site Slice</span>
+            <span style="color: var(--sage);" id="slice-perf-note">Zero-Copy Verified</span>
+          </div>
+
+          <!-- 切片 A：当前模块导出实现 -->
+          <div class="code-slice-card">
+            <div class="slice-header">
+              <span class="slice-role" style="color: var(--terracotta);">Slice A · Definition & Contract</span>
+              <span id="slice-a-loc" class="num">src/core/tensor_graph.rs:142-156</span>
+            </div>
+            <table class="code-table" id="slice-a-table"></table>
+          </div>
+
+          <!-- 切片 B：上下游真实调用/重构对比切片 -->
+          <div class="code-slice-card">
+            <div class="slice-header">
+              <span class="slice-role" style="color: var(--azurite);">Slice B · Cross-Module Boundary / Diff</span>
+              <span id="slice-b-loc" class="num">src/rpc/grpc_gateway.rs:88-101</span>
+            </div>
+            <table class="code-table" id="slice-b-table"></table>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+<script>
+  /**
+   * 9 个核心模块的架构图谱与真实代码切片数据集
+   */
+  const MODULES = [
+    {
+      id: "mod-tensor-graph",
+      name: "tensor_graph.rs",
+      path: "src/core/tensor_graph.rs",
+      category: "Core Engine",
+      loc: 2480,
+      symbolsCount: 42,
+      couplingStatus: "High",
+      instability: 0.40,
+      summary: "构建计算图算子拓扑序列，执行算子融合、常量折叠与静态显存生命周期分析。",
+      keywords: ["DAG", "计算图", "算子融合", "拓扑排序", "operator fusion", "graph"],
+      symbols: ["TensorGraph", "OpNode", "TopologicalPass", "fuse_adjacent_ops", "verify_acyclic", "ShapeInference"],
+      upstream: ["mod-exec-scheduler", "mod-grpc-gateway", "mod-arrow-flight"],
+      downstream: ["mod-memory-arena", "mod-mmap-pager"],
+      sliceMeta: {
+        contract: "Operator Fusion Pass · Arena Pinning Contract",
+        perfNote: "-18.4% Kernel Launch Overhead",
+        sliceALoc: "src/core/tensor_graph.rs:214-225",
+        sliceBLoc: "src/core/exec_scheduler.rs:104-115 (Caller Diff)",
+        sliceA: [
+          { ln: 214, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">fuse_adjacent_ops</span>(&<span class="tok-kw">mut</span> self, arena: &<span class="tok-ty">ArenaPool</span>) -> <span class="tok-ty">Result</span>&lt;<span class="tok-ty">usize</span>, <span class="tok-ty">GraphErr</span>&gt; {` },
+          { ln: 215, type: "ctx", code: `    <span class="tok-kw">let</span> schedule = self.<span class="tok-fn">topological_order</span>()?;` },
+          { ln: 216, type: "focus", code: `    <span class="tok-kw">let</span> guard = arena.<span class="tok-fn">pin_subgraph_slab</span>(schedule.<span class="tok-fn">len</span>() * <span class="tok-nu">64</span>)?;` },
+          { ln: 217, type: "ctx", code: `    <span class="tok-kw">for</span> window <span class="tok-kw">in</span> schedule.<span class="tok-fn">windows</span>(<span class="tok-nu">2</span>) {` },
+          { ln: 218, type: "ctx", code: `        <span class="tok-kw">if</span> self.<span class="tok-fn">can_fuse_epilogue</span>(window[<span class="tok-nu">0</span>], window[<span class="tok-nu">1</span>]) {` },
+          { ln: 219, type: "add", code: `            self.<span class="tok-fn">merge_into_fused_kernel</span>(window[<span class="tok-nu">0</span>], window[<span class="tok-nu">1</span>], &guard);` },
+          { ln: 220, type: "ctx", code: `        }` },
+          { ln: 221, type: "ctx", code: `    }` },
+          { ln: 222, type: "ctx", code: `    <span class="tok-ty">Ok</span>(self.fused_count)` },
+          { ln: 223, type: "ctx", code: `}` }
+        ],
+        sliceB: [
+          { ln: 104, type: "ctx", code: `<span class="tok-cm">// Upstream invocation in WorkStealingExecutor::prepare_stage</span>` },
+          { ln: 105, type: "ctx", code: `<span class="tok-kw">fn</span> <span class="tok-fn">compile_stage</span>(graph: &<span class="tok-kw">mut</span> <span class="tok-ty">TensorGraph</span>, pool: &<span class="tok-ty">ArenaPool</span>) -> <span class="tok-ty">StagePlan</span> {` },
+          { ln: 106, type: "del", code: `-   graph.<span class="tok-fn">legacy_unaligned_pass</span>();` },
+          { ln: 107, type: "add", code: `+   <span class="tok-kw">let</span> fused = graph.<span class="tok-fn">fuse_adjacent_ops</span>(pool).<span class="tok-fn">expect</span>(<span class="tok-nu">"arena slab"</span>);` },
+          { ln: 108, type: "focus", code: `    <span class="tok-ty">StagePlan</span>::<span class="tok-fn">from_pinned_nodes</span>(graph.<span class="tok-fn">nodes</span>(), fused)` },
+          { ln: 109, type: "ctx", code: `}` }
+        ]
+      }
+    },
+    {
+      id: "mod-memory-arena",
+      name: "memory_arena.rs",
+      path: "src/core/memory_arena.rs",
+      category: "Core Engine",
+      loc: 1620,
+      symbolsCount: 28,
+      couplingStatus: "Stable",
+      instability: 0.00,
+      summary: "基于 64-Byte 缓存行对齐的零碎片 Slab 内存池，提供跨线程引用计数与 NUMA 页锁定。",
+      keywords: ["内存池", "零拷贝", "对齐", "slab", "allocator", "NUMA", "zero-copy"],
+      symbols: ["ArenaPool", "SlabGuard", "AlignedBuf", "pin_subgraph_slab", "alloc_zeroed_64b", "reclaim_epoch"],
+      upstream: ["mod-tensor-graph", "mod-exec-scheduler", "mod-ipc-shm", "mod-arrow-flight", "mod-mmap-pager"],
+      downstream: [],
+      sliceMeta: {
+        contract: "64-Byte Cacheline Aligned Slab Allocation",
+        perfNote: "0 Heap Syscalls on Hot Path",
+        sliceALoc: "src/core/memory_arena.rs:78-89",
+        sliceBLoc: "src/rpc/ipc_shm.rs:132-140 (Zero-Copy Consumer)",
+        sliceA: [
+          { ln: 78, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">alloc_zeroed_64b</span>(&self, bytes: <span class="tok-ty">usize</span>) -> <span class="tok-ty">Result</span>&lt;<span class="tok-ty">AlignedBuf</span>, <span class="tok-ty">ArenaErr</span>&gt; {` },
+          { ln: 79, type: "focus", code: `    <span class="tok-kw">let</span> aligned = (bytes + <span class="tok-nu">63</span>) & !<span class="tok-nu">63</span>;` },
+          { ln: 80, type: "ctx", code: `    <span class="tok-kw">let</span> head = self.cursor.<span class="tok-fn">fetch_add</span>(aligned, <span class="tok-ty">Ordering</span>::AcqRel);` },
+          { ln: 81, type: "ctx", code: `    <span class="tok-kw">if</span> head + aligned > self.capacity {` },
+          { ln: 82, type: "del", code: `        <span class="tok-kw">return</span> <span class="tok-ty">Err</span>(<span class="tok-ty">ArenaErr</span>::OutOfSlab);` },
+          { ln: 83, type: "ctx", code: `    }` },
+          { ln: 84, type: "add", code: `    <span class="tok-ty">Ok</span>(<span class="tok-ty">AlignedBuf</span>::<span class="tok-fn">from_raw_parts</span>(self.base_ptr, head, aligned))` },
+          { ln: 85, type: "ctx", code: `}` }
+        ],
+        sliceB: [
+          { ln: 132, type: "ctx", code: `<span class="tok-cm">// Shared memory ring directly maps AlignedBuf without memcpy</span>` },
+          { ln: 133, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">publish_tensor_frame</span>(ring: &<span class="tok-ty">ShmRing</span>, arena: &<span class="tok-ty">ArenaPool</span>, len: <span class="tok-ty">usize</span>) {` },
+          { ln: 134, type: "add", code: `+   <span class="tok-kw">let</span> buf = arena.<span class="tok-fn">alloc_zeroed_64b</span>(len).<span class="tok-fn">unwrap</span>();` },
+          { ln: 135, type: "focus", code: `    ring.<span class="tok-fn">enqueue_descriptor</span>(buf.<span class="tok-fn">dma_offset</span>(), buf.<span class="tok-fn">len</span>());` },
+          { ln: 136, type: "ctx", code: `}` }
+        ]
+      }
+    },
+    {
+      id: "mod-exec-scheduler",
+      name: "exec_scheduler.rs",
+      path: "src/core/exec_scheduler.rs",
+      category: "Core Engine",
+      loc: 1810,
+      symbolsCount: 31,
+      couplingStatus: "Moderate",
+      instability: 0.60,
+      summary: "协作式 Work-Stealing 异步任务调度器，负责算子队列优先级抢占与尾延迟抑制。",
+      keywords: ["调度器", "协程", "work-stealing", "scheduler", "async", "队列"],
+      symbols: ["WorkStealingExecutor", "TaskDeque", "StealOutcome", "spawn_pinned", "park_worker", "PriorityClass"],
+      upstream: ["mod-grpc-gateway", "mod-raft-journal"],
+      downstream: ["mod-tensor-graph", "mod-memory-arena", "mod-wal-engine"],
+      sliceMeta: {
+        contract: "Work-Stealing Chase-Lev Deque Dispatch",
+        perfNote: "P99 Tail Latency < 1.2ms",
+        sliceALoc: "src/core/exec_scheduler.rs:188-198",
+        sliceBLoc: "src/rpc/grpc_gateway.rs:62-70 (RPC Ingress Dispatch)",
+        sliceA: [
+          { ln: 188, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">dispatch_batch</span>(&self, graph: <span class="tok-ty">TensorGraph</span>, prio: <span class="tok-ty">PriorityClass</span>) -> <span class="tok-ty">Ticket</span> {` },
+          { ln: 189, type: "focus", code: `    <span class="tok-kw">let</span> worker_id = self.<span class="tok-fn">select_least_loaded_numa</span>();` },
+          { ln: 190, type: "add", code: `    self.deques[worker_id].<span class="tok-fn">push_front</span>(<span class="tok-ty">Task</span>::<span class="tok-fn">new</span>(graph, prio));` },
+          { ln: 191, type: "ctx", code: `    self.Parker.<span class="tok-fn">unpark_one</span>(worker_id);` },
+          { ln: 192, type: "ctx", code: `    <span class="tok-ty">Ticket</span>::<span class="tok-fn">issued_at</span>(<span class="tok-ty">Instant</span>::<span class="tok-fn">now</span>())` },
+          { ln: 193, type: "ctx", code: `}` }
+        ],
+        sliceB: [
+          { ln: 62, type: "ctx", code: `<span class="tok-kw">async fn</span> <span class="tok-fn">handle_infer_rpc</span>(req: <span class="tok-ty">InferRequest</span>, sched: &<span class="tok-ty">WorkStealingExecutor</span>) {` },
+          { ln: 63, type: "del", code: `-   <span class="tok-ty">tokio</span>::<span class="tok-fn">spawn</span>(req.<span class="tok-fn">into_Blocking_task</span>());` },
+          { ln: 64, type: "add", code: `+   <span class="tok-kw">let</span> ticket = sched.<span class="tok-fn">dispatch_batch</span>(req.graph, <span class="tok-ty">PriorityClass</span>::Realtime);` },
+          { ln: 65, type: "focus", code: `    ticket.<span class="tok-fn">await_completion</span>().<span class="tok-kw">await</span>;` },
+          { ln: 66, type: "ctx", code: `}` }
+        ]
+      }
+    },
+    {
+      id: "mod-grpc-gateway",
+      name: "grpc_gateway.rs",
+      path: "src/rpc/grpc_gateway.rs",
+      category: "RPC Adapters",
+      loc: 1140,
+      symbolsCount: 19,
+      couplingStatus: "High",
+      instability: 0.75,
+      summary: "HTTP/2 多路复用 gRPC 网关，内联令牌桶流控、TLS 卸载与截止时间上下文传播。",
+      keywords: ["gRPC", "网关", "流控", "HTTP2", "rate limit", "gateway", "deadline"],
+      symbols: ["GrpcGateway", "TokenBucket", "DeadlineInterceptor", "serve_http2", "decode_ frame_header"],
+      upstream: ["mod-raft-journal"],
+      downstream: ["mod-tensor-graph", "mod-exec-scheduler", "mod-arrow-flight"],
+      sliceMeta: {
+        contract: "Deadline Propagation & Adaptive Token Bucket",
+        perfNote: "Backpressure Shedding at 95% Load",
+        sliceALoc: "src/rpc/grpc_gateway.rs:41-51",
+        sliceBLoc: "src/storage/raft_journal.rs:209-216 (Peer Replication)",
+        sliceA: [
+          { ln: 41, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">intercept_deadline</span>(&self, hdr: &<span class="tok-ty">HeaderMap</span>) -> <span class="tok-ty">Result</span>&lt;<span class="tok-ty">Budget</span>, <span class="tok-ty">RpcStatus</span>&gt; {` },
+          { ln: 42, type: "focus", code: `    <span class="tok-kw">if</span> !self.limiter.<span class="tok-fn">try_acquire_tokens</span>(<span class="tok-nu">1</span>) {` },
+          { ln: 43, type: "del", code: `        <span class="tok-kw">return</span> <span class="tok-ty">Err</span>(<span class="tok-ty">RpcStatus</span>::<span class="tok-fn">resource_exhausted</span>(<span class="tok-nu">"token bucket empty"</span>));` },
+          { ln: 44, type: "ctx", code: `    }` },
+          { ln: 45, type: "add", code: `    <span class="tok-ty">Ok</span>(<span class="tok-ty">Budget</span>::<span class="tok-fn">from_grpc_timeout</span>(hdr.<span class="tok-fn">get</span>(<span class="tok-nu">"grpc-timeout"</span>)))` },
+          { ln: 46, type: "ctx", code: `}` }
+        ],
+        sliceB: [
+          { ln: 209, type: "ctx", code: `<span class="tok-kw">fn</span> <span class="tok-fn">replicate_log_entries</span>(gw: &<span class="tok-ty">GrpcGateway</span>, batch: &[<span class="tok-ty">LogEntry</span>]) -> <span class="tok-ty">Ack</span> {` },
+          { ln: 210, type: "add", code: `+   <span class="tok-kw">let</span> budget = gw.<span class="tok-fn">intercept_deadline</span>(&batch.<span class="tok-fn">headers</span>())?;` },
+          { ln: 211, type: "focus", code: `    gw.<span class="tok-fn">send_compressed_frame</span>(batch, budget)` },
+          { ln: 212, type: "ctx", code: `}` }
+        ]
+      }
+    },
+    {
+      id: "mod-arrow-flight",
+      name: "arrow_flight.rs",
+      path: "src/rpc/arrow_flight.rs",
+      category: "RPC Adapters",
+      loc: 1290,
+      symbolsCount: 24,
+      couplingStatus: "Moderate",
+      instability: 0.60,
+      summary: "Apache Arrow 列式内存布局零拷贝序列化流协议，消除跨节点张量传输的编解码开销。",
+      keywords: ["Arrow", "列式存储", "序列化", "Flight", "columnar", "zero-copy", "IPC"],
+      symbols: ["FlightStreamEncoder", "RecordBatchSlice", "DictionaryBatch", "zero_copy_ipc_write", "validate_schema"],
+      upstream: ["mod-grpc-gateway", "mod-lsm-compactor"],
+      downstream: ["mod-memory-arena", "mod-tensor-graph", "mod-ipc-shm"],
+      sliceMeta: {
+        contract: "Arrow RecordBatch to Slab Buffer Zero-Copy Wire",
+        perfNote: "14.8 GB/s Single-Core Wire Throughput",
+        sliceALoc: "src/rpc/arrow_flight.rs:112-121",
+        sliceBLoc: "src/storage/lsm_compactor.rs:302-309 (Columnar Flush)",
+        sliceA: [
+          { ln: 112, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">zero_copy_ipc_write</span>(batch: &<span class="tok-ty">RecordBatchSlice</span>, arena: &<span class="tok-ty">ArenaPool</span>) -> <span class="tok-ty">IpcFrame</span> {` },
+          { ln: 113, type: "focus", code: `    <span class="tok-kw">let</span> slab = arena.<span class="tok-fn">alloc_zeroed_64b</span>(batch.<span class="tok-fn">body_bytes_len</span>()).<span class="tok-fn">unwrap</span>();` },
+          { ln: 114, type: "add", code: `    <span class="tok-ty">IpcFrame</span>::<span class="tok-fn">bind_shared_buffers</span>(batch.<span class="tok-fn">schema_ref</span>(), slab)` },
+          { ln: 115, type: "ctx", code: `}` }
+        ],
+        sliceB: [
+          { ln: 302, type: "ctx", code: `<span class="tok-kw">fn</span> <span class="tok-fn">stream_sst_segment</span>(batch: &<span class="tok-ty">RecordBatchSlice</span>, arena: &<span class="tok-ty">ArenaPool</span>) {` },
+          { ln: 303, type: "del", code: `-   <span class="tok-kw">let</span> bytes = <span class="tok-ty">ProtobufCodec</span>::<span class="tok-fn">encode_vec</span>(batch);` },
+          { ln: 304, type: "add", code: `+   <span class="tok-kw">let</span> frame = <span class="tok-ty">FlightStreamEncoder</span>::<span class="tok-fn">zero_copy_ipc_write</span>(batch, arena);` },
+          { ln: 305, type: "focus", code: `    frame.<span class="tok-fn">flush_to_channel</span>();` },
+          { ln: 306, type: "ctx", code: `}` }
+        ]
+      }
+    },
+    {
+      id: "mod-ipc-shm",
+      name: "ipc_shm.rs",
+      path: "src/rpc/ipc_shm.rs",
+      category: "RPC Adapters",
+      loc: 840,
+      symbolsCount: 15,
+      couplingStatus: "Stable",
+      instability: 0.33,
+      summary: "同机多进程 POSIX 共享内存无锁环形队列与 Linux eventfd 内核事件通知适配器。",
+      keywords: ["共享内存", "无锁队列", "IPC", "shm", "ringbuffer", "eventfd", "lock-free"],
+      symbols: ["ShmRing", "EventFdNotifier", "RingDescriptor", "enqueue_descriptor", "poll_ring_head"],
+      upstream: ["mod-arrow-flight", "mod-mmap-pager"],
+      downstream: ["mod-memory-arena"],
+      sliceMeta: {
+        contract: "Lock-Free Single-Producer Single-Consumer SHM Ring",
+        perfNote: "190ns Cross-Process Wakeup Latency",
+        sliceALoc: "src/rpc/ipc_shm.rs:54-63",
+        sliceBLoc: "src/storage/mmap_pager.rs:175-182 (Page Export)",
+        sliceA: [
+          { ln: 54, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">enqueue_descriptor</span>(&self, offset: <span class="tok-ty">u64</span>, len: <span class="tok-ty">usize</span>) -> <span class="tok-ty">bool</span> {` },
+          { ln: 55, type: "focus", code: `    <span class="tok-kw">let</span> tail = self.write_idx.<span class="tok-fn">load</span>(<span class="tok-ty">Ordering</span>::Relaxed);` },
+          { ln: 56, type: "add", code: `    self.slots[tail & self.mask] = <span class="tok-ty">RingDescriptor</span> { offset, len: len <span class="tok-kw">as</span> <span class="tok-ty">u32</span> };` },
+          { ln: 57, type: "ctx", code: `    self.write_idx.<span class="tok-fn">store</span>(tail.<span class="tok-fn">wrapping_add</span>(<span class="tok-nu">1</span>), <span class="tok-ty">Ordering</span>::Release);` },
+          { ln: 58, type: "ctx", code: `    self.notifier.<span class="tok-fn">signal_eventfd</span>()` },
+          { ln: 59, type: "ctx", code: `}` }
+        ],
+        sliceB: [
+          { ln: 175, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">export_dirty_page</span>(ring: &<span class="tok-ty">ShmRing</span>, page_paddr: <span class="tok-ty">u64</span>) {` },
+          { ln: 176, type: "add", code: `+   <span class="tok-kw">let</span> notified = ring.<span class="tok-fn">enqueue_descriptor</span>(page_paddr, <span class="tok-nu">4096</span>);` },
+          { ln: 177, type: "focus", code: `    <span class="tok-fn">debug_assert!</span>(notified, <span class="tok-nu">"SHM ring backpressure overflow"</span>);` },
+          { ln: 178, type: "ctx", code: `}` }
+        ]
+      }
+    },
+    {
+      id: "mod-wal-engine",
+      name: "wal_engine.rs",
+      path: "src/storage/wal_engine.rs",
+      category: "Storage",
+      loc: 1560,
+      symbolsCount: 22,
+      couplingStatus: "Stable",
+      instability: 0.25,
+      summary: "预写式日志引擎，采用 SIMD 加速 CRC32C 帧校验与 Group Commit 批量落盘策略。",
+      keywords: ["WAL", "预写日志", "CRC32", "group commit", "fsync", "持久化"],
+      symbols: ["WalSegment", "GroupCommitter", "Crc32Frame", "append_vectored", "sync_fdatasync", "recover_tail"],
+      upstream: ["mod-exec-scheduler", "mod-lsm-compactor", "mod-raft-journal"],
+      downstream: ["mod-mmap-pager"],
+      sliceMeta: {
+        contract: "Vectored Group-Commit with Hardware CRC32C",
+        perfNote: "8.4x IOPS Gain via Batched fdatasync",
+        sliceALoc: "src/storage/wal_engine.rs:140-150",
+        sliceBLoc: "src/storage/raft_journal.rs:94-101 (Consensus Commit)",
+        sliceA: [
+          { ln: 140, type: "ctx", code: `<span class="tok-kw">pub fn</span> <span class="tok-fn">append_vectored</span>(&<span class="tok-kw">mut</span> self, iov: &[<span class="tok-ty">IoSlice</span>]) -> <span class="tok-ty">Result</span>&lt;<span class="tok-ty">Lsn</span>, <span class="tok-ty">WalErr</span>&gt; {` },
+          { ln: 141, type: "focus", code: `    <span class="tok-kw">let</span> crc = <span class="tok-fn">crc32c_hw_accelerate</span>(iov);` },
+          { ln: 142, type: "add", code: `    <span class="tok-kw">let</span> lsn = self.pager.<span class="tok-fn">write_frame_header</span>(crc, iov.<span class="tok-fn">len</span>())?;` },
+          { ln: 143, type: "ctx", code: `    self.group_queue.<span class="tok-fn">register_leader_sync</span>(lsn);` },
+          { ln: 144, type: "ctx", code: `    <span class="tok-ty">Ok</span>(lsn)` },
+          { ln: 145, type: "ctx", code: `}` }
+        ],
+        sliceB: [
+          { ln: 94, type: "ctx", code: `<span class="tok-kw">fn</span> <span class="tok-fn">persist_raft_quorum</span>(wal: &<span class="tok-kw">mut</span> <span class="tok-ty">WalSegment</span>, entries: &[<span class="tok-ty">IoSlice</span>]) -> <span class="tok-ty">Lsn</span> {` },
+          { ln: 95, type: "del", code: `-   <span class="tok-kw">for</span> e <span class="tok-kw">in</span> entries { wal.<span class="tok-fn">write_unbuffered</span>(e); }` },
+          { ln: 96, type: "add", code: `+   wal.<span class="tok-fn">append_vectored</span>(entries).<span class="tok-fn">expect</span>(<span class="tok-nu">"group commit quorum"</span>)` },
+          { ln: 97, type: "ctx", code: `}` }
+        ]
+      }
+    },
+    {
+      id: "mod-lsm-compactor",
+      name: "lsm_compactor.rs",
+      path: "src/storage/lsm_compactor.rs",
+      category: "Storage",
+      loc: 1950,
+      symbolsCount: 26,
+      couplingStatus: "Moderate",
+      instability: 0.75,
+      summary: "分层 LSM-Tree 后台多路归并压缩器，内置 Ribbon 布隆过滤器构建与写放大动态调节。",
+      keywords: ["LSM", "压缩", "布隆过滤器", "SSTable", "compaction", "bloom filter", "merge"],
+      symbols: ["LeveledCompactor", "RibbonBloom", "SstBuilder", "run_kway_merge", "estimate_write_amp"],
+      upstream: ["mod-raft-journal"],
+      downstream: ["mod-wal-

@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codebase Search & Dependency Atlas — 语义检索与架构图谱工作台</title>
+<style>
+  :root {
+    --bg-base: #0b0e14;
+    --bg-surface: #111620;
+    --bg-elevated: #171e2b;
+    --bg-card-hover: #1d2636;
+    --border-subtle: #232c3d;
+    --border-focus: #3b82f6;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    
+    --cat-core: #60a5fa;
+    --cat-core-bg: rgba(96, 165, 250, 0.12);
+    --cat-rpc: #a78bfa;
+    --cat-rpc-bg: rgba(167, 139, 250, 0.12);
+    --cat-storage: #34d399;
+    --cat-storage-bg: rgba(52, 211, 153, 0.12);
+    
+    --status-low: #10b981;
+    --status-med: #f59e0b;
+    --status-high: #ef4444;
+    
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* 顶部导航栏 */
+  .top-header {
+    height: 54px;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  }
+
+  .brand-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .brand-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    color: var(--text-secondary);
+  }
+
+  .telemetry-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .telemetry-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--status-low);
+    box-shadow: 0 0 8px var(--status-low);
+  }
+
+  /* 搜索与体积占比控制栏 */
+  .control-deck {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .search-filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    position: relative;
+    flex: 1;
+    min-width: 320px;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-muted);
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    background-color: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 8px 70px 8px 36px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    transition: all 0.15s ease;
+    outline: none;
+  }
+
+  .search-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  .search-shortcut {
+    position: absolute;
+    right: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .filter-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-btn {
+    background-color: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+
+  .filter-btn:hover {
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+
+  .filter-btn.active {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: var(--border-focus);
+    color: #fff;
+  }
+
+  .cat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .filter-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* 交互式模块体积占比条 */
+  .volume-bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .volume-bar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .volume-track {
+    height: 12px;
+    background-color: var(--bg-base);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .volume-seg {
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    border-radius: 2px;
+    opacity: 0.75;
+  }
+
+  .volume-seg:hover {
+    opacity: 1;
+    transform: scaleY(1.15);
+  }
+
+  .volume-seg.active {
+    opacity: 1;
+    box-shadow: 0 0 8px currentColor;
+    z-index: 2;
+  }
+
+  .volume-seg.dimmed {
+    opacity: 0.2;
+  }
+
+  /* 主工作台分栏 */
+  .workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 500px;
+    overflow: hidden;
+  }
+
+  /* 左侧：9模块网格区 */
+  .atlas-grid-pane {
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pane-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 1360px) {
+    .modules-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .module-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .module-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background-color: transparent;
+    transition: background-color 0.2s;
+  }
+
+  .module-card:hover {
+    background-color: var(--bg-card-hover);
+    border-color: #334155;
+    transform: translateY(-2px);
+  }
+
+  .module-card.selected {
+    background-color: var(--bg-elevated);
+    border-color: var(--border-focus);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.4);
+  }
+
+  .module-card.selected::before {
+    background-color: var(--border-focus);
+  }
+
+  .module-card.dep-upstream {
+    border-color: rgba(96, 165, 250, 0.5);
+  }
+
+  .module-card.dep-downstream {
+    border-color: rgba(167, 139, 250, 0.5);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cat-tag {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .cat-tag.core { color: var(--cat-core); background: var(--cat-core-bg); }
+  .cat-tag.rpc { color: var(--cat-rpc); background: var(--cat-rpc-bg); }
+  .cat-tag.storage { color: var(--cat-storage); background: var(--cat-storage-bg); }
+
+  .dep-role-pill {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    padding: 1px 6px;
+    border-radius: 3px;
+    display: none;
+  }
+
+  .module-card.dep-upstream .dep-role-pill.up {
+    display: inline-block;
+    background: rgba(96, 165, 250, 0.18);
+    color: #93c5fd;
+    border: 1px solid rgba(96, 165, 250, 0.35);
+  }
+
+  .module-card.dep-downstream .dep-role-pill.down {
+    display: inline-block;
+    background: rgba(167, 139, 250, 0.18);
+    color: #c4b5fd;
+    border: 1px solid rgba(167, 139, 250, 0.35);
+  }
+
+  .card-path {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-all;
+    line-height: 1.35;
+  }
+
+  .card-path .dir {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+  }
+
+  .metric-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .metric-val {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .coupling-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .card-symbols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .symbol-chip {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-secondary);
+    background-color: var(--bg-base);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .symbol-chip.match {
+    background-color: rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
+    color: #fde68a;
+  }
+
+  /* 右侧：详情与代码切片抽屉 */
+  .inspector-drawer {
+    background-color: var(--bg-surface);
+    border-left: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .drawer-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--bg-elevated);
+  }
+
+  .drawer-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .drawer-filepath {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .drawer-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-secondary);
+  }
+
+  /* 迷你架构拓扑 SVG 容器 */
+  .dag-container {
+    background-color: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dag-svg {
+    width: 100%;
+    height: 135px;
+    display: block;
+  }
+
+  .dep-lists-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .dep-col {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dep-col-title {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .dep-link-item {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-primary);
+    padding: 4px 6px;
+    border-radius: 4px;
+    background-color: var(--bg-base);
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.12s;
+  }
+
+  .dep-link-item:hover {
+    border-color: var(--border-focus);
+    color: #60a5fa;
+  }
+
+  /* 代码切片对比视图 */
+  .code-diff-tabs {
+    display: flex;
+    gap: 6px;
+    background-color: var(--bg-base);
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .code-tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .code-tab-btn.active {
+    background-color: var(--bg-elevated);
+    color: #fff;
+  }
+
+  .slice-compare-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .slice-pane {
+    background-color: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .slice-pane-header {
+    background-color: #131924;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .slice-badge {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+
+  .code-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    user-select: text;
+  }
+
+  .code-table td {
+    padding: 1px 8px;
+    white-space: pre;
+  }
+
+  .code-ln {
+    width: 38px;
+    text-align: right;
+    color: var(--text-muted);
+    background-color: #0d1118;
+    border-right: 1px solid var(--border-subtle);
+    user-select: none;
+  }
+
+  .code-line-add {
+    background-color: rgba(16, 185, 129, 0.12);
+  }
+  .code-line-add .code-ln {
+    color: #34d399;
+    background-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .code-line-del {
+    background-color: rgba(239, 68, 68, 0.12);
+  }
+  .code-line-del .code-ln {
+    color: #f87171;
+    background-color: rgba(239, 68, 68, 0.2);
+  }
+
+  /* 语法高亮色彩 */
+  .tok-kw { color: #f472b6; }
+  .tok-fn { color: #60a5fa; }
+  .tok-ty { color: #34d399; }
+  .tok-str { color: #fde047; }
+  .tok-cm { color: #64748b; font-style: italic; }
+  .tok-num { color: #c084fc; }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    padding: 60px 20px;
+    text-align: center;
+    background-color: var(--bg-surface);
+    border: 1px dashed var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #283246;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3b4963;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 顶部状态与工程标识栏 -->
+  <header class="top-header">
+    <div class="brand">
+      <div class="brand-logo">Δ</div>
+      <span class="brand-title">Codebase Search & Dependency Atlas</span>
+      <span class="brand-badge">chronos-engine / main@8f92a1c</span>
+    </div>
+    <div class="telemetry-bar">
+      <div class="telemetry-item">
+        <span class="pulse-dot"></span>
+        <span>AST 语义索引: 就绪</span>
+      </div>
+      <div class="telemetry-item">
+        <span>核心模块: <strong id="stat-mod-count" style="color:var(--text-primary)">9</strong></span>
+      </div>
+      <div class="telemetry-item">
+        <span>总代码行: <strong id="stat-loc-total" style="color:var(--text-primary)">10,080</strong> LOC</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 顶部检索、分类过滤与体积分布条 -->
+  <section class="control-deck">
+    <div class="search-filter-row">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="自然语言或符号检索 (例如: Raft 状态机, wal, Zero-copy, HNSWIndex, gRPC...)"
+          autocomplete="off"
+        />
+        <span class="search-shortcut">⌘ K</span>
+      </div>
+
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-btn active" data-category="All">
+          <span>All</span>
+          <span class="filter-count" id="cnt-All">9</span>
+        </button>
+        <button class="filter-btn" data-category="Core Engine">
+          <span class="cat-dot" style="background:var(--cat-core)"></span>
+          <span>Core Engine</span>
+          <span class="filter-count" id="cnt-Core">3</span>
+        </button>
+        <button class="filter-btn" data-category="RPC Adapters">
+          <span class="cat-dot" style="background:var(--cat-rpc)"></span>
+          <span>RPC Adapters</span>
+          <span class="filter-count" id="cnt-RPC">3</span>
+        </button>
+        <button class="filter-btn" data-category="Storage">
+          <span class="cat-dot" style="background:var(--cat-storage)"></span>
+          <span>Storage</span>
+          <span class="filter-count" id="cnt-Storage">3</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 模块体积占比交互条 -->
+    <div class="volume-bar-wrapper">
+      <div class="volume-bar-header">
+        <span>コード库体积占比分布 (点击任意色块直接定位对应模块并检视切片)</span>
+        <span id="volume-hover-label">悬停或点击色块查看模块占比详情</span>
+      </div>
+      <div class="volume-track" id="volume-track"></div>
+    </div>
+  </section>
+
+  <!-- 主工作台区域 -->
+  <main class="workspace">
+    <!-- 左侧：9 个核心模块卡片网格 -->
+    <section class="atlas-grid-pane">
+      <div class="pane-toolbar">
+        <span id="grid-status-text">展示全部 9 个架构核心模块（按模块依赖层级排序）</span>
+        <span style="font-family:var(--font-mono);font-size:11px;">
+          图例: <span style="color:#60a5fa">● 上游依赖 (Imports)</span> &nbsp; <span style="color:#a78bfa">● 下游被调 (Dependents)</span>
+        </span>
+      </div>
+      <div class="modules-grid" id="modules-grid"></div>
+    </section>
+
+    <!-- 右侧：上下游依赖图谱与真实代码切片对比抽屉 -->
+    <aside class="inspector-drawer" id="inspector-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title-row">
+          <span class="drawer-filepath" id="drawer-filepath">src/core/query_planner.rs</span>
+          <span class="cat-tag core" id="drawer-cat-tag">Core Engine</span>
+        </div>
+        <div class="drawer-meta-row">
+          <span id="drawer-loc">1,420 LOC</span>
+          <span>•</span>
+          <span id="drawer-exports">18 导出符号</span>
+          <span>•</span>
+          <span id="drawer-coupling">耦合度: 高 (0.78)</span>
+        </div>
+      </div>
+
+      <div class="drawer-body">
+        <!-- 上下游依赖拓扑与快速跳转列表 -->
+        <div class="section-block">
+          <div class="section-header">
+            <span>上下游调用拓扑图谱 (点击节点可切换焦点模块)</span>
+            <span id="dag-stats-label" style="font-family:var(--font-mono);color:var(--text-muted)">2 上游 / 2 下游</span>
+          </div>
+          <div class="dag-container">
+            <svg class="dag-svg" id="dag-svg" viewBox="0 0 440 135"></svg>
+            <div class="dep-lists-grid">
+              <div class="dep-col">
+                <div class="dep-col-title">
+                  <span>▲ 上游依赖 (Upstream Imports)</span>
+                  <span id="up-count">0</span>
+                </div>
+                <div id="upstream-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+              </div>
+              <div class="dep-col">
+                <div class="dep-col-title">
+                  <span>▼ 下游消费者 (Downstream Callers)</span>
+                  <span id="down-count">0</span>
+                </div>
+                <div id="downstream-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 真实代码切片对比 -->
+        <div class="section-block">
+          <div class="section-header">
+            <span>真实代码切片对比 (Code Slice Comparison)</span>
+            <div class="code-diff-tabs" id="code-diff-tabs">
+              <button class="code-tab-btn active" data-mode="split">契约与调用对比</button>
+              <button class="code-tab-btn" data-mode="patch">最近重构 Diff</button>
+            </div>
+          </div>
+
+          <div class="slice-compare-container" id="slice-compare-container">
+            <!-- 动态渲染代码切片面板 -->
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+<script>
+  // 9个核心架构模块完整数据集
+  const MODULES = [
+    {
+      id: "mod-planner",
+      path: "src/core/query_planner.rs",
+      category: "Core Engine",
+      catKey: "core",
+      lines: 1420,
+      exportsCount: 18,
+      coupling: "High",
+      couplingScore: 0.78,
+      desc: "基于代价的向量与标量混合查询优化器 (CBO)，负责逻辑执行计划生成与算子下推裁剪。",
+      symbols: ["LogicalPlan", "CostEstimator", "PredicatePushdown", "optimize_ast", "PlanNode"],
+      upstream: ["mod-vector", "mod-lsm"],
+      downstream: ["mod-exec", "mod-grpc"],
+      contractSlice: {
+        title: "核心导出接口契约 (src/core/query_planner.rs:84-98)",
+        badge: "Definition",
+        lines: [
+          { ln: 84, code: `<span class="tok-kw">pub struct</span> <span class="tok-ty">QueryPlanner</span>&lt;<span class="tok-ty">'a</span>&gt; {` },
+          { ln: 85, code: `    catalog: &amp;<span class="tok-ty">'a</span> <span class="tok-ty">SchemaCatalog</span>,` },
+          { ln: 86, code: `    cost_model: <span class="tok-ty">HyperbolaCostModel</span>,` },
+          { ln: 87, code: `}` },
+          { ln: 88, code: `<span class="tok-kw">impl</span>&lt;<span class="tok-ty">'a</span>&gt; <span class="tok-ty">QueryPlanner</span>&lt;<span class="tok-ty">'a</span>&gt; {` },
+          { ln: 89, code: `    <span class="tok-cm">// 将混合查询 AST 转换为最小化 I/O 代价的物理执行图</span>` },
+          { ln: 90, code: `    <span class="tok-kw">pub fn</span> <span class="tok-fn">compile_physical_plan</span>(&amp;<span class="tok-kw">self</span>, ast: &amp;<span class="tok-ty">HybridQuery</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">PhysicalDAG</span>&gt; {` },
+          { ln: 91, code: `        <span class="tok-kw">let</span> logical = <span class="tok-kw">self</span>.<span class="tok-fn">bind_and_rewrite</span>(ast)?;` },
+          { ln: 92, code: `        <span class="tok-kw">let</span> pruned = <span class="tok-fn">apply_predicate_pushdown</span>(logical, <span class="tok-num">0x0F</span>);` },
+          { ln: 93, code: `        <span class="tok-kw">self</span>.cost_model.<span class="tok-fn">select_optimal_access_path</span>(pruned)` },
+          { ln: 94, code: `    }` },
+          { ln: 95, code: `}` }
+        ]
+      },
+      callerSlice: {
+        title: "跨模块调用点切片 (src/core/execution_dag.rs:142-151)",
+        badge: "Downstream Callsite",
+        lines: [
+          { ln: 142, code: `<span class="tok-kw">pub async fn</span> <span class="tok-fn">dispatch_query_stage</span>(ctx: &amp;<span class="tok-ty">ExecContext</span>, req: <span class="tok-ty">HybridQuery</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">RecordBatch</span>&gt; {` },
+          { ln: 143, code: `    <span class="tok-kw">let</span> planner = <span class="tok-ty">QueryPlanner</span>::<span class="tok-fn">new</span>(&amp;ctx.schema_snapshot);` },
+          { ln: 144, code: `    <span class="tok-kw">let</span> phys_dag = planner.<span class="tok-fn">compile_physical_plan</span>(&amp;req)?;`, type: "add" },
+          { ln: 145, code: `    <span class="tok-kw">let</span> pipeline = <span class="tok-ty">VectorizedPipeline</span>::<span class="tok-fn">from_dag</span>(phys_dag, ctx.pool.<span class="tok-fn">clone</span>());` },
+          { ln: 146, code: `    pipeline.<span class="tok-fn">execute_stream</span>().<span class="tok-kw">await</span>` },
+          { ln: 147, code: `}` }
+        ]
+      },
+      patchSlice: [
+        { ln: 89, code: `    <span class="tok-kw">pub fn</span> <span class="tok-fn">compile_physical_plan</span>(&amp;<span class="tok-kw">self</span>, ast: &amp;<span class="tok-ty">HybridQuery</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">PhysicalDAG</span>&gt; {` },
+        { ln: 90, code: `-       <span class="tok-kw">let</span> pruned = <span class="tok-fn">naive_filter_pushdown</span>(ast);`, type: "del" },
+        { ln: 91, code: `+       <span class="tok-kw">let</span> logical = <span class="tok-kw">self</span>.<span class="tok-fn">bind_and_rewrite</span>(ast)?;`, type: "add" },
+        { ln: 92, code: `+       <span class="tok-kw">let</span> pruned = <span class="tok-fn">apply_predicate_pushdown</span>(logical, <span class="tok-num">0x0F</span>);`, type: "add" },
+        { ln: 93, code: `        <span class="tok-kw">self</span>.cost_model.<span class="tok-fn">select_optimal_access_path</span>(pruned)` }
+      ]
+    },
+    {
+      id: "mod-exec",
+      path: "src/core/execution_dag.rs",
+      category: "Core Engine",
+      catKey: "core",
+      lines: 1180,
+      exportsCount: 14,
+      coupling: "Medium",
+      couplingScore: 0.54,
+      desc: "SIMD 矢量化流水线执行引擎，基于工作窃取调度器并行运行有向无环图算子。",
+      symbols: ["VectorizedPipeline", "WorkStealingExecutor", "OperatorTask", "BatchStream"],
+      upstream: ["mod-planner", "mod-vector", "mod-mmap"],
+      downstream: ["mod-grpc", "mod-codec"],
+      contractSlice: {
+        title: "核心导出接口契约 (src/core/execution_dag.rs:52-64)",
+        badge: "Definition",
+        lines: [
+          { ln: 52, code: `<span class="tok-kw">pub struct</span> <span class="tok-ty">VectorizedPipeline</span> {` },
+          { ln: 53, code: `    stages: <span class="tok-ty">SmallVec</span>&lt;[<span class="tok-ty">Box</span>&lt;<span class="tok-kw">dyn</span> <span class="tok-ty">SimdOperator</span>&gt;; <span class="tok-num">8</span>]&gt;,` },
+          { ln: 54, code: `    arena: <span class="tok-ty">Arc</span>&lt;<span class="tok-ty">MmapBufferPool</span>&gt;,` },
+          { ln: 55, code: `}` },
+          { ln: 56, code: `<span class="tok-kw">impl</span> <span class="tok-ty">VectorizedPipeline</span> {` },
+          { ln: 57, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">execute_stream</span>(<span class="tok-kw">mut self</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">RecordBatch</span>&gt; {` },
+          { ln: 58, code: `        <span class="tok-kw">for</span> op <span class="tok-kw">in</span> &amp;<span class="tok-kw">mut self</span>.stages {` },
+          { ln: 59, code: `            op.<span class="tok-fn">step_avx512_batch</span>(&amp;<span class="tok-kw">self</span>.arena).<span class="tok-kw">await</span>?;` },
+          { ln: 60, code: `        }` },
+          { ln: 61, code: `        <span class="tok-kw">self</span>.arena.<span class="tok-fn">collect_terminal_frame</span>()` },
+          { ln: 62, code: `    }` },
+          { ln: 63, code: `}` }
+        ]
+      },
+      callerSlice: {
+        title: "跨模块调用点切片 (src/rpc/grpc_dispatcher.rs:208-216)",
+        badge: "Downstream Callsite",
+        lines: [
+          { ln: 208, code: `<span class="tok-kw">async fn</span> <span class="tok-fn">handle_query_rpc</span>(&amp;<span class="tok-kw">self</span>, frame: <span class="tok-ty">RpcFrame</span>) -&gt; <span class="tok-ty">StatusResult</span> {` },
+          { ln: 209, code: `    <span class="tok-kw">let</span> dag = <span class="tok-kw">self</span>.planner.<span class="tok-fn">compile_physical_plan</span>(&amp;frame.query)?;` },
+          { ln: 210, code: `    <span class="tok-kw">let</span> batch = <span class="tok-ty">VectorizedPipeline</span>::<span class="tok-fn">from_dag</span>(dag, <span class="tok-kw">self</span>.pool.<span class="tok-fn">clone</span>())`, type: "add" },
+          { ln: 211, code: `        .<span class="tok-fn">execute_stream</span>().<span class="tok-kw">await</span>?;`, type: "add" },
+          { ln: 212, code: `    <span class="tok-ty">ZeroCopyCodec</span>::<span class="tok-fn">encode_batch_response</span>(batch)` },
+          { ln: 213, code: `}` }
+        ]
+      },
+      patchSlice: [
+        { ln: 57, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">execute_stream</span>(<span class="tok-kw">mut self</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">RecordBatch</span>&gt; {` },
+        { ln: 58, code: `-       <span class="tok-kw">self</span>.<span class="tok-fn">run_scalar_loop</span>()`, type: "del" },
+        { ln: 59, code: `+       <span class="tok-kw">for</span> op <span class="tok-kw">in</span> &amp;<span class="tok-kw">mut self</span>.stages {`, type: "add" },
+        { ln: 60, code: `+           op.<span class="tok-fn">step_avx512_batch</span>(&amp;<span class="tok-kw">self</span>.arena).<span class="tok-kw">await</span>?;`, type: "add" },
+        { ln: 61, code: `+       }`, type: "add" }
+      ]
+    },
+    {
+      id: "mod-vector",
+      path: "src/core/vector_index.rs",
+      category: "Core Engine",
+      catKey: "core",
+      lines: 1650,
+      exportsCount: 22,
+      coupling: "Low",
+      couplingScore: 0.31,
+      desc: "HNSW 分层可导航小世界图索引与 PQ 乘积量化器，支持余弦与内积硬件加速距离计算。",
+      symbols: ["HNSWIndex", "ProductQuantizer", "search_knn_filtered", "l2_distance_avx"],
+      upstream: ["mod-mmap"],
+      downstream: ["mod-planner", "mod-exec"],
+      contractSlice: {
+        title: "核心导出接口契约 (src/core/vector_index.rs:119-131)",
+        badge: "Definition",
+        lines: [
+          { ln: 119, code: `<span class="tok-kw">pub struct</span> <span class="tok-ty">HNSWIndex</span> {` },
+          { ln: 120, code: `    ef_search: <span class="tok-ty">usize</span>,` },
+          { ln: 121, code: `    quantizer: <span class="tok-ty">ProductQuantizer</span>,` },
+          { ln: 122, code: `    graph_pages: <span class="tok-ty">PinnedPageHandle</span>,` },
+          { ln: 123, code: `}` },
+          { ln: 124, code: `<span class="tok-kw">impl</span> <span class="tok-ty">HNSWIndex</span> {` },
+          { ln: 125, code: `    <span class="tok-kw">pub fn</span> <span class="tok-fn">search_knn_filtered</span>(&amp;<span class="tok-kw">self</span>, q: &amp;[<span class="tok-ty">f32</span>], k: <span class="tok-ty">usize</span>, mask: &amp;<span class="tok-ty">RoaringBitmap</span>) -&gt; <span class="tok-ty">Vec</span>&lt;<span class="tok-ty">ScoredId</span>&gt; {` },
+          { ln: 126, code: `        <span class="tok-kw">let</span> codes = <span class="tok-kw">self</span>.quantizer.<span class="tok-fn">encode_asymmetric</span>(q);` },
+          { ln: 127, code: `        <span class="tok-kw">self</span>.<span class="tok-fn">greedy_beam_traverse</span>(&amp;codes, k, mask)` },
+          { ln: 128, code: `    }` },
+          { ln: 129, code: `}` }
+        ]
+      },
+      callerSlice: {
+        title: "跨模块调用点切片 (src/core/query_planner.rs:212-218)",
+        badge: "Downstream Callsite",
+        lines: [
+          { ln: 212, code: `<span class="tok-kw">fn</span> <span class="tok-fn">estimate_ann_selectivity</span>(idx: &amp;<span class="tok-ty">HNSWIndex</span>, probe: &amp;[<span class="tok-ty">f32</span>], bitmap: &amp;<span class="tok-ty">RoaringBitmap</span>) -&gt; <span class="tok-ty">f64</span> {` },
+          { ln: 213, code: `    <span class="tok-kw">let</span> sample = idx.<span class="tok-fn">search_knn_filtered</span>(probe, <span class="tok-num">16</span>, bitmap);`, type: "add" },
+          { ln: 214, code: `    (sample.<span class="tok-fn">len</span>() <span class="tok-kw">as</span> <span class="tok-ty">f64</span>) / <span class="tok-num">16.0</span>` },
+          { ln: 215, code: `}` }
+        ]
+      },
+      patchSlice: [
+        { ln: 125, code: `    <span class="tok-kw">pub fn</span> <span class="tok-fn">search_knn_filtered</span>(&amp;<span class="tok-kw">self</span>, q: &amp;[<span class="tok-ty">f32</span>], k: <span class="tok-ty">usize</span>, mask: &amp;<span class="tok-ty">RoaringBitmap</span>) -&gt; <span class="tok-ty">Vec</span>&lt;<span class="tok-ty">ScoredId</span>&gt; {` },
+        { ln: 126, code: `-       <span class="tok-kw">self</span>.<span class="tok-fn">exact_flat_scan</span>(q, k)`, type: "del" },
+        { ln: 127, code: `+       <span class="tok-kw">let</span> codes = <span class="tok-kw">self</span>.quantizer.<span class="tok-fn">encode_asymmetric</span>(q);`, type: "add" },
+        { ln: 128, code: `+       <span class="tok-kw">self</span>.<span class="tok-fn">greedy_beam_traverse</span>(&amp;codes, k, mask)`, type: "add" }
+      ]
+    },
+    {
+      id: "mod-grpc",
+      path: "src/rpc/grpc_dispatcher.rs",
+      category: "RPC Adapters",
+      catKey: "rpc",
+      lines: 890,
+      exportsCount: 11,
+      coupling: "High",
+      couplingScore: 0.74,
+      desc: "HTTP/2 多路复用流分发网关，集成自适应令牌桶限流与背压控制信号传递。",
+      symbols: ["GrpcDispatcher", "BackpressureValve", "StreamMultiplexer", "serve_endpoint"],
+      upstream: ["mod-planner", "mod-exec", "mod-codec", "mod-raft"],
+      downstream: [],
+      contractSlice: {
+        title: "核心导出接口契约 (src/rpc/grpc_dispatcher.rs:40-52)",
+        badge: "Definition",
+        lines: [
+          { ln: 40, code: `<span class="tok-kw">pub struct</span> <span class="tok-ty">GrpcDispatcher</span> {` },
+          { ln: 41, code: `    valve: <span class="tok-ty">BackpressureValve</span>,` },
+          { ln: 42, code: `    raft_router: <span class="tok-ty">Arc</span>&lt;<span class="tok-ty">RaftTransport</span>&gt;,` },
+          { ln: 43, code: `}` },
+          { ln: 44, code: `<span class="tok-kw">impl</span> <span class="tok-ty">GrpcDispatcher</span> {` },
+          { ln: 45, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">ingest_bidi_stream</span>(&amp;<span class="tok-kw">self</span>, stream: <span class="tok-ty">H2Stream</span>) -&gt; <span class="tok-ty">StatusResult</span> {` },
+          { ln: 46, code: `        <span class="tok-kw">let</span> _permit = <span class="tok-kw">self</span>.valve.<span class="tok-fn">acquire_adaptive_slot</span>().<span class="tok-kw">await</span>?;` },
+          { ln: 47, code: `        <span class="tok-kw">let</span> payload = <span class="tok-ty">ZeroCopyCodec</span>::<span class="tok-fn">map_wire_frame</span>(stream)?;` },
+          { ln: 48, code: `        <span class="tok-kw">self</span>.raft_router.<span class="tok-fn">propose_replicated</span>(payload).<span class="tok-kw">await</span>` },
+          { ln: 49, code: `    }` },
+          { ln: 50, code: `}` }
+        ]
+      },
+      callerSlice: {
+        title: "上游依赖协议协同切片 (src/rpc/raft_transport.rs:94-101)",
+        badge: "Upstream Target",
+        lines: [
+          { ln: 94, code: `<span class="tok-kw">impl</span> <span class="tok-ty">RaftTransport</span> {` },
+          { ln: 95, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">propose_replicated</span>(&amp;<span class="tok-kw">self</span>, frame: <span class="tok-ty">WireSlice</span>) -&gt; <span class="tok-ty">StatusResult</span> {`, type: "add" },
+          { ln: 96, code: `        <span class="tok-kw">let</span> term = <span class="tok-kw">self</span>.state.<span class="tok-fn">current_leader_term</span>()?;` },
+          { ln: 97, code: `        <span class="tok-kw">self</span>.wal.<span class="tok-fn">append_quorum_entry</span>(term, frame).<span class="tok-kw">await</span>` },
+          { ln: 98, code: `    }` },
+          { ln: 99, code: `}` }
+        ]
+      },
+      patchSlice: [
+        { ln: 45, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">ingest_bidi_stream</span>(&amp;<span class="tok-kw">self</span>, stream: <span class="tok-ty">H2Stream</span>) -&gt; <span class="tok-ty">StatusResult</span> {` },
+        { ln: 46, code: `+       <span class="tok-kw">let</span> _permit = <span class="tok-kw">self</span>.valve.<span class="tok-fn">acquire_adaptive_slot</span>().<span class="tok-kw">await</span>?;`, type: "add" },
+        { ln: 47, code: `        <span class="tok-kw">let</span> payload = <span class="tok-ty">ZeroCopyCodec</span>::<span class="tok-fn">map_wire_frame</span>(stream)?;` }
+      ]
+    },
+    {
+      id: "mod-codec",
+      path: "src/rpc/zero_copy_codec.rs",
+      category: "RPC Adapters",
+      catKey: "rpc",
+      lines: 640,
+      exportsCount: 9,
+      coupling: "Low",
+      couplingScore: 0.25,
+      desc: "基于 FlatBuffers 与 Arrow IPC 内存对齐规范的无拷贝序列化编解码器，消除用户态内存分配。",
+      symbols: ["ZeroCopyCodec", "WireSlice", "AlignedFrame", "map_wire_frame", "encode_batch_response"],
+      upstream: ["mod-mmap"],
+      downstream: ["mod-grpc", "mod-raft", "mod-exec"],
+      contractSlice: {
+        title: "核心导出接口契约 (src/rpc/zero_copy_codec.rs:29-40)",
+        badge: "Definition",
+        lines: [
+          { ln: 29, code: `<span class="tok-kw">pub struct</span> <span class="tok-ty">ZeroCopyCodec</span>;` },
+          { ln: 30, code: `<span class="tok-kw">impl</span> <span class="tok-ty">ZeroCopyCodec</span> {` },
+          { ln: 31, code: `    <span class="tok-cm">// 直接校验 64 字节边界对齐指针，零内存拷贝映射网络帧</span>` },
+          { ln: 32, code: `    <span class="tok-kw">pub fn</span> <span class="tok-fn">map_wire_frame</span>(raw: <span class="tok-ty">H2Stream</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">WireSlice</span>&gt; {` },
+          { ln: 33, code: `        <span class="tok-kw">let</span> ptr = raw.<span class="tok-fn">dma_aligned_ptr</span>(<span class="tok-num">64</span>)?;` },
+          { ln: 34, code: `        <span class="tok-ty">WireSlice</span>::<span class="tok-fn">from_raw_parts_unchecked</span>(ptr, raw.<span class="tok-fn">len</span>())` },
+          { ln: 35, code: `    }` },
+          { ln: 36, code: `}` }
+        ]
+      },
+      callerSlice: {
+        title: "跨模块调用点切片 (src/rpc/grpc_dispatcher.rs:45-49)",
+        badge: "Downstream Callsite",
+        lines: [
+          { ln: 45, code: `<span class="tok-kw">pub async fn</span> <span class="tok-fn">ingest_bidi_stream</span>(&amp;<span class="tok-kw">self</span>, stream: <span class="tok-ty">H2Stream</span>) -&gt; <span class="tok-ty">StatusResult</span> {` },
+          { ln: 46, code: `    <span class="tok-kw">let</span> _permit = <span class="tok-kw">self</span>.valve.<span class="tok-fn">acquire_adaptive_slot</span>().<span class="tok-kw">await</span>?;` },
+          { ln: 47, code: `    <span class="tok-kw">let</span> payload = <span class="tok-ty">ZeroCopyCodec</span>::<span class="tok-fn">map_wire_frame</span>(stream)?;`, type: "add" },
+          { ln: 48, code: `    <span class="tok-kw">self</span>.raft_router.<span class="tok-fn">propose_replicated</span>(payload).<span class="tok-kw">await</span>` },
+          { ln: 49, code: `}` }
+        ]
+      },
+      patchSlice: [
+        { ln: 32, code: `    <span class="tok-kw">pub fn</span> <span class="tok-fn">map_wire_frame</span>(raw: <span class="tok-ty">H2Stream</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">WireSlice</span>&gt; {` },
+        { ln: 33, code: `-       <span class="tok-kw">let</span> buf = raw.<span class="tok-fn">to_owned_vec</span>();`, type: "del" },
+        { ln: 34, code: `+       <span class="tok-kw">let</span> ptr = raw.<span class="tok-fn">dma_aligned_ptr</span>(<span class="tok-num">64</span>)?;`, type: "add" },
+        { ln: 35, code: `+       <span class="tok-ty">WireSlice</span>::<span class="tok-fn">from_raw_parts_unchecked</span>(ptr, raw.<span class="tok-fn">len</span>())`, type: "add" }
+      ]
+    },
+    {
+      id: "mod-raft",
+      path: "src/rpc/raft_transport.rs",
+      category: "RPC Adapters",
+      catKey: "rpc",
+      lines: 1120,
+      exportsCount: 15,
+      coupling: "Medium",
+      couplingScore: 0.58,
+      desc: "分布式 Raft 共识协议状态机传输层，负责 AppendEntries 批量流水线复制与快照分块传输。",
+      symbols: ["RaftTransport", "ConsensusState", "AppendEntriesBatch", "propose_replicated"],
+      upstream: ["mod-codec", "mod-wal"],
+      downstream: ["mod-grpc"],
+      contractSlice: {
+        title: "核心导出接口契约 (src/rpc/raft_transport.rs:88-100)",
+        badge: "Definition",
+        lines: [
+          { ln: 88, code: `<span class="tok-kw">pub struct</span> <span class="tok-ty">RaftTransport</span> {` },
+          { ln: 89, code: `    state: <span class="tok-ty">ConsensusState</span>,` },
+          { ln: 90, code: `    wal: <span class="tok-ty">Arc</span>&lt;<span class="tok-ty">WalJournal</span>&gt;,` },
+          { ln: 91, code: `}` },
+          { ln: 92, code: `<span class="tok-kw">impl</span> <span class="tok-ty">RaftTransport</span> {` },
+          { ln: 93, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">propose_replicated</span>(&amp;<span class="tok-kw">self</span>, frame: <span class="tok-ty">WireSlice</span>) -&gt; <span class="tok-ty">StatusResult</span> {` },
+          { ln: 94, code: `        <span class="tok-kw">let</span> lsn = <span class="tok-kw">self</span>.wal.<span class="tok-fn">append_io_uring</span>(&amp;frame).<span class="tok-kw">await</span>?;` },
+          { ln: 95, code: `        <span class="tok-kw">self</span>.<span class="tok-fn">broadcast_append_entries</span>(lsn, frame).<span class="tok-kw">await</span>` },
+          { ln: 96, code: `    }` },
+          { ln: 97, code: `}` }
+        ]
+      },
+      callerSlice: {
+        title: "上游存储持久化调用切片 (src/storage/wal_journal.rs:68-75)",
+        badge: "Upstream Target",
+        lines: [
+          { ln: 68, code: `<span class="tok-kw">impl</span> <span class="tok-ty">WalJournal</span> {` },
+          { ln: 69, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">append_io_uring</span>(&amp;<span class="tok-kw">self</span>, slice: &amp;<span class="tok-ty">WireSlice</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">LogSeqNum</span>&gt; {`, type: "add" },
+          { ln: 70, code: `        <span class="tok-kw">let</span> crc = <span class="tok-fn">crc32c_hw</span>(slice.<span class="tok-fn">as_bytes</span>());` },
+          { ln: 71, code: `        <span class="tok-kw">self</span>.ring.<span class="tok-fn">submit_fsync_sqe</span>(slice, crc).<span class="tok-kw">await</span>` },
+          { ln: 72, code: `    }` },
+          { ln: 73, code: `}` }
+        ]
+      },
+      patchSlice: [
+        { ln: 93, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">propose_replicated</span>(&amp;<span class="tok-kw">self</span>, frame: <span class="tok-ty">WireSlice</span>) -&gt; <span class="tok-ty">StatusResult</span> {` },
+        { ln: 94, code: `-       <span class="tok-kw">let</span> lsn = <span class="tok-kw">self</span>.wal.<span class="tok-fn">blocking_write</span>(&amp;frame)?;`, type: "del" },
+        { ln: 95, code: `+       <span class="tok-kw">let</span> lsn = <span class="tok-kw">self</span>.wal.<span class="tok-fn">append_io_uring</span>(&amp;frame).<span class="tok-kw">await</span>?;`, type: "add" },
+        { ln: 96, code: `        <span class="tok-kw">self</span>.<span class="tok-fn">broadcast_append_entries</span>(lsn, frame).<span class="tok-kw">await</span>` }
+      ]
+    },
+    {
+      id: "mod-lsm",
+      path: "src/storage/lsm_compactor.rs",
+      category: "Storage",
+      catKey: "storage",
+      lines: 1340,
+      exportsCount: 16,
+      coupling: "Medium",
+      couplingScore: 0.49,
+      desc: "LSM-Tree 分层多路归并压缩引擎，管理 SSTable 布隆过滤器构建与冷热键值分离淘汰。",
+      symbols: ["LsmCompactor", "SSTableBuilder", "RibbonFilter", "run_leveled_compaction"],
+      upstream: ["mod-wal", "mod-mmap"],
+      downstream: ["mod-planner"],
+      contractSlice: {
+        title: "核心导出接口契约 (src/storage/lsm_compactor.rs:102-114)",
+        badge: "Definition",
+        lines: [
+          { ln: 102, code: `<span class="tok-kw">pub struct</span> <span class="tok-ty">LsmCompactor</span> {` },
+          { ln: 103, code: `    manifest: <span class="tok-ty">Arc</span>&lt;<span class="tok-ty">VersionSet</span>&gt;,` },
+          { ln: 104, code: `    pool: <span class="tok-ty">Arc</span>&lt;<span class="tok-ty">MmapBufferPool</span>&gt;,` },
+          { ln: 105, code: `}` },
+          { ln: 106, code: `<span class="tok-kw">impl</span> <span class="tok-ty">LsmCompactor</span> {` },
+          { ln: 107, code: `    <span class="tok-kw">pub async fn</span> <span class="tok-fn">run_leveled_compaction</span>(&amp;<span class="tok-kw">self</span>, level: <span class="tok-ty">u8</span>) -&gt; <span class="tok-ty">Result</span>&lt;<span class="tok-ty">CompactionStats</span>&gt; {` },
+          { ln: 108, code: `        <span class="tok-kw">let</span> inputs = <span class="tok-kw">self</span>.manifest.<span class="tok-fn">pick_overlapping_ssts</span>(level);` },
+          { ln:

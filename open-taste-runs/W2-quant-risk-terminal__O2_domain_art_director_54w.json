@@ -1,0 +1,40 @@
+{
+  "runKey": "W2-quant-risk-terminal__O2_domain_art_director_54w",
+  "taskId": "W2-quant-risk-terminal",
+  "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+  "styleId": "O2_domain_art_director_54w",
+  "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 149.05,
+  "metrics": {
+    "htmlBytes": 44591,
+    "hasDarkBg": true,
+    "darkHexCount": 4,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 35
+  },
+  "palette": {
+    "primaryBg": "#F3F1EC",
+    "allHex": [
+      "#f3f1ec",
+      "#f9f8f5",
+      "#eae6df",
+      "#141413",
+      "#5a5852",
+      "#8c8980",
+      "#d5d0c5",
+      "#1d4ed8"
+    ],
+    "rootCss": "/* 瑞士研究期刊与精密终端美学：暖灰羊皮纸底色 + 炭黑墨水 + 克制的机构级点缀色 */ --bg-paper: #F3F1EC; --bg-cell: #F9F8F5; --bg-subtle: #EAE6DF; --bg-ink: #141413; --ink-primary: #141413; --ink-secondary: #5A5852; --ink-muted: #8C8980; --border-hairline: #D5D0C5; --border-heavy: #141413; /* 信号色：高纯度但沉稳的工业色标 */ --sig-alpha: #1D4ED8; /* 钴蓝：主策略净值 */ --sig-bench: #78716C; /* 暖岩",
+    "themeNote": ""
+  }
+}

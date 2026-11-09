@@ -1,0 +1,40 @@
+{
+  "runKey": "W4-telemetry-gateway-console__O3_stochastic_movement_66w",
+  "taskId": "W4-telemetry-gateway-console",
+  "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+  "styleId": "O3_stochastic_movement_66w",
+  "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 112.71,
+  "metrics": {
+    "htmlBytes": 46459,
+    "hasDarkBg": true,
+    "darkHexCount": 14,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 4,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 45
+  },
+  "palette": {
+    "primaryBg": "#E6E4DF",
+    "allHex": [
+      "#e6e4df",
+      "#f3f1ec",
+      "#faf9f6",
+      "#dcd9d0",
+      "#181817",
+      "#141413",
+      "#5a5852",
+      "#8c8980"
+    ],
+    "rootCss": "/* Braun / Teenage Engineering / Swiss Grid Palette */ --bg-chassis: #E6E4DF; --bg-panel: #F3F1EC; --bg-surface: #FAF9F6; --bg-well: #DCD9D0; --bg-inverse: #181817; --ink-primary: #141413; --ink-secondary: #5A5852; --ink-muted: #8C8980; --ink-on-dark: #F3F1EC; --border-strong: #141413; --border-hairline: #C7C4BB; --border-subtle: #DFDDD6;",
+    "themeNote": ""
+  }
+}

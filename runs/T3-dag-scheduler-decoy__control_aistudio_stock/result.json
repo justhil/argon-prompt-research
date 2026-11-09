@@ -1,0 +1,242 @@
+{
+  "runId": "T3-dag-scheduler-decoy__control_aistudio_stock",
+  "taskId": "T3-dag-scheduler-decoy",
+  "variantKey": "control_aistudio_stock",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: terminal failure marks FAILED_TERMINAL and cascades SKIPPED_UPSTREAM_FAILED to downstream nodes\nok 1 - Oracle 1: terminal failure marks FAILED_TERMINAL and cascades SKIPPED_UPSTREAM_FAILED to downstream nodes\n  ---\n  duration_ms: 1.584\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 51.9305\n",
+  "turns": 7,
+  "elapsedSec": 64.13,
+  "totalTokens": 22967,
+  "reasoningTokens": 1386,
+  "targetFilesTotal": 3,
+  "targetFilesReadTotal": 3,
+  "firstEditTurn": 5,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 3,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 3,
+  "filesReadList": [
+    "src/scheduler/backoff_calc.mjs",
+    "src/scheduler/lease_pool.mjs",
+    "src/scheduler/node_state_store.mjs",
+    "test/smoke.test.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Reviewing Attempt Logic**\n\nI'm currently reviewing the attempt logic within `dag_engine.mjs`. I noticed a potential discrepancy in the `isFinalAttempt` condition; it should be `attempt === this.maxAttempts` not `attempt > this.maxAttempts`. I'm also now looking at `computeBackoffDelayMs(attempt, node)` to understand how retries are handled.",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/backoff_calc.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1557,
+        "completion_tokens": 167,
+        "total_tokens": 1724,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 137,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Analyzing Backoff Calculation**\n\nI'm currently focused on the `computeBackoffDelayMs` function within `src/scheduler/backoff_calc.mjs`. I'm exploring the interplay of `attempt`, `baseMs`, and `jitterRatio` to understand how the exponential backoff delay is calculated. I'm paying close attention to the impact of the optional parameters and their defaults. My focus is on understanding the logic behind the exponential calculation and how it introduces randomness.",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1825,
+        "completion_tokens": 193,
+        "total_tokens": 2018,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 171,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/scheduler\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2044,
+        "completion_tokens": 90,
+        "total_tokens": 2134,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 48,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/lease_pool.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/node_state_store.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2198,
+        "completion_tokens": 123,
+        "total_tokens": 2321,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 41,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Examining Lease Pool Code**\n\nI'm currently focused on the code related to lease management within the scheduler. Specifically, I'm examining `src/scheduler/lease_pool.mjs` and related files like `src/scheduler/dag_engine.mjs` and `src/scheduler/backoff_calc.mjs`. I've noted the `activeLeases` counter increment within `runWithLease` in `lease_pool.mjs`.\n\n\n**Analyzing Attempt Logic**\n\nI've discovered a discrepancy. The `isFinalAttempt` flag in `lease_pool.mjs` is destructured but unused within the error handling. Further, I found a bug where it's *never* used because it checks against `attempt",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"        const outcome = await this.leasePool.runWithLease(nodeId, () =\\u003e workerFn(node, attempt), {\\n          isFinalAttempt: attempt \\u003e= this.maxAttempts\\n        });\",\"Target\":\"        const outcome = await this.leasePool.runWithLease(nodeId, () =\\u003e workerFn(node, attempt), {\\n          isFinalAttempt: attempt \\u003e this.maxAttempts\\n        });\",\"path\":\"src/scheduler/dag_engine.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"    } catch (err) {\\n      if (isFinalAttempt) {\\n        this.stateStore.markTerminalFailure(nodeId, err?.message ?? String(err));\\n      }\\n      return { ok: false, error: err };\\n    }\",\"Target\":\"    } catch (err) {\\n      return { ok: false, error: err };\\n    }\",\"path\":\"src/scheduler/lease_pool.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"export function computeBackoffDelayMs(attempt, opts = {}) {\\n  const baseMs = opts.baseMs ?? 100;\\n  const jitterRatio = opts.jitterRatio ?? 0;\\n  const exp = baseMs * Math.pow(2, Math.max(0, attempt - 1));\\n  return Math.round(exp * (1 + jitterRatio));\\n}\",\"Target\":\"export function computeBackoffDelayMs(attempt, opts = {}) {\\n  const baseMs = opts.baseMs ?? 100;\\n  const jitterRatio = opts.jitterRatio ?? 0;\\n  const exp = baseMs * Math.pow(2, Math.max(0, attempt - 1));\\n  return Math.round(exp * jitterRatio);\\n}\",\"path\":\"src/scheduler/backoff_calc.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3054,
+        "completion_tokens": 1389,
+        "total_tokens": 4443,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 828
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 946,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  assert.equal(res.states.b.status, 'SUCCEEDED');\\n});\\n\\ntest('retries exhausted marks terminal failure, skips downstream, and records non-zero backoff delays', async () =\\u003e {\\n  const store = new NodeStateStore();\\n  const pool = new LeasePool(store);\\n  const engine = new DagEngine({ leasePool: pool, stateStore: store, maxAttempts: 3 });\\n  const res = await engine.executeDag(\\n    [{ id: 'a', deps: [] }, { id: 'b', deps: ['a'] }, { id: 'c', deps: ['b'] }],\\n    async (n) =\\u003e {\\n      if (n.id === 'a') throw new Error('boom');\\n      return n.id;\\n    }\\n  );\\n  assert.equal(res.states.a.status, 'FAILED_TERMINAL');\\n  assert.equal(res.states.b.status, 'SKIPPED_UPSTREAM_FAILED');\\n  assert.equal(res.states.c.status, 'SKIPPED_UPSTREAM_FAILED');\\n  assert.deepEqual(res.delaysRecorded, [100, 200]);\\n});\\n\",\"Target\":\"  assert.equal(res.states.b.status, 'SUCCEEDED');\\n});\",\"path\":\"test/smoke.test.mjs\"}"
+        },
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"node --test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4554,
+        "completion_tokens": 367,
+        "total_tokens": 4921,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1982
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 25,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "问题已修复，原因及修改如下：\n\n1. **最后一次重试判定与终态标记缺失**：\n   - `src/scheduler/dag_engine.mjs`：重试循环中 `attempt` 最大只到 `this.maxAttempts`，导致 `attempt > this.maxAttempts` 恒为 `false`，已修正为 `isFinalAttempt: attempt >= this.maxAttempts`。\n   - `src/scheduler/lease_pool.mjs`：`runWithLease` 捕获异常后未在 `isFinalAttempt` 为真时调用 `this.stateStore.markTerminalFailure(nodeId, ...)`，导致上游节点停留于 `RUNNING` 状态，下游依赖检查无法识别 `UPSTREAM_FAILED`。已补充终态失败标记调用。\n\n2. **默认退避时间计算错误**：\n   - `src/scheduler/backoff_calc.mjs`：`computeBackoffDelayMs` 原先计算为 `Math.round(exp * jitterRatio)`，当默认 `jitterRatio = 0` 时结果为 `0ms`。已修正为 `Math.round(exp * (1 + jitterRatio))`。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 5143,
+        "completion_tokens": 263,
+        "total_tokens": 5406,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 3056
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 18,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

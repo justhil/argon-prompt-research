@@ -1,0 +1,41 @@
+{
+  "runKey": "F3-long-context-bench-report__P3_editorial_craft_68w",
+  "taskId": "F3-long-context-bench-report",
+  "taskTitle": "长上下文注意力与幻觉评测报告页",
+  "styleId": "P3_editorial_craft_68w",
+  "styleLabel": "P3 · 68字出版物纸面 + 网格与舞台编排锚点",
+  "styleCharCount": 68,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 130.27,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 431,
+    "completion_tokens": 16384,
+    "total_tokens": 16815,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 47940,
+    "hasDarkBg": false,
+    "darkHexCount": 3,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 3,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": true,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  }
+}

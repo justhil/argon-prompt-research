@@ -1,0 +1,288 @@
+{
+  "runId": "T3-dag-scheduler-decoy__treatment_tier4_guardrails",
+  "taskId": "T3-dag-scheduler-decoy",
+  "variantKey": "treatment_tier4_guardrails",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: terminal failure marks FAILED_TERMINAL and cascades SKIPPED_UPSTREAM_FAILED to downstream nodes\nok 1 - Oracle 1: terminal failure marks FAILED_TERMINAL and cascades SKIPPED_UPSTREAM_FAILED to downstream nodes\n  ---\n  duration_ms: 1.4301\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 51.1581\n",
+  "turns": 8,
+  "elapsedSec": 89.81,
+  "totalTokens": 30850,
+  "reasoningTokens": 760,
+  "targetFilesTotal": 3,
+  "targetFilesReadTotal": 3,
+  "firstEditTurn": 6,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 3,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 3,
+  "filesReadList": [
+    "src/scheduler/backoff_calc.mjs",
+    "src/scheduler/lease_pool.mjs",
+    "src/scheduler/node_state_store.mjs",
+    "src/scheduler/dag_engine.mjs",
+    "package.json",
+    "test/smoke.test.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/scheduler\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1749,
+        "completion_tokens": 74,
+        "total_tokens": 1823,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 32,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/backoff_calc.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/lease_pool.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/node_state_store.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/dag_engine.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1884,
+        "completion_tokens": 127,
+        "total_tokens": 2011,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 17,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        },
+        {
+          "name": "grep_search",
+          "args": "{\"query\":\"markTerminalFailure\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3293,
+        "completion_tokens": 60,
+        "total_tokens": 3353,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 18,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"package.json\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3422,
+        "completion_tokens": 61,
+        "total_tokens": 3483,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1020
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 19,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3584,
+        "completion_tokens": 41,
+        "total_tokens": 3625,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1020
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 13,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Analyzing Bug Patterns**\n\nI've been examining the bug patterns found across the files, and it looks like I found an oversight in `src/scheduler/dag_engine.mjs`. The `isFinalAttempt` check currently incorrectly determines the final attempt, due to how the loop iterates. The conditions could permit attempts after the maximum. I'm focusing on clarifying and fixing this logic in order to refine the stability of task scheduling.\n\n\n**Clarifying `isFinalAttempt` Logic**\n\nI've realized the `isFinalAttempt` parameter in `LeasePool.runWithLease` defaults to `false`, but the relevant code *only* uses i",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"      let attempt = 0;\\n      while (attempt \\u003c this.maxAttempts) {\\n        attempt += 1;\\n        const outcome = await this.leasePool.runWithLease(nodeId, () =\\u003e workerFn(node, attempt), {\\n          isFinalAttempt: attempt \\u003e= this.maxAttempts\\n        });\\n        if (outcome.ok) break;\",\"Target\":\"      let attempt = 0;\\n      while (attempt \\u003c this.maxAttempts) {\\n        attempt += 1;\\n        const outcome = await this.leasePool.runWithLease(nodeId, () =\\u003e workerFn(node, attempt), {\\n          isFinalAttempt: attempt \\u003e this.maxAttempts\\n        });\\n        if (outcome.ok) break;\",\"path\":\"src/scheduler/dag_engine.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"    try {\\n      const res = await fn();\\n      this.stateStore.markSucceeded(nodeId, res);\\n      return { ok: true, result: res };\\n    } catch (err) {\\n      if (isFinalAttempt) {\\n        this.stateStore.markTerminalFailure(nodeId, err?.message ?? String(err));\\n      }\\n      return { ok: false, error: err };\\n    } finally {\",\"Target\":\"    try {\\n      const res = await fn();\\n      this.stateStore.markSucceeded(nodeId, res);\\n      return { ok: true, result: res };\\n    } catch (err) {\\n      return { ok: false, error: err };\\n    } finally {\",\"path\":\"src/scheduler/lease_pool.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"export function computeBackoffDelayMs(attempt, opts = {}) {\\n  const baseMs = opts.baseMs ?? 100;\\n  const jitterRatio = opts.jitterRatio ?? 0;\\n  const exp = baseMs * Math.pow(2, Math.max(0, attempt - 1));\\n  return Math.round(exp * (1 + jitterRatio));\\n}\",\"Target\":\"export function computeBackoffDelayMs(attempt, opts = {}) {\\n  const baseMs = opts.baseMs ?? 100;\\n  const jitterRatio = opts.jitterRatio ?? 0;\\n  const exp = baseMs * Math.pow(2, Math.max(0, attempt - 1));\\n  return Math.round(exp * jitterRatio);\\n}\",\"path\":\"src/scheduler/backoff_calc.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3839,
+        "completion_tokens": 1214,
+        "total_tokens": 5053,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1536
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 615,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  const res = await engine.executeDag(\\n    [{ id: 'a', deps: [] }, { id: 'b', deps: ['a'] }],\\n    async (n) =\\u003e n.id\\n  );\\n  assert.equal(res.states.b.status, 'SUCCEEDED');\\n});\\n\\ntest('failed upstream node after retries marks downstream as SKIPPED_UPSTREAM_FAILED with exponential backoff', async () =\\u003e {\\n  const store = new NodeStateStore();\\n  const pool = new LeasePool(store);\\n  const engine = new DagEngine({ leasePool: pool, stateStore: store, maxAttempts: 3 });\\n  const res = await engine.executeDag(\\n    [{ id: 'a', deps: [] }, { id: 'b', deps: ['a'] }, { id: 'c', deps: ['b'] }],\\n    async (n) =\\u003e {\\n      if (n.id === 'a') throw new Error('boom');\\n      return n.id;\\n    }\\n  );\\n  assert.equal(res.states.a.status, 'FAILED_TERMINAL');\\n  assert.equal(res.states.a.errorMsg, 'boom');\\n  assert.equal(res.states.b.status, 'SKIPPED_UPSTREAM_FAILED');\\n  assert.equal(res.states.c.status, 'SKIPPED_UPSTREAM_FAILED');\\n  assert.deepEqual(res.delaysRecorded, [100, 200]);\\n});\",\"Target\":\"  const res = await engine.executeDag(\\n    [{ id: 'a', deps: [] }, { id: 'b', deps: ['a'] }],\\n    async (n) =\\u003e n.id\\n  );\\n  assert.equal(res.states.b.status, 'SUCCEEDED');\\n});\",\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5162,
+        "completion_tokens": 465,
+        "total_tokens": 5627,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 2633
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 28,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        },
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"node -e \\\"import('./src/scheduler/dag_engine.mjs').then(async ({ DagEngine }) =\\u003e { const { LeasePool } = await import('./src/scheduler/lease_pool.mjs'); const { NodeStateStore } = await import('./src/scheduler/node_state_store.mjs'); const store = new NodeStateStore(); const pool = new LeasePool(store); const engine = new DagEngine({ leasePool: pool, stateStore: store }); const res = await engine.executeDag([{ id: 'n1', deps: [] }, { id: 'n2', deps: ['n1'] }], async () =\\u003e { throw new Error('fail'); }); console.log(JSON.stringify(res)); })\\\"\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5661,
+        "completion_tokens": 214,
+        "total_tokens": 5875,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 3316
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 18,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

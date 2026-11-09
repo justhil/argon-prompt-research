@@ -1,0 +1,98 @@
+{
+  "runId": "M1-order-gateway-hardening__tier4_surgical_only__r1",
+  "taskId": "M1-order-gateway-hardening",
+  "domain": "后端网关与高可用容错",
+  "variantKey": "tier4_surgical_only",
+  "rep": 1,
+  "turns": 6,
+  "elapsedSec": 99.1,
+  "commandsRunCount": 2,
+  "completeness": {
+    "score": 9,
+    "maxScore": 10,
+    "linesCount": 680,
+    "details": {
+      "linesCount": 680,
+      "p1_basic_idempotency_dedup": true,
+      "p2_inflight_concurrent_dedup": true,
+      "p3_payload_mismatch_conflict_409": true,
+      "p4_idempotency_ttl_expiry": true,
+      "p5_per_user_rate_limiting_429": true,
+      "p6_rate_limit_retry_after_meta": true,
+      "p7_transient_error_retry_recovery": true,
+      "p8_downstream_timeout_protection": true,
+      "p9_circuit_breaker_or_fail_fast": true,
+      "p10_agent_wrote_and_ran_tests": false
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir"
+        },
+        {
+          "name": "read_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        },
+        {
+          "name": "list_dir"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "已完成 `src/order_handler.mjs` 的生产级改造，保持 `OrderHandler` 构造与 `createOrder` 接口兼容，新增的核心能力如下：\n\n1. **幂等防重（Idempotency）**\n   - **参数指纹校验**：基于 `userId`、`amount`、`items` 计算 SHA-256 指纹；若相同 `idempotencyKey` 被篡改参数重用，拒绝并返回 `422 IDEMPOTENCY_KEY_PAYLOAD_MISMATCH`。\n   - **两阶段状态机（`IN_FLIGHT` / `COMPLETED`）**：并发相同 `idempotencyKey` 请求默认返回 `409 ORDER_IN_PROGRESS`（或通过 `idempotency.awaitInFlight: true` 共享等待同一个 Promise 结果），已完成请求直接返回原结果并标记 `idempotentReplayed: true`。\n   - **异常分类处理与内存保护**：确定性业务失败（如余额不足、卡被拒 `402`）会被缓存防重；瞬态失",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

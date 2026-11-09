@@ -1,0 +1,40 @@
+{
+  "runKey": "W1-synth-sequencer__O4_quadrant_roulette_62w",
+  "taskId": "W1-synth-sequencer",
+  "taskTitle": "模块化步进音序器与合成器控制面板 (Tactile Audio Synth & Sequencer)",
+  "styleId": "O4_quadrant_roulette_62w",
+  "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 163.73,
+  "metrics": {
+    "htmlBytes": 43477,
+    "hasDarkBg": false,
+    "darkHexCount": 10,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 3,
+    "neonGlowShadowCount": 1,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 17
+  },
+  "palette": {
+    "primaryBg": "#CBD0D4",
+    "allHex": [
+      "#cbd0d4",
+      "#e7e7e2",
+      "#ddddd7",
+      "#cecec7",
+      "#141516",
+      "#686a6c",
+      "#b5b5ae",
+      "#ff4800"
+    ],
+    "rootCss": "/* 阳极氧化铝与瑞士工业白灰配色体系 */ --bg-room: #CBD0D4; --chassis-main: #E7E7E2; --chassis-panel: #DDDDD7; --chassis-well: #CECEC7; --ink-dark: #141516; --ink-muted: #686A6C; --border-hairline: #B5B5AE; --border-dark: #141516; /* 工业信号色 */ --sig-orange: #FF4800; --sig-orange-glow: rgba(255, 72, 0, 0.35); --sig-amber: #F59E0B; --sig-green: #00A859; --si",
+    "themeNote": ""
+  }
+}

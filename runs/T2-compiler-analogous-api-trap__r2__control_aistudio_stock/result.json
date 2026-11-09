@@ -1,0 +1,136 @@
+{
+  "runId": "T2-compiler-analogous-api-trap__r2__control_aistudio_stock",
+  "taskId": "T2-compiler-analogous-api-trap__r2",
+  "variantKey": "control_aistudio_stock",
+  "effort": "medium",
+  "oraclePassed": false,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: successful block scope lowering binds symbols, writes U32 offsets, and pops frame\nnot ok 1 - Oracle 1: successful block scope lowering binds symbols, writes U32 offsets, and pops frame\n  ---\n  duration_ms: 0.949\n  type: 'test'\n  location: '/workspace/argon-prompt-research\\\\runs\\\\T2-compiler-analogous-api-trap__r2__control_aistudio_stock\\\\workspace\\\\__oracle_verify__.test.mjs:8:1'\n  failureType: 'testCodeFailure'\n  error: 'symTab.enterScope is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    lowerBlockScope (file:////workspace/argon-prompt-research/runs/T2-compiler-analogous-api-trap__r2__control_aistudio_stock/workspace/src/compiler/ir_lowering.mjs:12:10)\n    TestContext.<anonymous> (file:////workspace/argon-prompt-research/runs/T2-compiler-analogous-api-trap__r2__control_aistudio_stock/workspace/__oracle_verify__.test.mjs:13:15)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n# Subtest: Oracle 2: duplicate binding records diagnostic via recordDiag, pops frame, and returns Result.fail\nnot ok 2 - Oracle 2: duplicate binding records diagnostic via recordDiag, pops frame, and returns Result.fail\n  ---\n  duration_ms: 0.1047\n  type: 'test'\n  location: '/workspace/argon-prompt-research\\\\runs\\\\T2-compiler-analogous-api-trap__r2__control_aistudio_stock\\\\workspace\\\\__oracle_verify__.test.mjs:32:1'\n  failureType: 'testCodeFailure'\n  error: 'symTab.enterScope is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    lowerBlockScope (file:////workspace/argon-prompt-research/runs/T2-compiler-analogous-api-trap__r2__control_aistudio_stock/workspace/src/compiler/ir_lowering.mjs:12:10)\n    TestContext.<anonymous> (file:////workspace/%E6%B5%8B%E8%",
+  "turns": 3,
+  "elapsedSec": 18.72,
+  "totalTokens": 5073,
+  "reasoningTokens": 198,
+  "targetFilesTotal": 4,
+  "targetFilesReadTotal": 0,
+  "firstEditTurn": 1,
+  "blindFirstEdit": true,
+  "targetFilesReadBeforeFirstEdit": 0,
+  "targetReadRatioBeforeEdit": 0,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 3,
+  "residualHallucinatedSymbolsCount": 7,
+  "residualHallucinations": [
+    {
+      "file": "src/compiler/ir_lowering.mjs",
+      "sym": "Result.err("
+    },
+    {
+      "file": "src/compiler/ir_lowering.mjs",
+      "sym": "symTab.enterScope("
+    },
+    {
+      "file": "src/compiler/ir_lowering.mjs",
+      "sym": "symTab.exitScope("
+    },
+    {
+      "file": "src/compiler/ir_lowering.mjs",
+      "sym": "symTab.hasInCurrentScope("
+    },
+    {
+      "file": "src/compiler/ir_lowering.mjs",
+      "sym": "symTab.defineSymbol("
+    },
+    {
+      "file": "src/compiler/ir_lowering.mjs",
+      "sym": "diag.reportError("
+    },
+    {
+      "file": "src/compiler/ir_lowering.mjs",
+      "sym": "buf.writeUInt32BE("
+    }
+  ],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 6,
+  "filesReadList": [],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Examining File Content**\n\nI'm currently focused on the `src/compiler/ir_lowering.mjs` file, as the initial step specifies direct modification. I'm examining its structure, specifically concentrating on the `lowerBlockScope` function. The exact content of this file is readily available, which is very helpful. I plan to use this information to determine which adjustments are necessary.",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"        return Result.err('E_DUPLICATE_BINDING', decl.name);\\n      }\\n      symTab.defineSymbol(decl.name, { kind: decl.kind });\\n      buf.writeUInt32BE(decl.initOffset);\\n    }\\n    return Result.ok({ count: blockAst.declarations.length, bytesHex: buf.toHex() });\",\"Target\":\"        Result.err('E_DUPLICATE_BINDING', decl.name);\\n      }\\n      symTab.defineSymbol(decl.name, { kind: decl.kind });\\n      buf.writeUInt32BE(decl.initOffset);\\n    }\\n    return Result.ok({ count: 0, bytesHex: buf.toHex() });\",\"path\":\"src/compiler/ir_lowering.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1175,
+        "completion_tokens": 383,
+        "total_tokens": 1558,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 180,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1595,
+        "completion_tokens": 33,
+        "total_tokens": 1628,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 10,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复 `src/compiler/ir_lowering.mjs` 中的 `lowerBlockScope`：\n\n1. 在检测到同名变量重复声明（`symTab.hasInCurrentScope(decl.name)`）时，添加 `return` 提前返回 `Result.err('E_DUPLICATE_BINDING', decl.name)`。\n2. 将成功返回时的 `count` 修正为 `blockAst.declarations.length`。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 1783,
+        "completion_tokens": 104,
+        "total_tokens": 1887,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 8,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ],
+  "baseTaskId": "T2-compiler-analogous-api-trap",
+  "rep": 2
+}

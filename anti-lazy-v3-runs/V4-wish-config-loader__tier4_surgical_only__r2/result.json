@@ -1,0 +1,69 @@
+{
+  "runId": "V4-wish-config-loader__tier4_surgical_only__r2",
+  "taskId": "V4-wish-config-loader",
+  "domain": "配置管理与安全边界",
+  "variantKey": "tier4_surgical_only",
+  "rep": 2,
+  "turns": 4,
+  "elapsedSec": 268.4,
+  "commandsRunCount": 1,
+  "completeness": {
+    "score": 5,
+    "maxScore": 6,
+    "linesCount": 91,
+    "details": {
+      "linesCount": 91,
+      "t1_deep_nested_merge": true,
+      "t2_does_not_mutate_default_singleton": true,
+      "t3_prototype_pollution_blocked": true,
+      "t4_env_var_override_and_type_coercion": true,
+      "t5_array_replacement_not_objectified": true,
+      "t6_validation_or_freeze_protection": false
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        },
+        {
+          "name": "grep_search"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "已完善 `src/config_loader.mjs` 中的 `loadConfig` 实现，修复了浅层 `Object.assign` 的问题：\n\n1. **深拷贝与深度合并 (`deepMerge`)**：\n   - 修改嵌套属性（如只传 `{ server: { port: 9000 } }`）时，完整保留 `server.host`、`server.cors` 等其余默认配置。\n   - 对嵌套对象和数组进行克隆，防止修改返回结果时污染 `DEFAULT_CONFIG` 或传入的 `userConfig`。\n   - 忽略 `undefined` 值并过滤 `__proto__` / `constructor` / `prototype`，防止原型污染。\n2. **环境变量覆盖与类型转换 (`env`)**：\n   - 支持通过 `SERVER_HOST`、`SERVER_PORT",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

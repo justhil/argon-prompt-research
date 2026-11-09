@@ -1,0 +1,35 @@
+{
+  "runKey": "W1-synth-sequencer__O6_entropy_hash_roulette_72w",
+  "taskId": "W1-synth-sequencer",
+  "styleId": "O6_entropy_hash_roulette_72w",
+  "elapsedSec": 135.8,
+  "metrics": {
+    "htmlBytes": 45551,
+    "hasDarkBg": false,
+    "darkHexCount": 2,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 2,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 8
+  },
+  "palette": {
+    "primaryBg": "#F4F6F9",
+    "allHex": [
+      "#f4f6f9",
+      "#1d4ed8",
+      "#e11d48",
+      "#ffffff",
+      "#e8ecf2",
+      "#dde3ea",
+      "#0f172a",
+      "#475569"
+    ],
+    "reasoning": ""
+  }
+}

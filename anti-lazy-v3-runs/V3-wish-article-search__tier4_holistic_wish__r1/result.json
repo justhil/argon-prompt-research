@@ -1,0 +1,88 @@
+{
+  "runId": "V3-wish-article-search__tier4_holistic_wish__r1",
+  "taskId": "V3-wish-article-search",
+  "domain": "搜索排序与容错算法",
+  "variantKey": "tier4_holistic_wish",
+  "rep": 1,
+  "turns": 6,
+  "elapsedSec": 258.6,
+  "commandsRunCount": 3,
+  "completeness": {
+    "score": 6,
+    "maxScore": 6,
+    "linesCount": 660,
+    "details": {
+      "linesCount": 660,
+      "t1_multi_word_non_adjacent_match": true,
+      "t2_relevance_ranking_title_boost": true,
+      "t3_prefix_or_fuzzy_typo_match": true,
+      "t4_regex_special_chars_safe": true,
+      "t5_tag_filtering_support": true,
+      "t6_dedup_or_remove_update_doc": true
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "已对 `src/article_search.mjs` 进行了全面重构与增强，在完全保留原有 `ArticleSearch` 类及 `add(doc)`、`search(query, options)` 接口兼容性的基础上，新增了以下核心搜索能力：\n\n### 主要改进点\n1. **多词分词与中英文混合支持（Tokenization & Normalization）**\n   - 大小写不敏感、Unicode 变音符号归一化（`NFKD`）、英文停用词过滤（Stop Words）与词干提取（Stemming，如单复数/时态匹配）。\n   - 支持中/日/韩（CJK）单字与双字（Bigram）切分，以及连字符/下划线复合词拆分。\n2. **BM25 相关度打分与字段权重（Field-Weighted Relevance Ranking）**\n   - 基于 BM25 算法计算词频（TF）与逆文",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

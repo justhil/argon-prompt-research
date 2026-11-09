@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Gateway Telemetry & Cost Console</title>
+<style>
+  :root {
+    --bg-ivory: #FAF9F5;
+    --bg-oat: #F2EFE6;
+    --bg-oat-hover: #EBE7DC;
+    --border-hairline: #E0DCD0;
+    --border-strong: #C8C3B4;
+    --text-ink: #1C1B19;
+    --text-muted: #65625A;
+    --text-faint: #949085;
+    
+    /* Mineral Quad Palette */
+    --c-terracotta: #C85A32;
+    --c-sage: #487358;
+    --c-azurite: #2F5C85;
+    --c-ochre: #C78A28;
+    
+    --font-serif: "Newsreader", "Iowan Old Style", "Charter", "Source Serif Pro", Georgia, "Songti SC", serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-ivory);
+    color: var(--text-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 28px 36px;
+    max-width: 1520px;
+    margin: 0 auto;
+  }
+
+  /* Coordinate Grid Surface */
+  .coord-grid {
+    background-image: 
+      linear-gradient(to right, rgba(28, 27, 25, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(28, 27, 25, 0.045) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Header */
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--text-ink);
+    margin-bottom: 24px;
+  }
+
+  .doc-title-group .ref-code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .doc-title-group h1 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 26px;
+    letter-spacing: -0.015em;
+    color: var(--text-ink);
+  }
+
+  .doc-title-group h1 span.sub {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 10px;
+  }
+
+  .gateway-status {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--bg-oat);
+    padding: 8px 14px;
+    border: 1px solid var(--border-hairline);
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--c-sage);
+    font-weight: 600;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    background-color: var(--c-sage);
+    border-radius: 50%;
+    transition: opacity 0.4s ease;
+  }
+
+  /* Top KPI Strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .kpi-card {
+    background-color: var(--bg-oat);
+    border: 1px solid var(--border-hairline);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .kpi-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .kpi-label .code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
+  }
+
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 25px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text-ink);
+    margin-bottom: 8px;
+  }
+
+  .kpi-foot {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 8px;
+  }
+
+  .delta-good { color: var(--c-sage); }
+  .delta-warn { color: var(--c-terracotta); }
+
+  /* Main Split Workspace */
+  .workspace {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .panel {
+    border: 1px solid var(--border-hairline);
+    background-color: var(--bg-ivory);
+  }
+
+  .panel-header {
+    background-color: var(--bg-oat);
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-title {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-ink);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .panel-title .fig-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .panel-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Left Panel: Latency & Routing */
+  .section-sub {
+    padding: 14px 18px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .section-sub h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  .legend {
+    display: flex;
+    gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .swatch {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+  }
+
+  /* Latency Chart Area */
+  .latency-chart {
+    padding: 20px 18px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .axis-header {
+    display: grid;
+    grid-template-columns: 170px 1fr 90px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border-hairline);
+    margin-bottom: 14px;
+  }
+
+  .axis-ticks {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 12px;
+  }
+
+  .model-lat-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 90px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .model-lat-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .model-id {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .model-name {
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .model-provider {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-left: 14px;
+  }
+
+  .bar-track {
+    height: 22px;
+    background-color: rgba(242, 239, 230, 0.7);
+    border: 1px solid var(--border-hairline);
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 14px;
+  }
+
+  .bar-p95 {
+    height: 100%;
+    opacity: 0.26;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: transform 0.3s ease;
+    transform-origin: left;
+  }
+
+  .bar-p50 {
+    height: 12px;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s ease;
+    transform-origin: left;
+  }
+
+  .lat-numbers {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-align: right;
+    color: var(--text-ink);
+  }
+
+  .lat-numbers .p95-txt {
+    color: var(--text-muted);
+    font-size: 10px;
+  }
+
+  /* Routing Weight Sliders & Cost Simulator */
+  .routing-controls {
+    padding: 18px;
+  }
+
+  .routing-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .slider-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 64px 95px;
+    align-items: center;
+    gap: 12px;
+    background-color: var(--bg-oat);
+    padding: 10px 14px;
+    border: 1px solid var(--border-hairline);
+  }
+
+  .slider-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  input[type="range"].mineral-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border-strong);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"].mineral-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 18px;
+    background: var(--text-ink);
+    border: 1px solid var(--bg-ivory);
+    cursor: grab;
+    transition: transform 0.15s ease;
+  }
+
+  input[type="range"].mineral-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scaleY(1.15);
+  }
+
+  .weight-pct {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .model-cost-rate {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  /* Cost Summary Box */
+  .cost-projection-box {
+    background-color: var(--bg-oat);
+    border: 1px solid var(--text-ink);
+    padding: 16px 18px;
+  }
+
+  .proportion-bar {
+    height: 8px;
+    width: 100%;
+    display: flex;
+    margin-bottom: 14px;
+    border: 1px solid var(--border-hairline);
+    overflow: hidden;
+  }
+
+  .prop-seg {
+    height: 100%;
+    transition: width 0.2s ease;
+  }
+
+  .cost-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 12px;
+  }
+
+  .cost-metric-item .lbl {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  .cost-metric-item .val {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .btn-reset {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--text-ink);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .btn-reset:hover {
+    background-color: var(--bg-oat-hover);
+  }
+
+  /* Right Panel: Request Trace Log */
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .filter-btn:hover {
+    color: var(--text-ink);
+  }
+
+  .filter-btn.active {
+    background-color: var(--bg-ivory);
+    border-color: var(--border-strong);
+    color: var(--text-ink);
+    font-weight: 600;
+  }
+
+  .trace-controls-bar {
+    padding: 10px 18px;
+    background-color: var(--bg-ivory);
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .trace-table-wrap {
+    height: 556px;
+    overflow-y: auto;
+  }
+
+  table.trace-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+  }
+
+  table.trace-table th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-oat);
+    color: var(--text-muted);
+    font-weight: 500;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    z-index: 5;
+  }
+
+  table.trace-table th.right,
+  table.trace-table td.right {
+    text-align: right;
+  }
+
+  table.trace-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border-hairline);
+    color: var(--text-ink);
+    vertical-align: middle;
+  }
+
+  table.trace-table tr {
+    transition: opacity 0.25s ease, background-color 0.15s ease;
+  }
+
+  table.trace-table tr:hover {
+    background-color: var(--bg-oat);
+  }
+
+  .status-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 10px;
+    border: 1px solid;
+    text-transform: uppercase;
+  }
+
+  .status-routed {
+    color: var(--c-sage);
+    border-color: rgba(72, 115, 88, 0.4);
+    background-color: rgba(72, 115, 88, 0.07);
+  }
+
+  .status-fallback {
+    color: var(--c-terracotta);
+    border-color: rgba(200, 90, 50, 0.45);
+    background-color: rgba(200, 90, 50, 0.09);
+  }
+
+  .trace-model-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .fallback-note {
+    display: block;
+    font-size: 10px;
+    color: var(--c-terracotta);
+  }
+
+  .cache-hit {
+    color: var(--c-azurite);
+    font-size: 10px;
+  }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  @media (max-width: 1180px) {
+    .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+    .workspace { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="doc-header">
+    <div class="doc-title-group">
+      <div class="ref-code">SYSTEM TELEMETRY // REPORT SPEC REV 4.2</div>
+      <h1>LLM Gateway Telemetry & Cost Console <span class="sub">大模型推理网关监控与成本分析台</span></h1>
+    </div>
+    <div class="gateway-status">
+      <div class="status-indicator">
+        <span class="status-dot" id="heartbeatDot"></span>
+        <span>GATEWAY: OPERATIONAL</span>
+      </div>
+      <span>EPOCH: <strong class="num" id="clockDisplay">14:22:09 UTC</strong></span>
+      <span>REGION: <strong>us-west-cluster-04</strong></span>
+    </div>
+  </header>
+
+  <!-- 1. Core Summary KPI Strip -->
+  <section class="kpi-strip" aria-label="Core Gateway Metrics">
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>总请求数 (Total Requests)</span>
+        <span class="code">M-01</span>
+      </div>
+      <div class="kpi-value num" id="kpiTotalReq">1,482,910</div>
+      <div class="kpi-foot">
+        <span>24h 吞吐量</span>
+        <span class="delta-good num">+41.2 req/s</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>平均首字延迟 (Mean TTFT)</span>
+        <span class="code">M-02</span>
+      </div>
+      <div class="kpi-value num"><span id="kpiTtft">318</span><span style="font-size:15px;color:var(--text-muted)"> ms</span></div>
+      <div class="kpi-foot">
+        <span>SLO 阈值 &lt; 450ms</span>
+        <span class="delta-good num" id="kpiTtftDelta">-14ms vs 1h</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>流式吞吐 (Stream Throughput)</span>
+        <span class="code">M-03</span>
+      </div>
+      <div class="kpi-value num"><span id="kpiTokSec">94.6</span><span style="font-size:15px;color:var(--text-muted)"> tok/s</span></div>
+      <div class="kpi-foot">
+        <span>集群聚合输出速率</span>
+        <span class="num">18,420 tok/m</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>前缀缓存命中率 (Cache Hit)</span>
+        <span class="code">M-04</span>
+      </div>
+      <div class="kpi-value num" id="kpiCacheHit">64.8%</div>
+      <div class="kpi-foot">
+        <span>今日节省 Token</span>
+        <span class="delta-good num">312.4M tok</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <span>今日累计账单 (Daily Spend)</span>
+        <span class="code">M-05</span>
+      </div>
+      <div class="kpi-value num" id="kpiDailyBill">$4,289.40</div>
+      <div class="kpi-foot">
+        <span>当前加权千次成本</span>
+        <span class="num" id="kpiUnitCost">$2.89 / 1k req</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Workspace -->
+  <main class="workspace">
+    
+    <!-- 2. Left Column: Latency Comparison & Routing Weights -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="fig-num">FIG 1.1</span>
+          <span>主力模型延迟分布与路由权重仿真 (Latency & Routing Matrix)</span>
+        </div>
+        <div class="panel-meta">WINDOW: 15M ROLLING</div>
+      </div>
+
+      <!-- Part A: Horizontal Bar Latency Distribution -->
+      <div class="section-sub">
+        <h3>TTFT 首字延迟分位数对比 (ms)</h3>
+        <div class="legend">
+          <span class="legend-item"><i class="swatch" style="background:var(--text-ink);"></i> P50 中位延迟</span>
+          <span class="legend-item"><i class="swatch" style="background:var(--text-ink);opacity:0.28"></i> P95 长尾边界</span>
+        </div>
+      </div>
+
+      <div class="latency-chart coord-grid">
+        <div class="axis-header">
+          <div>MODEL ENDPOINT</div>
+          <div class="axis-ticks">
+            <span>0ms</span>
+            <span>250ms</span>
+            <span>500ms</span>
+            <span>750ms</span>
+            <span>1000ms</span>
+          </div>
+          <div style="text-align:right">P50 / P95</div>
+        </div>
+        <div id="latencyBarsContainer">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- Part B: Interactive Weight Sliders & Real-time Cost Recalculation -->
+      <div class="section-sub">
+        <h3>动态流量分配滑块 (Traffic Routing Weights)</h3>
+        <button class="btn-reset" id="resetWeightsBtn" type="button">重置均衡配置 (Reset Default)</button>
+      </div>
+
+      <div class="routing-controls">
+        <div class="routing-grid" id="slidersContainer">
+          <!-- Populated via JS -->
+        </div>
+
+        <!-- Real-time Recalculated Cost Projection -->
+        <div class="cost-projection-box">
+          <div class="proportion-bar" id="proportionBar"></div>
+          <div class="cost-metrics-row">
+            <div class="cost-metric-item">
+              <div class="lbl">单次请求期望成本 (Est. / Req)</div>
+              <div class="val num" id="simCostPerReq">$0.00289</div>
+            </div>
+            <div class="cost-metric-item">
+              <div class="lbl">预估每小时账单 (Projected / Hr)</div>
+              <div class="val num" id="simHourlyCost">$178.72</div>
+            </div>
+            <div class="cost-metric-item">
+              <div class="lbl">预估全天总成本 (24h Projection)</div>
+              <div class="val num" id="simDailyCost">$4,289.40</div>
+            </div>
+            <div class="cost-metric-item">
+              <div class="lbl">对比基准配置差额 (vs Baseline)</div>
+              <div class="val num" id="simDeltaBaseline">$0.00 (0.0%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Right Column: Real-Time Request Trace Stream -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="fig-num">FIG 1.2</span>
+          <span>实时请求追踪流 (Request Trace Log)</span>
+        </div>
+        <div class="filter-tabs" role="tablist">
+          <button class="filter-btn active" data-filter="ALL" type="button">All (<span id="countAll" class="num">0</span>)</button>
+          <button class="filter-btn" data-filter="ROUTED" type="button">Routed (<span id="countRouted" class="num">0</span>)</button>
+          <button class="filter-btn" data-filter="FALLBACK" type="button">Fallback (<span id="countFallback" class="num">0</span>)</button>
+        </div>
+      </div>
+
+      <div class="trace-controls-bar">
+        <span>STREAMING: <strong style="color:var(--c-sage)">LIVE</strong> (2.2s interval)</span>
+        <span>AUTO-DISPATCH BY ACTIVE WEIGHTS</span>
+      </div>
+
+      <div class="trace-table-wrap coord-grid">
+        <table class="trace-table">
+          <thead>
+            <tr>
+              <th>Trace ID</th>
+              <th>Target Model</th>
+              <th>Status</th>
+              <th class="right">Tokens (I/O)</th>
+              <th class="right">TTFT</th>
+              <th class="right">Cost</th>
+            </tr>
+          </thead>
+          <tbody id="traceTableBody">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="doc-footer">
+    <div>LLM GATEWAY OBSERVABILITY SUITE // DETERMINISTIC COST ENGINE</div>
+    <div>LATENCY SCALE: 0–1000MS LINEAR // CURRENCY: USD ($)</div>
+  </footer>
+
+<script>
+(function() {
+  // 4 Primary Models Configuration with Mineral Quad Colors
+  const MODELS = [
+    {
+      id: 'gemini-4-argon',
+      name: 'Gemini 4 Argon',
+      provider: 'google-vertex-us',
+      color: '#2F5C85', // Azurite Blue
+      p50: 215,
+      p95: 440,
+      tps: 118,
+      inPricePerM: 2.20,  // $ per 1M input tokens
+      outPricePerM: 8.80, // $ per 1M output tokens
+      defaultShare: 35,
+      rawWeight: 35
+    },
+    {
+      id: 'claude-4-6-opus',
+      name: 'Claude 4.6 Opus',
+      provider: 'anthropic-direct',
+      color: '#C85A32', // Terracotta Red
+      p50: 455,
+      p95: 830,
+      tps: 68,
+      inPricePerM: 6.00,
+      outPricePerM: 24.00,
+      defaultShare: 20,
+      rawWeight: 20
+    },
+    {
+      id: 'gpt-6-1-sol',
+      name: 'GPT-6.1 Sol',
+      provider: 'azure-openai-w2',
+      color: '#487358', // Sage Green
+      p50: 310,
+      p95: 615,
+      tps: 92,
+      inPricePerM: 3.80,
+      outPricePerM: 14.50,
+      defaultShare: 25,
+      rawWeight: 25
+    },
+    {
+      id: 'deepseek-v4-1',
+      name: 'DeepSeek V4.1',
+      provider: 'together-dedicated',
+      color: '#C78A28', // Ochre Yellow
+      p50: 260,
+      p95: 530,
+      tps: 106,
+      inPricePerM: 0.55,
+      outPricePerM: 2.10,
+      defaultShare: 20,
+      rawWeight: 20
+    }
+  ];
+
+  // Traffic & Token Assumptions for Cost Simulation
+  const DAILY_REQUESTS = 1482910;
+  const AVG_INPUT_TOKENS = 1450;
+  const AVG_OUTPUT_TOKENS = 420;
+  const CACHE_DISCOUNT_FACTOR = 0.72; // Effective multiplier considering 64.8% cache hit
+
+  let normalizedShares = {};
+  let baselineDailyCost = 0;
+  let currentDailyBill = 4289.40;
+  let totalRequestsCounter = DAILY_REQUESTS;
+  let activeFilter = 'ALL';
+  let traces = [];
+
+  // Calculate expected cost of 1 average request for a given model
+  function calcModelReqCost(m) {
+    const inCost = (AVG_INPUT_TOKENS / 1e6) * m.inPricePerM * CACHE_DISCOUNT_FACTOR;
+    const outCost = (AVG_OUTPUT_TOKENS / 1e6) * m.outPricePerM;
+    return inCost + outCost;
+  }
+
+  // Render Latency Horizontal Comparison Bars
+  function renderLatencyBars() {
+    const container = document.getElementById('latencyBarsContainer');
+    const maxScaleMs = 1000;
+    container.innerHTML = MODELS.map(m => {
+      const p50Width = Math.min(100, (m.p50 / maxScaleMs) * 100).toFixed(1);
+      const p95Width = Math.min(100, (m.p95 / maxScaleMs) * 100).toFixed(1);
+      return `
+        <div class="model-lat-row" data-model="${m.id}">
+          <div class="model-id">
+            <span class="model-name">
+              <i class="swatch" style="background:${m.color}"></i>
+              ${m.name}
+            </span>
+            <span class="model-provider">${m.provider}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-p95" id="bar-p95-${m.id}" style="width:${p95Width}%; background:${m.color};"></div>
+            <div class="bar-p50" id="bar-p50-${m.id}" style="width:${p50Width}%; background:${m.color};"></div>
+          </div>
+          <div class="lat-numbers">
+            <strong id="txt-p50-${m.id}">${m.p50}ms</strong>
+            <span class="p95-txt">/ <span id="txt-p95-${m.id}">${m.p95}ms</span></span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render Interactive Routing Sliders
+  function renderSliders() {
+    const container = document.getElementById('slidersContainer');
+    container.innerHTML = MODELS.map(m => {
+      const reqCostPer1k = (calcModelReqCost(m) * 1000).toFixed(2);
+      return `
+        <div class="slider-row">
+          <div>
+            <div class="model-name" style="font-size:12.5px;">
+              <i class="swatch" style="background:${m.color}"></i>
+              ${m.name}
+            </div>
+            <div class="slider-meta">In: $${m.inPricePerM.toFixed(2)} / Out: $${m.outPricePerM.toFixed(2)} (1M)</div>
+          </div>
+          <div>
+            <input type="range" min="0" max="100" value="${m.rawWeight}" 
+                   class="mineral-slider" data-id="${m.id}" aria-label="${m.name} routing weight">
+          </div>
+          <div class="weight-pct num" id="share-txt-${m.id}">0.0%</div>
+          <div class="model-cost-rate num">$${reqCostPer1k} / 1k req</div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.mineral-slider').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const id = e.target.getAttribute('data-id');
+        const model = MODELS.find(item => item.id === id);
+        if (model) {
+          model.rawWeight = parseFloat(e.target.value) || 0;
+          recalculateRoutingAndCost();
+        }
+      });
+    });
+  }
+
+  // Compute Normalized Weights, Weighted TTFT, Throughput & Estimated Costs
+  function recalculateRoutingAndCost(isInit = false) {
+    let sumWeights = MODELS.reduce((acc, m) => acc + m.rawWeight, 0);
+
+    // Fallback if user drags all sliders to 0
+    if (sumWeights === 0) {
+      MODELS.forEach(m => { normalizedShares[m.id] = 0.25; });
+    } else {
+      MODELS.forEach(m => { normalizedShares[m.id] = m.rawWeight / sumWeights; });
+    }
+
+    let weightedCostPerReq = 0;
+    let weightedTtft = 0;
+    let weightedTps = 0;
+    const propBar = document.getElementById('proportionBar');
+    let propHtml = '';
+
+    MODELS.forEach(m => {
+      const share = normalizedShares[m.id];
+      const pctText = (share * 100).toFixed(1) + '%';
+      const shareEl = document.getElementById(`share-txt-${m.id}`);
+      if (shareEl) shareEl.textContent = pctText;
+
+      weightedCostPerReq += share * calcModelReqCost(m);
+      weightedTtft += share * m.p50;
+      weightedTps += share * m.tps;
+
+      propHtml += `<div class="prop-seg" style="width:${(share * 100).toFixed(2)}%; background:${m.color}" title="${m.name}: ${pctText}"></div>`;
+    });
+
+    propBar.innerHTML = propHtml;
+
+    const projectedDaily = weightedCostPerReq * DAILY_REQUESTS;
+    const projectedHourly = projectedDaily / 24;
+
+    if (isInit) {
+      baselineDailyCost = projectedDaily;
+    }
+
+    const diffDaily = projectedDaily - baselineDailyCost;
+    const diffPct = baselineDailyCost > 0 ? (diffDaily / baselineDailyCost) * 100 : 0;
+
+    // Update Cost Projection Box
+    document.getElementById('simCostPerReq').textContent = '$' + weightedCostPerReq.toFixed(5);
+    document.getElementById('simHourlyCost').textContent = '$' + projectedHourly.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('simDailyCost').textContent = '$' + projectedDaily.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const deltaEl = document.getElementById('simDeltaBaseline');
+    const sign = diffDaily > 0.01 ? '+' : '';
+    deltaEl.textContent = `${sign}$${diffDaily.toFixed(2)} (${sign}${diffPct.toFixed(1)}%)`;
+    deltaEl.className = 'val num ' + (diffDaily > 1 ? 'delta-warn' : (diffDaily < -1 ? 'delta-good' : ''));
+
+    // Sync Top KPIs with routing adjustments
+    document.getElementById('kpiTtft').textContent = Math.round(weightedTtft);
+    document.getElementById('kpiTokSec').textContent = weightedTps.toFixed(1);
+    document.getElementById('kpiUnitCost').textContent = '$' + (weightedCostPerReq * 1000).toFixed(2) + ' / 1k req';
+  }
+
+  // Pick a model probabilistically based on current routing weights
+  function pickModelByWeight() {
+    const r = Math.random();
+    let cumulative = 0;
+    for (let i = 0; i < MODELS.length; i++) {
+      cumulative += normalizedShares[MODELS[i].id] || 0.25;
+      if (r <= cumulative) return MODELS[i];
+    }
+    return MODELS[0];
+  }
+
+  // Generate a realistic synthetic Request Trace entry
+  function createTraceEntry() {
+    const primaryModel = pickModelByWeight();
+    const isFallback = Math.random() < 0.14; // 14% chance of fallback for observability
+    let targetModel = primaryModel;
+    let fallbackReason = null;
+
+    if (isFallback) {
+      const alternatives = MODELS.filter(m => m.id !== primaryModel.id);
+      targetModel = alternatives[Math.floor(Math.random() * alternatives.length)];
+      const reasons = ['HTTP 429 RateLimit', 'TTFT > 900ms SLA', 'Upstream 503 Overloaded'];
+      fallbackReason = `${primaryModel.name.split(' ')[0]} → ${reasons[Math.floor(Math.random() * reasons.length)]}`;
+    }
+
+    const inTok = Math.floor(320 + Math.random() * 2400);
+    const outTok = Math.floor(80 + Math.random() * 780);
+    const cacheHit = Math.random() < 0.65;
+    const jitter = 0.82 + Math.random() * 0.45;
+    const ttft = Math.round(targetModel.p50 * jitter + (isFallback ? 110 : 0));
+
+    const effInCost = (inTok / 1e6) * targetModel.inPricePerM * (cacheHit ? 0.2 : 1.0);
+    const effOutCost = (outTok / 1e6) * targetModel.outPricePerM;
+    const totalCost = effInCost + effOutCost;
+
+    const hexId = 'trc_' + Math.floor(100000 + Math.random() * 899999).toString(16) + Math.floor(10 + Math.random() * 89);
+
+    return {
+      id: hexId,
+      model: targetModel,
+      status: isFallback ? 'FALLBACK' : 'ROUTED',
+      fallbackNote: fallbackReason,
+      inTok,
+      outTok,
+      cacheHit,
+      ttft,
+      cost: totalCost
+    };
+  }
+
+  // Render Request Trace Table & Update Counters
+  function renderTraceTable() {
+    const tbody = document.getElementById('traceTableBody');
+    const countAll = traces.length;
+    const countRouted = traces.filter(t => t.status === 'ROUTED').length;
+    const countFallback = traces.filter(t => t.status === 'FALLBACK').length;
+
+    document.getElementById('countAll').textContent = countAll;
+    document.getElementById('countRouted').textContent = countRouted;
+    document.getElementById('countFallback').textContent = countFallback;
+
+    const filtered = traces.filter(t => activeFilter === 'ALL' || t.status === activeFilter);
+
+    tbody.innerHTML = filtered.slice(0, 18).map(t => {
+      const statusClass = t.status === 'ROUTED' ? 'status-routed' : 'status-fallback';
+      return `
+        <tr>
+          <td class="num" style="color:var(--text-muted)">${t.id}</td>
+          <td>
+            <span class="trace-model-badge">
+              <i class="swatch" style="background:${t.model.color};width:8px;height:8px"></i>
+              <strong>${t.model.name}</strong>
+            </span>
+            ${t.fallbackNote ? `<span class="fallback-note">↳ ${t.fallbackNote}</span>` : ''}
+          </td>
+          <td><span class="status-tag ${statusClass}">${t.status}</span></td>
+          <td class="right num">
+            ${t.inTok}<span style="color:var(--text-faint)">/</span>${t.outTok}
+            ${t.cacheHit ? '<span class="cache-hit" title="Prefix Cache Hit"> [C]</span>' : ''}
+          </td>
+          <td class="right num">${t.ttft}ms</td>
+          <td class="right num">$${t.cost.toFixed(4)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Setup Filter Buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.getAttribute('data-filter');
+      renderTraceTable();
+    });
+  });
+
+  // Reset Weights Button
+  document.getElementById('resetWeightsBtn').addEventListener('click', () => {
+    MODELS.forEach(m => { m.rawWeight = m.defaultShare; });
+    document.querySelectorAll('.mineral-slider').forEach(slider => {
+      const m = MODELS.find(item => item.id === slider.getAttribute('data-id'));
+      if (m) slider.value = m.defaultShare;
+    });
+    recalculateRoutingAndCost();
+  });
+
+  // Initial Seed Data
+  renderLatencyBars();
+  renderSliders();
+  recalculateRoutingAndCost(true);
+
+  for (let i = 0; i < 16; i++) {
+    traces.push(createTraceEntry());
+  }
+  renderTraceTable();
+
+  // Periodic Live Telemetry Loop
+  setInterval(() => {
+    const newTrace = createTraceEntry();
+    traces.unshift(newTrace);
+    if (traces.length > 48) traces.pop();
+    renderTraceTable();
+
+    // Increment top counters
+    totalRequestsCounter += Math.floor(1 + Math.random() * 4);
+    currentDailyBill += newTrace.cost * 3.5;
+    document.getElementById('kpiTotalReq').textContent = totalRequestsCounter.toLocaleString('en-US');
+    document.getElementById('kpiDailyBill').textContent = '$' + currentDailyBill.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Subtle heartbeat pulse & clock update
+    const dot = document.getElementById('heartbeatDot');
+    dot.style.opacity = dot.style.opacity === '0.35' ? '1' : '0.35';
+    const now = new Date();
+    document.getElementById('clockDisplay').textContent = now.toISOString().slice(11, 19) + ' UTC';
+  }, 2200);
+
+})();
+</script>
+</body>
+</html>

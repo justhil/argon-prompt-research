@@ -1,0 +1,6478 @@
+{
+  "summary": {
+    "total_samples": 345,
+    "compile_fail_samples": 119,
+    "samples_with_hallucinations": 31,
+    "hallucination_rate": 0.08985507246376812,
+    "hallucination_type_distribution": {
+      "feature": 4,
+      "import": 9,
+      "method": 18
+    },
+    "top_hallucinated_methods": {
+      "as_raw_fd": 5,
+      "query": 3,
+      "set_send_buffer_size": 3,
+      "deserialize": 2,
+      "as_bytes": 1,
+      "take_until": 1,
+      "clone": 1
+    },
+    "top_hallucinated_types": {
+      "Op": 8,
+      "NodeType": 2,
+      "crate::ambassador_impl_Rest": 1
+    },
+    "top_hallucinated_crates": {
+      "crate": 1
+    },
+    "top_hallucinated_features": {
+      "reload": 4
+    },
+    "wrong_signature_count": 0,
+    "top_error_codes": {
+      "E0599": 45,
+      "E0277": 35,
+      "cargo-build-failure": 24,
+      "null": 18,
+      "E0282": 15,
+      "E0308": 11,
+      "E0433": 11,
+      "E0061": 9,
+      "E0309": 8,
+      "E0015": 6,
+      "E0107": 6,
+      "E0195": 6,
+      "E0405": 4,
+      "E0477": 4,
+      "E0432": 3,
+      "E0391": 3,
+      "E0119": 3,
+      "E0382": 3,
+      "E0207": 2,
+      "E0507": 2
+    }
+  },
+  "per_sample_analysis": [
+    {
+      "index": 1,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 2,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 3,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 4,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "feature"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "cargo-build-failure",
+          "message": "Updating crates.io index\nerror: failed to select a version for `tracing-subscriber`.\n    ... required by package `dynamic_loglevel v0.1.0 (/tmp/tmpw1yj53tx)`\nversions that meet the requirements `^0.3.18` are: 0.3.22, 0.3.20, 0.3.19, 0.3.18\n\npackage `dynamic_loglevel` depends on `tracing-subscriber` with feature `reload` but `tracing-subscriber` does not have that feature.\n\n\nfailed to select a version for `tracing-subscriber` which could resolve this conflict",
+          "code_line": null,
+          "msg_hallucination_types": [
+            "feature"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [
+          "reload"
+        ],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 5,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 6,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 7,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 8,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 9,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 10,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 11,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0432",
+          "message": "unresolved imports `radiate::NodeType`, `radiate::Op`",
+          "code_line": "use radiate::{NodeType, Op};",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0432"
+      ]
+    },
+    {
+      "index": 12,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 13,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 14,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 15,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 16,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0599",
+        "E0277"
+      ]
+    },
+    {
+      "index": 17,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 18,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 19,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 20,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0428"
+      ]
+    },
+    {
+      "index": 21,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 22,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0609"
+      ]
+    },
+    {
+      "index": 23,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 24,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 25,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 26,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 27,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 28,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0432",
+          "message": "unresolved import `crate::ambassador_impl_Rest`",
+          "code_line": "    use crate::ambassador_impl_Rest; ",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0405",
+          "message": "cannot find trait `MatchRest` in this scope",
+          "code_line": "    #[delegate(Rest)]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [
+          "crate::ambassador_impl_Rest"
+        ],
+        "crates": [
+          "crate"
+        ],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0432",
+        "E0405"
+      ]
+    },
+    {
+      "index": 29,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 30,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 31,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `as_raw_fd` found for struct `Session<P, S>` in the current scope",
+          "code_line": "        let raw_fd = session.as_raw_fd();",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "as_raw_fd"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 32,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 33,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 34,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0207"
+      ]
+    },
+    {
+      "index": 35,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 36,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 37,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0507"
+      ]
+    },
+    {
+      "index": 38,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 39,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 40,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 41,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 42,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 43,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 44,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 45,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 46,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 47,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 48,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 49,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 50,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 51,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 52,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 53,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 54,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308"
+      ]
+    },
+    {
+      "index": 55,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0599"
+      ]
+    },
+    {
+      "index": 56,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 57,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 58,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 59,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 60,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null
+      ]
+    },
+    {
+      "index": 61,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0015"
+      ]
+    },
+    {
+      "index": 62,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0599",
+        "E0277"
+      ]
+    },
+    {
+      "index": 63,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 64,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 65,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 66,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 67,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0061"
+      ]
+    },
+    {
+      "index": 68,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 69,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0477",
+        null,
+        "E0491",
+        "E0309",
+        "E0309",
+        "E0309",
+        "E0309"
+      ]
+    },
+    {
+      "index": 70,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 71,
+      "status": "missing_files",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 72,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 73,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 74,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 75,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 76,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `deserialize` found for enum `Result<T, E>` in the current scope",
+          "code_line": "        let reply: u32 = m.body().deserialize().unwrap();",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        },
+        {
+          "code": "E0599",
+          "message": "no method named `deserialize` found for enum `Result<T, E>` in the current scope",
+          "code_line": "        let reply: u32 = m.body().deserialize().unwrap_or(0);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "deserialize",
+          "deserialize"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277",
+        "E0277",
+        "E0599",
+        "E0599"
+      ]
+    },
+    {
+      "index": 77,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 78,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 79,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 80,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 81,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 82,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0282",
+        "E0282",
+        "E0282",
+        "E0282"
+      ]
+    },
+    {
+      "index": 83,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 84,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 85,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 86,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 87,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 88,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 89,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 90,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 91,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0015"
+      ]
+    },
+    {
+      "index": 92,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 93,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 94,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 95,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 96,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 97,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no associated item named `FILE_LIST_DIRECTORY` found for struct `FileAccessMask` in the current scope",
+          "code_line": "    let resource = tree.open_existing(path, FileAccessMask::FILE_LIST_DIRECTORY).await?;",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        },
+        {
+          "code": "E0599",
+          "message": "no method named `query` found for struct `smb::Directory` in the current scope",
+          "code_line": "    let entries = dir.query(\"*\").await?; ",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "query"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0599",
+        "E0282"
+      ]
+    },
+    {
+      "index": 98,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `as_raw_fd` found for struct `Session<P, S>` in the current scope",
+          "code_line": "        let fd = session.as_raw_fd();",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "as_raw_fd"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 99,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 100,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 101,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 102,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277"
+      ]
+    },
+    {
+      "index": 103,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 104,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 105,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 106,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 107,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `as_bytes` found for struct `der::Any` in the current scope",
+          "code_line": "            match RelaxedSignedData::from_der(ci.content.as_bytes()) {",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "as_bytes"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0107",
+        "E0107",
+        "E0107",
+        "E0107",
+        "E0107",
+        "E0107",
+        "E0599"
+      ]
+    },
+    {
+      "index": 108,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 109,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 110,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 111,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": null,
+          "message": "cannot find macro `ambassador_impl_Rest` in this scope",
+          "code_line": "    #[delegate(Rest)]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0405",
+          "message": "cannot find trait `MatchRest` in this scope",
+          "code_line": "    #[delegate(Rest)]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null,
+        "E0405"
+      ]
+    },
+    {
+      "index": 112,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 113,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 114,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0597"
+      ]
+    },
+    {
+      "index": 115,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 116,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 117,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0391",
+        "E0477"
+      ]
+    },
+    {
+      "index": 118,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308",
+        "E0308"
+      ]
+    },
+    {
+      "index": 119,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 120,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 121,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 122,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null
+      ]
+    },
+    {
+      "index": 123,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 124,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 125,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "feature"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "cargo-build-failure",
+          "message": "Updating crates.io index\nerror: failed to select a version for `tracing-subscriber`.\n    ... required by package `tracing-dynamic-level v0.1.0 (/tmp/tmpc6yd_klp)`\nversions that meet the requirements `^0.3` are: 0.3.22, 0.3.20, 0.3.19, 0.3.18, 0.3.17, 0.3.16, 0.3.15, 0.3.14, 0.3.11, 0.3.10, 0.3.9, 0.3.8, 0.3.7, 0.3.6, 0.3.5, 0.3.4, 0.3.3, 0.3.2, 0.3.1, 0.3.0\n\npackage `tracing-dynamic-level` depends on `tracing-subscriber` with feature `reload` but `tracing-subscriber` does not have that feature.\n\n\nfailed to select a version for `tracing-subscriber` which could resolve this conflict",
+          "code_line": null,
+          "msg_hallucination_types": [
+            "feature"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [
+          "reload"
+        ],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 126,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0195",
+        "E0195",
+        "E0195"
+      ]
+    },
+    {
+      "index": 127,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 128,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 129,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 130,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `take_until` found for struct `tokio_stream::adapters::FilterMap<St, F>` in the current scope",
+          "code_line": "        BroadcastStream::new(self.tx.subscribe())",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "take_until"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 131,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 132,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0034"
+      ]
+    },
+    {
+      "index": 133,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null,
+        null
+      ]
+    },
+    {
+      "index": 134,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 135,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0282",
+        "E0061",
+        "E0061"
+      ]
+    },
+    {
+      "index": 136,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 137,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `set_send_buffer_size` found for struct `UnixDatagram` in the current scope",
+          "code_line": "        let _ = sock.set_send_buffer_size(8 * 1024 * 1024);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "set_send_buffer_size"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 138,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 139,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 140,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 141,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 142,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 143,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 144,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 145,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 146,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0599",
+        "E0277"
+      ]
+    },
+    {
+      "index": 147,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 148,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 149,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 150,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0282",
+        "E0282",
+        "E0282",
+        "E0282"
+      ]
+    },
+    {
+      "index": 151,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 152,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no associated item named `FILE_LIST_DIRECTORY` found for struct `FileAccessMask` in the current scope",
+          "code_line": "        .open_existing(path, FileAccessMask::FILE_LIST_DIRECTORY)",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        },
+        {
+          "code": "E0599",
+          "message": "no method named `query` found for struct `smb::Directory` in the current scope",
+          "code_line": "    let entries = dir.query(\"*\").await?;",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "query"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0277",
+        "E0599",
+        "E0282"
+      ]
+    },
+    {
+      "index": 153,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 154,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 155,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 156,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 157,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0119",
+        "E0119"
+      ]
+    },
+    {
+      "index": 158,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 159,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 160,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no function or associated item named `new` found for struct `ChunkedArray<T>` in the current scope",
+          "code_line": "                            StructChunked::new(\"foo\".into(), &[c1, c2])",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 161,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 162,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 163,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `as_raw_fd` found for struct `Session<P, S>` in the current scope",
+          "code_line": "        let master_fd = session.as_raw_fd();",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "as_raw_fd"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 164,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277"
+      ]
+    },
+    {
+      "index": 165,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0015",
+        "E0015"
+      ]
+    },
+    {
+      "index": 166,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 167,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 168,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0119",
+        "E0599"
+      ]
+    },
+    {
+      "index": 169,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 170,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 171,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 172,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": null,
+          "message": "cannot find macro `ambassador_impl_Rest` in this scope",
+          "code_line": "    #[delegate(Rest)]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0405",
+          "message": "cannot find trait `MatchRest` in this scope",
+          "code_line": "    #[delegate(Rest)]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null,
+        "E0405"
+      ]
+    },
+    {
+      "index": 173,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 174,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0382",
+        "E0382",
+        null
+      ]
+    },
+    {
+      "index": 175,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 176,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 177,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 178,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 179,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 180,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 181,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 182,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308"
+      ]
+    },
+    {
+      "index": 183,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 184,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null,
+        null
+      ]
+    },
+    {
+      "index": 185,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0391"
+      ]
+    },
+    {
+      "index": 186,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0282"
+      ]
+    },
+    {
+      "index": 187,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 188,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 189,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 190,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "feature"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "cargo-build-failure",
+          "message": "Updating crates.io index\nerror: failed to select a version for `tracing-subscriber`.\n    ... required by package `dynamic-log-level v0.1.0 (/tmp/tmp58yd2kmh)`\nversions that meet the requirements `^0.3` are: 0.3.22, 0.3.20, 0.3.19, 0.3.18, 0.3.17, 0.3.16, 0.3.15, 0.3.14, 0.3.11, 0.3.10, 0.3.9, 0.3.8, 0.3.7, 0.3.6, 0.3.5, 0.3.4, 0.3.3, 0.3.2, 0.3.1, 0.3.0\n\npackage `dynamic-log-level` depends on `tracing-subscriber` with feature `reload` but `tracing-subscriber` does not have that feature.\n\n\nfailed to select a version for `tracing-subscriber` which could resolve this conflict",
+          "code_line": null,
+          "msg_hallucination_types": [
+            "feature"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [
+          "reload"
+        ],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 191,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no variant or associated item named `COLONCOLON` found for enum `SyntaxKind` in the current scope",
+          "code_line": "                                .find(|it| it.kind() == SyntaxKind::COLONCOLON);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        },
+        {
+          "code": "E0599",
+          "message": "no variant or associated item named `COLONCOLON` found for enum `SyntaxKind` in the current scope",
+          "code_line": "                                    .find(|it| it.kind() == SyntaxKind::COLONCOLON);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        },
+        {
+          "code": "E0599",
+          "message": "no variant or associated item named `COLONCOLON` found for enum `SyntaxKind` in the current scope",
+          "code_line": "                                    .find(|it| it.kind() == SyntaxKind::COLONCOLON);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0061",
+        "E0599",
+        "E0599",
+        "E0599"
+      ]
+    },
+    {
+      "index": 192,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 193,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 194,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 195,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null,
+        "E0507",
+        "E0382"
+      ]
+    },
+    {
+      "index": 196,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 197,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 198,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 199,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 200,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `set_send_buffer_size` found for struct `UnixDatagram` in the current scope",
+          "code_line": "        let _ = sock.set_send_buffer_size(5 * 1024 * 1024);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        },
+        {
+          "code": "E0599",
+          "message": "no function or associated item named `with_socket` found for struct `BufferedUnixMetricSink` in the current scope",
+          "code_line": "                break BufferedUnixMetricSink::with_socket(SOCKET_PATH, sock);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "set_send_buffer_size"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0599",
+        "E0599"
+      ]
+    },
+    {
+      "index": 201,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0599",
+        "E0277"
+      ]
+    },
+    {
+      "index": 202,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null
+      ]
+    },
+    {
+      "index": 203,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 204,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 205,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 206,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 207,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 208,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 209,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277",
+        "E0277"
+      ]
+    },
+    {
+      "index": 210,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 211,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 212,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 213,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 214,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 215,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 216,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 217,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 218,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 219,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 220,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 221,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 222,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 223,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no associated item named `FILE_LIST_DIRECTORY` found for struct `FileAccessMask` in the current scope",
+          "code_line": "    let resource = tree.open_existing(path, FileAccessMask::FILE_LIST_DIRECTORY).await?;",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        },
+        {
+          "code": "E0599",
+          "message": "no method named `query` found for struct `smb::Directory` in the current scope",
+          "code_line": "    let entries = dir.query(\"*\").await?;",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "query"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599",
+        "E0277",
+        "E0599",
+        "E0282"
+      ]
+    },
+    {
+      "index": 224,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0061"
+      ]
+    },
+    {
+      "index": 225,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 226,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 227,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0053",
+        "E0308"
+      ]
+    },
+    {
+      "index": 228,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 229,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0015"
+      ]
+    },
+    {
+      "index": 230,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "    let custom_sqrt = Op::new(\"sqrt_plus_one\", 1, |args: &[f32]| {",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "    let custom_gate = Op::new(\"if_>_0\", 3, |args: &[f32]| {",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `NodeType`",
+          "code_line": "        (NodeType::Vertex, vec![",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "            Op::add(), ",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "            Op::sub(), ",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "            Op::mul(), ",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "            Op::pow(),",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `NodeType`",
+          "code_line": "        (NodeType::Leaf, vec![",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "            Op::var(0), // Representing Robot Sensor 1",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0433",
+          "message": "failed to resolve: use of undeclared type `Op`",
+          "code_line": "            Op::var(1)  // Representing Robot Sensor 2",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [
+          "Op",
+          "Op",
+          "NodeType",
+          "Op",
+          "Op",
+          "Op",
+          "Op",
+          "NodeType",
+          "Op",
+          "Op"
+        ],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0433",
+        "E0433",
+        "E0433",
+        "E0433",
+        "E0433",
+        "E0433",
+        "E0433",
+        "E0433",
+        "E0433",
+        "E0433"
+      ]
+    },
+    {
+      "index": 231,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277"
+      ]
+    },
+    {
+      "index": 232,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 233,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 234,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 235,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 236,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 237,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 238,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 239,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308"
+      ]
+    },
+    {
+      "index": 240,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 241,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 242,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 243,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 244,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 245,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 246,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 247,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0391",
+        "E0477"
+      ]
+    },
+    {
+      "index": 248,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 249,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 250,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0061",
+        "E0061"
+      ]
+    },
+    {
+      "index": 251,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 252,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 253,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 254,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 255,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null
+      ]
+    },
+    {
+      "index": 256,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `clone` found for struct `Client` in the current scope",
+          "code_line": "            *lock = Some(client.clone());",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "clone"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308",
+        "E0599"
+      ]
+    },
+    {
+      "index": 257,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0433",
+          "message": "failed to resolve: could not find `debug_handler` in `axum`",
+          "code_line": "#[axum::debug_handler]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0433"
+      ]
+    },
+    {
+      "index": 258,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 259,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 260,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "feature"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "cargo-build-failure",
+          "message": "Updating crates.io index\nerror: failed to select a version for `tracing-subscriber`.\n    ... required by package `dynamic_log_level v0.1.0 (/tmp/tmpnp58q6r7)`\nversions that meet the requirements `^0.3` are: 0.3.22, 0.3.20, 0.3.19, 0.3.18, 0.3.17, 0.3.16, 0.3.15, 0.3.14, 0.3.11, 0.3.10, 0.3.9, 0.3.8, 0.3.7, 0.3.6, 0.3.5, 0.3.4, 0.3.3, 0.3.2, 0.3.1, 0.3.0\n\npackage `dynamic_log_level` depends on `tracing-subscriber` with feature `reload` but `tracing-subscriber` does not have that feature.\n\n\nfailed to select a version for `tracing-subscriber` which could resolve this conflict",
+          "code_line": null,
+          "msg_hallucination_types": [
+            "feature"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [
+          "reload"
+        ],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 261,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 262,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 263,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 264,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 265,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 266,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 267,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 268,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 269,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 270,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 271,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 272,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 273,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0425",
+          "message": "cannot find function `test_cons_fn` in this scope",
+          "code_line": "    test_cons_fn();",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0207",
+        "E0425"
+      ]
+    },
+    {
+      "index": 274,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 275,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 276,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277"
+      ]
+    },
+    {
+      "index": 277,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `as_raw_fd` found for struct `Session<P, S>` in the current scope",
+          "code_line": "        let fd = session.as_raw_fd();",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "as_raw_fd"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 278,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277",
+        "E0277"
+      ]
+    },
+    {
+      "index": 279,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0599",
+        "E0277"
+      ]
+    },
+    {
+      "index": 280,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 281,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 282,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 283,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null
+      ]
+    },
+    {
+      "index": 284,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 285,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 286,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 287,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 288,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 289,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 290,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 291,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 292,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 293,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no function or associated item named `new` found for struct `ChunkedArray<T>` in the current scope",
+          "code_line": "                            StructChunked::new(PlSmallStr::from(\"struct_row\"), &[s1, s2])",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 294,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308"
+      ]
+    },
+    {
+      "index": 295,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277",
+        "E0277",
+        "E0308"
+      ]
+    },
+    {
+      "index": 296,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 297,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 298,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 299,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 300,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 301,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 302,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 303,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0432",
+          "message": "unresolved imports `radiate::Op`, `radiate::NodeType`",
+          "code_line": "use radiate::{Op, NodeType};",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0432",
+        "E0282"
+      ]
+    },
+    {
+      "index": 304,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 305,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 306,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 307,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 308,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 309,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 310,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 311,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `as_raw_fd` found for struct `Session<P, S>` in the current scope",
+          "code_line": "        let fd = session.as_raw_fd();",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "as_raw_fd"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 312,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0015"
+      ]
+    },
+    {
+      "index": 313,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 314,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 315,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 316,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "import"
+      ],
+      "hallucination_errors": [
+        {
+          "code": null,
+          "message": "cannot find macro `ambassador_impl_Rest` in this scope",
+          "code_line": "    #[delegate(Rest)]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        },
+        {
+          "code": "E0405",
+          "message": "cannot find trait `MatchRest` in this scope",
+          "code_line": "    #[delegate(Rest)]",
+          "msg_hallucination_types": [
+            "import"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null,
+        "E0405"
+      ]
+    },
+    {
+      "index": 317,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null
+      ]
+    },
+    {
+      "index": 318,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 319,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 320,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 321,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 322,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0477",
+        null,
+        "E0491",
+        "E0309",
+        "E0309",
+        "E0309",
+        "E0309"
+      ]
+    },
+    {
+      "index": 323,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 324,
+      "status": "compile_fail",
+      "has_hallucination": true,
+      "hallucination_types": [
+        "method"
+      ],
+      "hallucination_errors": [
+        {
+          "code": "E0599",
+          "message": "no method named `set_send_buffer_size` found for struct `std::os::unix::net::UnixDatagram` in the current scope",
+          "code_line": "        let _ = sock.set_send_buffer_size(8 * 1024 * 1024);",
+          "msg_hallucination_types": [
+            "method"
+          ]
+        }
+      ],
+      "hallucinated_items": {
+        "methods": [
+          "set_send_buffer_size"
+        ],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        null,
+        "E0599"
+      ]
+    },
+    {
+      "index": 325,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 326,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 327,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 328,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 329,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 330,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 331,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0599"
+      ]
+    },
+    {
+      "index": 332,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0061",
+        "E0061"
+      ]
+    },
+    {
+      "index": 333,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308"
+      ]
+    },
+    {
+      "index": 334,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 335,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 336,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 337,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0195",
+        "E0195",
+        "E0195",
+        "E0282"
+      ]
+    },
+    {
+      "index": 338,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 339,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 340,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 341,
+      "status": "ok",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": []
+    },
+    {
+      "index": 342,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0308"
+      ]
+    },
+    {
+      "index": 343,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    },
+    {
+      "index": 344,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "E0277",
+        "E0277",
+        "E0277"
+      ]
+    },
+    {
+      "index": 345,
+      "status": "compile_fail",
+      "has_hallucination": false,
+      "hallucination_types": [],
+      "hallucination_errors": [],
+      "hallucinated_items": {
+        "methods": [],
+        "types": [],
+        "crates": [],
+        "features": [],
+        "traits": []
+      },
+      "wrong_signatures": [],
+      "error_codes": [
+        "cargo-build-failure"
+      ]
+    }
+  ]
+}

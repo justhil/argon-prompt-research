@@ -1,0 +1,40 @@
+{
+  "runKey": "W4-telemetry-gateway-console__O4_quadrant_roulette_62w__r2",
+  "taskId": "W4-telemetry-gateway-console",
+  "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+  "styleId": "O4_quadrant_roulette_62w",
+  "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+  "rep": 2,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 160.7,
+  "metrics": {
+    "htmlBytes": 47361,
+    "hasDarkBg": true,
+    "darkHexCount": 9,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 1,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 34
+  },
+  "palette": {
+    "primaryBg": "#F3F2EE",
+    "allHex": [
+      "#f3f2ee",
+      "#141413",
+      "#ff4400",
+      "#faf9f6",
+      "#e8e6df",
+      "#5c5b57",
+      "#8c8b85",
+      "#d4d2c8"
+    ],
+    "rootCss": "--bg-paper: #F3F2EE; --bg-panel: #FAF9F6; --bg-subtle: #E8E6DF; --bg-ink: #141413; --ink-primary: #141413; --ink-secondary: #5C5B57; --ink-muted: #8C8B85; --border-heavy: #141413; --border-hairline: #D4D2C8; --signal-orange: #FF4400; --signal-green: #008A4B; --signal-amber: #D97706; --signal-blue: #1D4ED8; --font-sans: 'Inter', -apple-sys",
+    "themeNote": ""
+  }
+}

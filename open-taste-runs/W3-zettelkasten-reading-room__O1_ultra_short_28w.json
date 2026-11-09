@@ -1,0 +1,40 @@
+{
+  "runKey": "W3-zettelkasten-reading-room__O1_ultra_short_28w",
+  "taskId": "W3-zettelkasten-reading-room",
+  "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+  "styleId": "O1_ultra_short_28w",
+  "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 145.79,
+  "metrics": {
+    "htmlBytes": 49643,
+    "hasDarkBg": false,
+    "darkHexCount": 0,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 4,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 15
+  },
+  "palette": {
+    "primaryBg": "#EFECE6",
+    "allHex": [
+      "#efece6",
+      "#f9f6f0",
+      "#f3efe8",
+      "#fcfbf9",
+      "#e7e2d8",
+      "#1c1b18",
+      "#5a554c",
+      "#8c857b"
+    ],
+    "rootCss": "/* 典藏古籍与档案室定制色板 (Archival Warm Parchment & Iron Gall Ink) */ --bg-archival: #EFECE6; /* 亚麻档案底色 */ --bg-paper: #F9F6F0; /* 象牙手稿纸 */ --bg-card: #F3EFE8; /* 索引卡底色 */ --bg-card-active: #FCFBF9; /* 激活卡片底色 */ --bg-hover: #E7E2D8; /* 悬停微暗 */ --ink-primary: #1C1B18; /* 铁胆墨黑 */ --ink-secondary: #5A554C; /* 炭灰正文辅助 */ --ink-muted: #8C857B; /* 铅笔淡灰 *",
+    "themeNote": ""
+  }
+}

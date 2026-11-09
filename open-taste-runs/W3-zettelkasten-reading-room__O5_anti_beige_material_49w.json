@@ -1,0 +1,35 @@
+{
+  "runKey": "W3-zettelkasten-reading-room__O5_anti_beige_material_49w",
+  "taskId": "W3-zettelkasten-reading-room",
+  "styleId": "O5_anti_beige_material_49w",
+  "elapsedSec": 206.6,
+  "metrics": {
+    "htmlBytes": 45559,
+    "hasDarkBg": false,
+    "darkHexCount": 1,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 6,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 15
+  },
+  "palette": {
+    "primaryBg": "#31342E",
+    "allHex": [
+      "#31342e",
+      "#dcd7ca",
+      "#e6e1d5",
+      "#efece4",
+      "#d5c7a9",
+      "#1b1a18",
+      "#4e4c46",
+      "#78746a"
+    ],
+    "reasoning": ""
+  }
+}

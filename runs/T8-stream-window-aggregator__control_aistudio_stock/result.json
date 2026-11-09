@@ -1,0 +1,95 @@
+{
+  "runId": "T8-stream-window-aggregator__control_aistudio_stock",
+  "taskId": "T8-stream-window-aggregator",
+  "variantKey": "control_aistudio_stock",
+  "effort": "medium",
+  "oraclePassed": false,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle: WindowAggregator records samples, computes mean, publishes data point, and evicts window\nnot ok 1 - Oracle: WindowAggregator records samples, computes mean, publishes data point, and evicts window\n  ---\n  duration_ms: 0.4086\n  type: 'test'\n  location: '/workspace/argon-prompt-research\\\\runs\\\\T8-stream-window-aggregator__control_aistudio_stock\\\\workspace\\\\__oracle_verify__.test.mjs:7:1'\n  failureType: 'testCodeFailure'\n  error: 'this.stateBackend.loadBucket is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    WindowAggregator.recordSample (file:////workspace/argon-prompt-research/runs/T8-stream-window-aggregator__control_aistudio_stock/workspace/src/analytics/window_aggregator.mjs:8:35)\n    TestContext.<anonymous> (file:////workspace/argon-prompt-research/runs/T8-stream-window-aggregator__control_aistudio_stock/workspace/__oracle_verify__.test.mjs:12:7)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 51.7809\n\n",
+  "turns": 2,
+  "elapsedSec": 14.03,
+  "totalTokens": 2606,
+  "reasoningTokens": 46,
+  "targetFilesTotal": 2,
+  "targetFilesReadTotal": 0,
+  "firstEditTurn": 1,
+  "blindFirstEdit": true,
+  "targetFilesReadBeforeFirstEdit": 0,
+  "targetReadRatioBeforeEdit": 0,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 4,
+  "residualHallucinations": [
+    {
+      "file": "src/analytics/window_aggregator.mjs",
+      "sym": "stateBackend.loadBucket("
+    },
+    {
+      "file": "src/analytics/window_aggregator.mjs",
+      "sym": "stateBackend.saveBucket("
+    },
+    {
+      "file": "src/analytics/window_aggregator.mjs",
+      "sym": "stateBackend.deleteBucket("
+    },
+    {
+      "file": "src/analytics/window_aggregator.mjs",
+      "sym": "metricSink.emitMetric("
+    }
+  ],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 4,
+  "filesReadList": [],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"    const meanValue = bucket.sum / bucket.count;\",\"Target\":\"    const meanValue = bucket.sum * bucket.count;\",\"path\":\"src/analytics/window_aggregator.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1153,
+        "completion_tokens": 102,
+        "total_tokens": 1255,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 36,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复 `src/analytics/window_aggregator.mjs` 中 `flushWindow` 方法的均值计算问题，将 `bucket.sum * bucket.count` 更改为 `bucket.sum / bucket.count`。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 1291,
+        "completion_tokens": 60,
+        "total_tokens": 1351,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 10,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

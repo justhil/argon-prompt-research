@@ -1,0 +1,110 @@
+{
+  "runId": "M1-order-gateway-hardening__control_stock__r1",
+  "taskId": "M1-order-gateway-hardening",
+  "domain": "后端网关与高可用容错",
+  "variantKey": "control_stock",
+  "rep": 1,
+  "turns": 7,
+  "elapsedSec": 185.5,
+  "commandsRunCount": 2,
+  "completeness": {
+    "score": 9,
+    "maxScore": 10,
+    "linesCount": 641,
+    "details": {
+      "linesCount": 641,
+      "p1_basic_idempotency_dedup": true,
+      "p2_inflight_concurrent_dedup": true,
+      "p3_payload_mismatch_conflict_409": true,
+      "p4_idempotency_ttl_expiry": true,
+      "p5_per_user_rate_limiting_429": true,
+      "p6_rate_limit_retry_after_meta": true,
+      "p7_transient_error_retry_recovery": true,
+      "p8_downstream_timeout_protection": true,
+      "p9_circuit_breaker_or_fail_fast": true,
+      "p10_agent_wrote_and_ran_tests": false
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        },
+        {
+          "name": "list_dir"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        }
+      ]
+    }
+  ]
+}

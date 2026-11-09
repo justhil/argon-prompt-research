@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codebase Search & Dependency Atlas — 架构图谱与语义检索工作台</title>
+<style>
+  :root {
+    --bg-paper: #FAF9F5;
+    --bg-card: #F3F1EA;
+    --bg-card-hover: #EAE6DC;
+    --bg-code: #EFECE4;
+    --ink-primary: #141413;
+    --ink-secondary: #5C5B57;
+    --ink-muted: #8C8A83;
+    --border-hairline: #DCD9D0;
+    --border-strong: #141413;
+    
+    --terracotta: #B04636;
+    --terracotta-bg: #F5E6E4;
+    --sage: #2F6142;
+    --sage-bg: #E3EFE7;
+    --azurite: #285D7B;
+    --azurite-bg: #E2EEF4;
+    --ochre: #9C6B21;
+    --ochre-bg: #F6EFE2;
+
+    --font-serif: "Palatino Linotype", "Book Antiqua", Palatino, "Noto Serif SC", "Songti SC", Georgia, serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-paper);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 顶部报头与状态栏 */
+  .masthead {
+    border-bottom: 2px solid var(--border-strong);
+    padding: 18px 28px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    background-color: var(--bg-paper);
+  }
+
+  .masthead-left {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .brand-title {
+    font-family: var(--font-serif);
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+  }
+
+  .brand-subtitle {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-card);
+  }
+
+  .masthead-stats {
+    display: flex;
+    gap: 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .stat-label {
+    color: var(--ink-secondary);
+    font-size: 11px;
+  }
+
+  .stat-val {
+    font-weight: 600;
+    color: var(--ink-primary);
+  }
+
+  /* 模块体积占比条 ( интерактивный ) */
+  .treemap-section {
+    border-bottom: 1px solid var(--border-hairline);
+    padding: 12px 28px;
+    background-color: var(--bg-card);
+  }
+
+  .treemap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--ink-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .treemap-bar {
+    display: flex;
+    height: 18px;
+    width: 100%;
+    border: 1px solid var(--ink-primary);
+    background: var(--bg-paper);
+    overflow: hidden;
+  }
+
+  .treemap-segment {
+    height: 100%;
+    border-right: 1px solid var(--bg-paper);
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    position: relative;
+  }
+
+  .treemap-segment:last-child {
+    border-right: none;
+  }
+
+  .treemap-segment:hover {
+    opacity: 0.85;
+  }
+
+  .treemap-segment.active {
+    outline: 2px solid var(--ink-primary);
+    outline-offset: -2px;
+    z-index: 2;
+  }
+
+  .treemap-segment.dimmed {
+    opacity: 0.25;
+  }
+
+  .treemap-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .legend-cats {
+    display: flex;
+    gap: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-secondary);
+  }
+
+  .swatch {
+    width: 9px;
+    height: 9px;
+    display: inline-block;
+    border: 1px solid rgba(20, 20, 19, 0.25);
+  }
+
+  /* 检索与分类控制栏 */
+  .controls-bar {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--bg-paper);
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-prefix {
+    position: absolute;
+    left: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--terracotta);
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 9px 70px 9px 78px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-primary);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    outline: none;
+    transition: background-color 0.15s;
+  }
+
+  .search-input:focus {
+    background-color: #FFFFFF;
+  }
+
+  .search-input::placeholder {
+    color: var(--ink-muted);
+    font-family: var(--font-sans);
+  }
+
+  .search-clear {
+    position: absolute;
+    right: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    background: var(--bg-paper);
+    border: 1px solid var(--border-hairline);
+    padding: 2px 6px;
+    cursor: pointer;
+    display: none;
+  }
+
+  .search-clear:hover {
+    color: var(--ink-primary);
+    border-color: var(--ink-primary);
+  }
+
+  .filter-group {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border-hairline);
+    padding: 8px 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.12s;
+  }
+
+  .filter-btn:last-child {
+    border-right: none;
+  }
+
+  .filter-btn:hover {
+    color: var(--ink-primary);
+    background: var(--bg-card-hover);
+  }
+
+  .filter-btn.active {
+    background: var(--ink-primary);
+    color: var(--bg-paper);
+  }
+
+  .filter-count {
+    font-size: 10px;
+    opacity: 0.75;
+  }
+
+  /* 主工作台双栏布局 */
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  @media (max-width: 1180px) {
+    .workspace {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* 左侧：9模块网格区 */
+  .atlas-grid-pane {
+    padding: 24px 28px;
+    border-right: 1px solid var(--border-strong);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .pane-title {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .pane-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: auto;
+  }
+
+  @media (max-width: 860px) {
+    .modules-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .module-card {
+    border: 1px solid var(--border-hairline);
+    background-color: var(--bg-card);
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    transition: border-color 0.15s, background-color 0.15s;
+    min-height: 158px;
+  }
+
+  .module-card:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--ink-secondary);
+  }
+
+  .module-card.active {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-strong);
+    outline: 1px solid var(--border-strong);
+  }
+
+  .module-card.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--terracotta);
+  }
+
+  .module-card.dep-upstream {
+    border-style: dashed;
+    border-color: var(--azurite);
+  }
+
+  .module-card.dep-downstream {
+    border-style: dashed;
+    border-color: var(--sage);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .mod-id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-secondary);
+  }
+
+  .cat-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: 1px solid currentColor;
+  }
+
+  .cat-core {
+    color: var(--terracotta);
+    background-color: var(--terracotta-bg);
+  }
+
+  .cat-rpc {
+    color: var(--azurite);
+    background-color: var(--azurite-bg);
+  }
+
+  .cat-storage {
+    color: var(--sage);
+    background-color: var(--sage-bg);
+  }
+
+  .mod-path {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    word-break: break-all;
+    margin-bottom: 6px;
+    line-height: 1.35;
+  }
+
+  .mod-desc {
+    font-size: 12px;
+    color: var(--ink-secondary);
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-metrics {
+    border-top: 1px solid var(--border-hairline);
+    padding-top: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .metric-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .metric-lbl {
+    font-size: 9.5px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+
+  .metric-num {
+    font-weight: 600;
+    color: var(--ink-primary);
+  }
+
+  .coupling-high { color: var(--terracotta); }
+  .coupling-med  { color: var(--ochre); }
+  .coupling-low  { color: var(--sage); }
+
+  .dep-badge-inline {
+    position: absolute;
+    bottom: 52px;
+    right: 12px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    padding: 1px 5px;
+    background: var(--bg-paper);
+    border: 1px solid currentColor;
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    padding: 48px 24px;
+    text-align: center;
+    border: 1px dashed var(--border-strong);
+    background: var(--bg-card);
+    font-family: var(--font-mono);
+    color: var(--ink-secondary);
+  }
+
+  /* 底部架构说明栏 */
+  .grid-footer-note {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  .rel-legend {
+    display: flex;
+    gap: 16px;
+  }
+
+  .rel-dot {
+    display: inline-block;
+    width: 10px;
+    height: 0;
+    border-top: 2px dashed;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  /* 右侧：检视器抽屉 (Inspector Drawer) */
+  .inspector-drawer {
+    background-color: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .drawer-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border-strong);
+    background: var(--bg-paper);
+  }
+
+  .drawer-topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .drawer-id-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 7px;
+    background: var(--ink-primary);
+    color: var(--bg-paper);
+  }
+
+  .drawer-hash {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  .drawer-title {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink-primary);
+    margin-bottom: 4px;
+  }
+
+  .drawer-filepath {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--terracotta);
+    margin-bottom: 10px;
+  }
+
+  .drawer-summary {
+    font-size: 13px;
+    color: var(--ink-secondary);
+    line-height: 1.5;
+  }
+
+  .drawer-body {
+    padding: 18px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .section-heading {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-hairline);
+    padding-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .section-sub {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: normal;
+    color: var(--ink-secondary);
+  }
+
+  /* 依赖拓扑列表 */
+  .dep-topology {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .dep-column {
+    background: var(--bg-paper);
+    border: 1px solid var(--border-hairline);
+    padding: 10px 12px;
+  }
+
+  .dep-col-title {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+  }
+
+  .dep-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .dep-pill {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 5px 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-hairline);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.12s, background 0.12s;
+  }
+
+  .dep-pill:hover {
+    border-color: var(--ink-primary);
+    background: #FFFFFF;
+  }
+
+  .dep-pill-id {
+    font-weight: 600;
+  }
+
+  .dep-pill-name {
+    color: var(--ink-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 115px;
+  }
+
+  .dep-none {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    padding: 4px 0;
+  }
+
+  /* 导出符号表 */
+  .symbols-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .symbol-chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    background: var(--bg-paper);
+    border: 1px solid var(--border-hairline);
+    color: var(--ink-primary);
+  }
+
+  /* 真实代码切片对比视图 */
+  .slice-tabs {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-paper);
+  }
+
+  .slice-tab {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border-hairline);
+    color: var(--ink-secondary);
+    cursor: pointer;
+  }
+
+  .slice-tab:last-child {
+    border-right: none;
+  }
+
+  .slice-tab.active {
+    background: var(--ink-primary);
+    color: var(--bg-paper);
+    font-weight: 600;
+  }
+
+  .code-comparison-box {
+    border: 1px solid var(--border-strong);
+    background: var(--bg-paper);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+  }
+
+  .code-pane-label {
+    background: var(--bg-code);
+    padding: 4px 10px;
+    font-size: 10px;
+    color: var(--ink-secondary);
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .code-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .code-line {
+    display: flex;
+    padding: 0 10px;
+  }
+
+  .code-line.diff-add {
+    background-color: var(--sage-bg);
+  }
+
+  .code-line.diff-del {
+    background-color: var(--terracotta-bg);
+  }
+
+  .ln {
+    width: 34px;
+    color: var(--ink-muted);
+    user-select: none;
+    text-align: right;
+    padding-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .lc {
+    white-space: pre;
+    color: var(--ink-primary);
+  }
+
+  .kw { color: var(--terracotta); font-weight: 600; }
+  .ty { color: var(--azurite); }
+  .fn { color: var(--sage); font-weight: 600; }
+  .cm { color: var(--ink-muted); font-style: italic; }
+
+  mark.hl {
+    background-color: #E9D597;
+    color: var(--ink-primary);
+    padding: 0 2px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 顶部报头 -->
+  <header class="masthead">
+    <div class="masthead-left">
+      <h1 class="brand-title">Codebase Search &amp; Dependency Atlas</h1>
+      <span class="brand-subtitle">CHRONOS-KV // REV 4.18.0-RC2</span>
+    </div>
+    <div class="masthead-stats">
+      <div class="stat-item">
+        <span class="stat-label">MODULES:</span>
+        <span class="stat-val" id="stat-mod-count">9 / 9</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">TOTAL LOC:</span>
+        <span class="stat-val" id="stat-loc-count">14,910</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">EXPORTED SYMBOLS:</span>
+        <span class="stat-val" id="stat-sym-count">232</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">MEAN COUPLING:</span>
+        <span class="stat-val" id="stat-cpl-avg">0.46</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 顶部模块体积占比条 (可点击切换模块) -->
+  <section class="treemap-section" aria-label="Module Volume Distribution">
+    <div class="treemap-header">
+      <span>Codebase Footprint &amp; Bytecode Weight Distribution (Click segment to inspect module)</span>
+      <span id="treemap-hover-readout">ACTIVE: M01 — src/engine/planner.rs (2,480 LOC / 16.6%)</span>
+    </div>
+    <div class="treemap-bar" id="treemap-bar"></div>
+    <div class="treemap-legend">
+      <div class="legend-cats">
+        <span class="legend-item"><i class="swatch" style="background: var(--terracotta);"></i>Core Engine (43.5%)</span>
+        <span class="legend-item"><i class="swatch" style="background: var(--azurite);"></i>RPC Adapters (23.7%)</span>
+        <span class="legend-item"><i class="swatch" style="background: var(--sage);"></i>Storage (32.8%)</span>
+      </div>
+      <span style="color: var(--ink-muted);">100% = 14,910 Lines of Rust</span>
+    </div>
+  </section>
+
+  <!-- 自然语言与符号检索控制栏 -->
+  <section class="controls-bar">
+    <div class="search-box">
+      <span class="search-prefix">QUERY //</span>
+      <input 
+        type="text" 
+        id="search-input" 
+        class="search-input" 
+        placeholder="输入自然语言语义、文件路径或导出符号 (如: MVCC, VectorizedBatch, 零拷贝, wal, Raft)..."
+        autocomplete="off"
+      />
+      <button class="search-clear" id="search-clear" title="Clear query">ESC 清空</button>
+    </div>
+
+    <div class="filter-group" id="filter-group" role="tablist">
+      <button class="filter-btn active" data-category="ALL">
+        All <span class="filter-count" id="cnt-all">[9]</span>
+      </button>
+      <button class="filter-btn" data-category="Core Engine">
+        Core Engine <span class="filter-count" id="cnt-core">[3]</span>
+      </button>
+      <button class="filter-btn" data-category="RPC Adapters">
+        RPC Adapters <span class="filter-count" id="cnt-rpc">[3]</span>
+      </button>
+      <button class="filter-btn" data-category="Storage">
+        Storage <span class="filter-count" id="cnt-storage">[3]</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- 核心双栏工作区 -->
+  <main class="workspace">
+    <!-- 左侧：9模块架构网格 -->
+    <section class="atlas-grid-pane">
+      <div>
+        <div class="pane-header">
+          <h2 class="pane-title">Core Architecture Matrix (9 Modules)</h2>
+          <span class="pane-meta" id="grid-status-text">Showing all 9 core compilation units</span>
+        </div>
+        <div class="modules-grid" id="modules-grid"></div>
+      </div>
+
+      <div class="grid-footer-note">
+        <div class="rel-legend">
+          <span><i class="rel-dot" style="border-color: var(--azurite);"></i>Upstream Caller (依赖当前选中模块)</span>
+          <span><i class="rel-dot" style="border-color: var(--sage);"></i>Downstream Callee (被当前选中模块调用)</span>
+        </div>
+        <span>Afferent (Ca) / Efferent (Ce) Instability Index</span>
+      </div>
+    </section>
+
+    <!-- 右侧：上下游依赖与代码切片抽屉 -->
+    <aside class="inspector-drawer" id="inspector-drawer">
+      <div class="drawer-header">
+        <div class="drawer-topline">
+          <span class="drawer-id-badge" id="drw-id">M01 // CORE ENGINE</span>
+          <span class="drawer-hash" id="drw-metrics">2,480 LOC · 34 SYMBOLS · I=0.68</span>
+        </div>
+        <h3 class="drawer-title" id="drw-title">Cost-Based Query Planner</h3>
+        <div class="drawer-filepath" id="drw-path">src/engine/planner.rs</div>
+        <p class="drawer-summary" id="drw-desc"></p>
+      </div>
+
+      <div class="drawer-body">
+        <!-- 上下游依赖拓扑 -->
+        <div class="section-block">
+          <div class="section-heading">
+            <span>Dependency Graph Adjacency</span>
+            <span class="section-sub">Click any node to pivot focus</span>
+          </div>
+          <div class="dep-topology">
+            <div class="dep-column">
+              <div class="dep-col-title" style="color: var(--azurite);">
+                <span>Upstream Callers (Ca)</span>
+                <span id="up-count">0</span>
+              </div>
+              <ul class="dep-list" id="up-list"></ul>
+            </div>
+            <div class="dep-column">
+              <div class="dep-col-title" style="color: var(--sage);">
+                <span>Downstream Deps (Ce)</span>
+                <span id="down-count">0</span>
+              </div>
+              <ul class="dep-list" id="down-list"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 导出符号清单 -->
+        <div class="section-block">
+          <div class="section-heading">
+            <span>Exported Public Symbols</span>
+            <span class="section-sub" id="sym-sub-count">0 public items</span>
+          </div>
+          <div class="symbols-wrap" id="drw-symbols"></div>
+        </div>
+
+        <!-- 真实代码切片对比 -->
+        <div class="section-block">
+          <div class="section-heading">
+            <span>Code Slice &amp; Refactor Diff</span>
+            <span class="section-sub" id="slice-file-range">Lines 142–168</span>
+          </div>
+          <div class="slice-tabs" id="slice-tabs">
+            <button class="slice-tab active" data-mode="diff">Unified Refactor Diff</button>
+            <button class="slice-tab" data-mode="contract">Trait &amp; Struct Contract</button>
+            <button class="slice-tab" data-mode="impl">Hot-Path Implementation</button>
+          </div>
+          <div class="code-comparison-box">
+            <div class="code-pane-label">
+              <span id="code-box-caption">AST Vectorization Pass // Baseline v4.17 vs Current v4.18</span>
+              <span id="code-box-stat">+6 / -3 lines</span>
+            </div>
+            <div id="code-render-container"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+<script>
+(function() {
+  "use strict";
+
+  const MODULES = [
+    {
+      id: "M01",
+      name: "Cost-Based Query Planner",
+      path: "src/engine/planner.rs",
+      category: "Core Engine",
+      lines: 2480,
+      symbolsCount: 34,
+      couplingScore: 0.68,
+      couplingState: "High (0.68)",
+      couplingLevel: "high",
+      summary: "基于 Cascades 框架的代价优化器，负责将逻辑 AST 转换为物理流水线执行计划，支持谓词下推与连接重排。",
+      keywords: ["Cascades", "AST", "优化器", "谓词下推", "执行计划", "cost model", "cardinality"],
+      symbols: ["LogicalPlan", "PhysicalPlanner", "CostModel", "PredicatePushdown", "JoinOrderOptimizer", "PlanNode", "StatisticsCatalog"],
+      upstream: ["M04", "M05"],
+      downstream: ["M02", "M03", "M07"],
+      lineRange: "Lines 184–206",
+      diffCaption: "Predicate Pushdown Cost Pruning // v4.17 vs v4.18",
+      diffStat: "+5 / -2 lines",
+      slices: {
+        diff: [
+          { ln: 184, type: "ctx", code: "pub fn optimize_physical_plan(&self, root: &LogicalPlan) -> Result<PhysicalPlan, PlanError> {" },
+          { ln: 185, type: "ctx", code: "    let memo = self.build_memo_groups(root)?;" },
+          { ln: 186, type: "del", code: "    let bound = Cost::infinite();" },
+          { ln: 187, type: "del", code: "    self.search_group(memo.root_group_id(), bound)" },
+          { ln: 186, type: "add", code: "    let upper_bound = self.heuristic_seed_cost(root);" },
+          { ln: 187, type: "add", code: "    let pushed = PredicatePushdown::apply(memo.root_group_id(), &self.stats);" },
+          { ln: 188, type: "add", code: "    self.branch_and_bound_search(pushed, upper_bound)" },
+          { ln: 189, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 42, type: "ctx", code: "pub trait CostModel: Send + Sync {" },
+          { ln: 43, type: "ctx", code: "    fn estimate_io(&self, Pages: usize, selectivity: f64) -> Cost;" },
+          { ln: 44, type: "ctx", code: "    fn estimate_cpu(&self, rows: u64, expr_weight: u32) -> Cost;" },
+          { ln: 45, type: "ctx", code: "    fn combine(&self, io: Cost, cpu: Cost, net: Cost) -> Cost;" },
+          { ln: 46, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 310, type: "ctx", code: "fn heuristic_seed_cost(&self, plan: &LogicalPlan) -> Cost {" },
+          { ln: 311, type: "ctx", code: "    let card = self.stats.estimate_cardinality(plan.relation_id());" },
+          { ln: 312, type: "ctx", code: "    Cost::from_f64(card as f64 * 1.15 + 12.0)" },
+          { ln: 313, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M02",
+      name: "SIMD Vectorized Executor",
+      path: "src/engine/executor.rs",
+      category: "Core Engine",
+      lines: 2150,
+      symbolsCount: 28,
+      couplingScore: 0.74,
+      couplingState: "High (0.74)",
+      couplingLevel: "high",
+      summary: "采用火山模型与列式批处理结合的 SIMD 向量化算子执行器，负责驱动算子流水线与内存池配额回收。",
+      keywords: ["SIMD", "向量化", "算子", "流水线", "列式", "batch", "ArenaPool"],
+      symbols: ["VectorizedBatch", "OperatorPipeline", "BatchArena", "SimdFilterExec", "HashAggregateExec", "ExecutionContext"],
+      upstream: ["M01", "M04"],
+      downstream: ["M03", "M07", "M09"],
+      lineRange: "Lines 92–114",
+      diffCaption: "SIMD AVX2 Filter Bitmask Loop // v4.17 vs v4.18",
+      diffStat: "+4 / -2 lines",
+      slices: {
+        diff: [
+          { ln: 92, type: "ctx", code: "pub fn poll_next_batch(&mut self, ctx: &mut ExecutionContext) -> Poll<Option<VectorizedBatch>> {" },
+          { ln: 93, type: "ctx", code: "    let input = ready!(self.child.poll_next_batch(ctx));" },
+          { ln: 94, type: "del", code: "    let mask = self.predicate.eval_scalar(&input?);" },
+          { ln: 95, type: "del", code: "    Poll::Ready(Some(input.compact_by_mask(&mask)))" },
+          { ln: 94, type: "add", code: "    let batch = input?;" },
+          { ln: 95, type: "add", code: "    let sel_vector = self.predicate.eval_simd_lane64(&batch, &mut ctx.arena);" },
+          { ln: 96, type: "add", code: "    Poll::Ready(Some(batch.with_selection_vector(sel_vector)))" },
+          { ln: 97, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 18, type: "ctx", code: "pub struct VectorizedBatch {" },
+          { ln: 19, type: "ctx", code: "    pub columns: SmallVec<[ColumnVector; 8]>," },
+          { ln: 20, type: "ctx", code: "    pub sel_mask: Bitmap64," },
+          { ln: 21, type: "ctx", code: "    pub row_count: u16," },
+          { ln: 22, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 204, type: "ctx", code: "pub fn eval_simd_lane64(&self, batch: &VectorizedBatch, arena: &mut BatchArena) -> Bitmap64 {" },
+          { ln: 205, type: "ctx", code: "    let col = batch.column(self.col_idx).as_i64_slice();" },
+          { ln: 206, type: "ctx", code: "    SimdKernel::cmp_gt_i64_x4(col, self.threshold, batch.sel_mask)" },
+          { ln: 207, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M03",
+      name: "MVCC Transaction Coordinator",
+      path: "src/engine/mvcc.rs",
+      category: "Core Engine",
+      lines: 1860,
+      symbolsCount: 22,
+      couplingScore: 0.52,
+      couplingState: "Medium (0.52)",
+      couplingLevel: "med",
+      summary: "多版本并发控制与快照隔离（SI / SSI）协调器，维护全局混合逻辑时钟 HLC 水位线与读写冲突检测集。",
+      keywords: ["MVCC", "事务", "快照隔离", "SSI", "HLC", "并发控制", "watermark", "commit"],
+      symbols: ["TxnSnapshot", "HybridTimestamp", "ConflictTracker", "CommitWatermark", "IsolationLevel", "VisibilityCheck"],
+      upstream: ["M01", "M02", "M06"],
+      downstream: ["M08"],
+      lineRange: "Lines 240–262",
+      diffCaption: "Lock-Free Read Watermark Advancement // v4.17 vs v4.18",
+      diffStat: "+4 / -3 lines",
+      slices: {
+        diff: [
+          { ln: 240, type: "ctx", code: "pub fn commit_txn(&self, txn: ActiveTxn, wal: &WalSegmentWriter) -> Result<HybridTimestamp, TxnError> {" },
+          { ln: 241, type: "del", code: "    let mut guard = self.conflict_mutex.lock();" },
+          { ln: 242, type: "del", code: "    guard.verify_serializable(&txn.write_set)?;" },
+          { ln: 241, type: "add", code: "    let commit_ts = self.hlc_clock.now_monotonic();" },
+          { ln: 242, type: "add", code: "    self.conflict_table.validate_ssi_lockfree(&txn, commit_ts)?;" },
+          { ln: 243, type: "ctx", code: "    wal.append_commit_marker(txn.id, commit_ts)?;" },
+          { ln: 244, type: "add", code: "    self.watermark.advance_cas(commit_ts);" },
+          { ln: 245, type: "ctx", code: "    Ok(commit_ts)" },
+          { ln: 246, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 51, type: "ctx", code: "pub struct TxnSnapshot {" },
+          { ln: 52, type: "ctx", code: "    pub read_ts: HybridTimestamp," },
+          { ln: 53, type: "ctx", code: "    pub min_active_ts: HybridTimestamp," },
+          { ln: 54, type: "ctx", code: "    pub isolation: IsolationLevel," },
+          { ln: 55, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 128, type: "ctx", code: "pub fn is_tuple_visible(&self, tuple_ts: HybridTimestamp) -> bool {" },
+          { ln: 129, type: "ctx", code: "    tuple_ts <= self.read_ts && !self.in_flight_set.contains(&tuple_ts)" },
+          { ln: 130, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M04",
+      name: "gRPC Multiplex Ingress",
+      path: "src/rpc/grpc_server.rs",
+      category: "RPC Adapters",
+      lines: 1120,
+      symbolsCount: 19,
+      couplingScore: 0.31,
+      couplingState: "Low (0.31)",
+      couplingLevel: "low",
+      summary: "HTTP/2 多路复用流式接入层，负责连接池令牌桶限流、TLS 卸载与客户端流式游标生命周期管理。",
+      keywords: ["gRPC", "HTTP2", "流式", "限流", "接入层", "cursor", "backpressure"],
+      symbols: ["GrpcServiceEndpoint", "StreamBackpressure", "TokenBucketLimiter", "SessionRegistry", "RpcStatusMapper"],
+      upstream: [],
+      downstream: ["M01", "M02", "M05"],
+      lineRange: "Lines 76–95",
+      diffCaption: "Adaptive Stream Window Backpressure // v4.17 vs v4.18",
+      diffStat: "+4 / -1 lines",
+      slices: {
+        diff: [
+          { ln: 76, type: "ctx", code: "pub async fn execute_streaming_query(&self, req: QueryRequest) -> Result<ResponseStream, RpcError> {" },
+          { ln: 77, type: "ctx", code: "    self.limiter.acquire_permits(req.estimated_cost()).await?;" },
+          { ln: 78, type: "del", code: "    let frame = WireCodec::decode_legacy(&req.payload)?;" },
+          { ln: 78, type: "add", code: "    let frame = ZeroCopyFrame::borrow_from_bytes(&req.payload)?;" },
+          { ln: 79, type: "add", code: "    let plan = self.planner.optimize_physical_plan(frame.ast())?;" },
+          { ln: 80, type: "add", code: "    Ok(ResponseStream::with_watermark(plan, 64 * 1024))" },
+          { ln: 81, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 27, type: "ctx", code: "pub struct TokenBucketLimiter {" },
+          { ln: 28, type: "ctx", code: "    pub capacity: AtomicU64," },
+          { ln: 29, type: "ctx", code: "    pub refill_rate_per_sec: u64," },
+          { ln: 30, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 144, type: "ctx", code: "pub fn check_backpressure(&self, queued_bytes: usize) -> FlowControlState {" },
+          { ln: 145, type: "ctx", code: "    if queued_bytes > self.high_watermark { FlowControlState::Pause } else { FlowControlState::Proceed }" },
+          { ln: 146, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M05",
+      name: "Zero-Copy Wire Frame Codec",
+      path: "src/rpc/codec.rs",
+      category: "RPC Adapters",
+      lines: 890,
+      symbolsCount: 31,
+      couplingScore: 0.24,
+      couplingState: "Low (0.24)",
+      couplingLevel: "low",
+      summary: "零拷贝二进制协议帧编解码器，支持 mmap 内存对齐直接映射、CRC32C 硬件加速校验与字典前缀压缩。",
+      keywords: ["零拷贝", "编解码", "协议帧", "CRC32C", "zero-copy", "serialization", "wire"],
+      symbols: ["ZeroCopyFrame", "WireHeader", "Crc32cVerifier", "AlignedByteSlice", "FrameDecoder", "FrameEncoder"],
+      upstream: ["M04", "M06"],
+      downstream: ["M01"],
+      lineRange: "Lines 112–131",
+      diffCaption: "Unaligned Payload Pointer Guard // v4.17 vs v4.18",
+      diffStat: "+5 / -2 lines",
+      slices: {
+        diff: [
+          { ln: 112, type: "ctx", code: "pub fn borrow_from_bytes(buf: &[u8]) -> Result<ZeroCopyFrame<'_>, CodecError> {" },
+          { ln: 113, type: "ctx", code: "    let hdr = WireHeader::read_prefix(buf)?;" },
+          { ln: 114, type: "del", code: "    let body = &buf[WireHeader::SIZE..];" },
+          { ln: 115, type: "del", code: "    Ok(ZeroCopyFrame { hdr, body })" },
+          { ln: 114, type: "add", code: "    let payload = buf.get(WireHeader::SIZE..hdr.total_len()).ok_or(CodecError::Truncated)?;" },
+          { ln: 115, type: "add", code: "    Crc32cVerifier::verify_hardware(hdr.checksum, payload)?;" },
+          { ln: 116, type: "add", code: "    Ok(ZeroCopyFrame { hdr, body: AlignedByteSlice::new(payload)? })" },
+          { ln: 117, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 14, type: "ctx", code: "#[repr(C, align(8))]" },
+          { ln: 15, type: "ctx", code: "pub struct WireHeader {" },
+          { ln: 16, type: "ctx", code: "    pub magic: u16," },
+          { ln: 17, type: "ctx", code: "    pub version: u16," },
+          { ln: 18, type: "ctx", code: "    pub checksum: u32," },
+          { ln: 19, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 190, type: "ctx", code: "pub fn verify_hardware(expected: u32, data: &[u8]) -> Result<(), CodecError> {" },
+          { ln: 191, type: "ctx", code: "    let actual = crc32c_hw_compute(0, data);" },
+          { ln: 192, type: "ctx", code: "    if actual == expected { Ok(()) } else { Err(CodecError::ChecksumMismatch) }" },
+          { ln: 193, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M06",
+      name: "Raft Consensus Transport",
+      path: "src/rpc/raft_transport.rs",
+      category: "RPC Adapters",
+      lines: 1530,
+      symbolsCount: 24,
+      couplingScore: 0.48,
+      couplingState: "Medium (0.48)",
+      couplingLevel: "med",
+      summary: "分片复制组的 Multi-Raft 共识心跳与日志复制传输通道，内置流水线式 AppendEntries 批处理与快照分块。",
+      keywords: ["Raft", "共识", "复制", "心跳", "AppendEntries", "consensus", "quorum"],
+      symbols: ["RaftPeerClient", "AppendEntriesBatch", "SnapshotChunkStream", "QuorumTracker", "HeartbeatTicker"],
+      upstream: [],
+      downstream: ["M03", "M05", "M08"],
+      lineRange: "Lines 302–322",
+      diffCaption: "Pipelined AppendEntries Batch Flush // v4.17 vs v4.18",
+      diffStat: "+4 / -2 lines",
+      slices: {
+        diff: [
+          { ln: 302, type: "ctx", code: "pub fn broadcast_log_batch(&mut self, term: u64, entries: &[LogEntry]) -> QuorumFuture {" },
+          { ln: 303, type: "del", code: "    for peer in &mut self.peers {" },
+          { ln: 304, type: "del", code: "        peer.send_blocking(term, entries);" },
+          { ln: 303, type: "add", code: "    let frame = ZeroCopyFrame::encode_entries(term, entries);" },
+          { ln: 304, type: "add", code: "    for peer in self.peers.iter_mut().filter(|p| p.is_healthy()) {" },
+          { ln: 305, type: "add", code: "        peer.pipeline_enqueue(frame.clone_ref());" },
+          { ln: 306, type: "ctx", code: "    }" },
+          { ln: 307, type: "ctx", code: "    self.quorum_tracker.wait_majority(term, entries.last_index())" },
+          { ln: 308, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 64, type: "ctx", code: "pub struct AppendEntriesBatch {" },
+          { ln: 65, type: "ctx", code: "    pub leader_term: u64," },
+          { ln: 66, type: "ctx", code: "    pub prev_log_index: u64," },
+          { ln: 67, type: "ctx", code: "    pub prev_log_term: u64," },
+          { ln: 68, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 215, type: "ctx", code: "pub fn has_quorum(&self, acked_Mask: u16) -> bool {" },
+          { ln: 216, type: "ctx", code: "    acked_Mask.count_ones() as usize >= (self.cluster_size / 2) + 1" },
+          { ln: 217, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M07",
+      name: "LSM-Tree Compaction Engine",
+      path: "src/storage/lsm_tree.rs",
+      category: "Storage",
+      lines: 2340,
+      symbolsCount: 38,
+      couplingScore: 0.45,
+      couplingState: "Medium (0.45)",
+      couplingLevel: "med",
+      summary: "分层合并树（LSM-Tree）存储内核，管理 MemTable 跳表刷盘、SSTable 多路归并压缩与布隆过滤器索引。",
+      keywords: ["LSM", "SSTable", "MemTable", "压缩", "布隆过滤器", "compaction", "bloom"],
+      symbols: ["LsmStorageEngine", "MemTableSkipList", "SstCompactor", "RibbonBloomFilter", "ManifestVersion", "KeyRangeIterator"],
+      upstream: ["M01", "M02"],
+      downstream: ["M08", "M09"],
+      lineRange: "Lines 418–440",
+      diffCaption: "Sub-Level Tiered Compaction Picker // v4.17 vs v4.18",
+      diffStat: "+5 / -2 lines",
+      slices: {
+        diff: [
+          { ln: 418, type: "ctx", code: "pub fn run_background_compaction(&self, task: CompactionTask) -> Result<VersionEdit, StorageError> {" },
+          { ln: 419, type: "ctx", code: "    let mut merge_iter = KWayMergeIterator::new(&task.input_ssts, &self.page_cache)?;" },
+          { ln: 420, type: "del", code: "    let mut builder = SstBuilder::new_uncompressed(task.target_level);" },
+          { ln: 421, type: "del", code: "    while let Some(kv) = merge_iter.next() { builder.add(kv)?; }" },
+          { ln: 420, type: "add", code: "    let mut builder = SstBuilder::with_ribbon_bloom(task.target_level, task.estimated_keys);" },
+          { ln: 421, type: "add", code: "    while let Some(entry) = merge_iter.next_Filtered(task.gc_watermark) {" },
+          { ln: 422, type: "add", code: "        builder.append_versioned_kv(entry)?;" },
+          { ln: 423, type: "add", code: "    }" },
+          { ln: 424, type: "ctx", code: "    builder.finish_into_version_edit()" },
+          { ln: 425, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 88, type: "ctx", code: "pub struct ManifestVersion {" },
+          { ln: 89, type: "ctx", code: "    pub sequence_num: u64," },
+          { ln: 90, type: "ctx", code: "    pub levels: [Vec<SstFileMeta>; 7]," },
+          { ln: 91, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 512, type: "ctx", code: "pub fn may_contain_key(&self, user_key: &[u8]) -> bool {" },
+          { ln: 513, type: "ctx", code: "    let hash = xxhash64(user_key);" },
+          { ln: 514, type: "ctx", code: "    self.ribbon_filter.query_hash(hash)" },
+          { ln: 515, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M08",
+      name: "Write-Ahead Log Segmenter",
+      path: "src/storage/wal_segment.rs",
+      category: "Storage",
+      lines: 1080,
+      symbolsCount: 15,
+      couplingScore: 0.29,
+      couplingState: "Low (0.29)",
+      couplingLevel: "low",
+      summary: "基于 io_uring 异步组提交的预写式日志（WAL）分段器，提供断电崩溃恢复重放与定长环形文件预分配。",
+      keywords: ["WAL", "预写日志", "组提交", "崩溃恢复", "io_uring", "fsync", "segment"],
+      symbols: ["WalSegmentWriter", "GroupCommitQueue", "LogRecordHeader", "RecoveryScanner", "IoUringFlusher"],
+      upstream: ["M03", "M06", "M07"],
+      downstream: [],
+      lineRange: "Lines 155–176",
+      diffCaption: "io_uring Batched fdatasync Barrier // v4.17 vs v4.18",
+      diffStat: "+4 / -2 lines",
+      slices: {
+        diff: [
+          { ln: 155, type: "ctx", code: "pub fn flush_group_commit(&mut self, batch: &[WalEntry]) -> Result<Lsn, WalError> {" },
+          { ln: 156, type: "ctx", code: "    let end_lsn = self.ring_buffer.write_vectored(batch)?;" },
+          { ln: 157, type: "del", code: "    std::fs::File::sync_all(&self.active_fd)?;" },
+          { ln: 158, type: "del", code: "    Ok(end_lsn)" },
+          { ln: 157, type: "add", code: "    let sqe = IoUringSqe::prep_fdatasync(self.active_fd.as_raw_fd(), IORING_FSYNC_DATASYNC);" },
+          { ln: 158, type: "add", code: "    self.uring_driver.submit_and_wait_cqe(sqe)?;" },
+          { ln: 159, type: "add", code: "    self.durable_lsn.store(end_lsn, Ordering::Release);" },
+          { ln: 160, type: "add", code: "    Ok(end_lsn)" },
+          { ln: 161, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 33, type: "ctx", code: "pub struct LogRecordHeader {" },
+          { ln: 34, type: "ctx", code: "    pub lsn: u64," },
+          { ln: 35, type: "ctx", code: "    pub crc32: u32," },
+          { ln: 36, type: "ctx", code: "    pub payload_len: u32," },
+          { ln: 37, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 260, type: "ctx", code: "pub fn segment_offset(&self, lsn: u64) -> u64 {" },
+          { ln: 261, type: "ctx", code: "    lsn % Self::SEGMENT_SIZE_BYTES" },
+          { ln: 262, type: "ctx", code: "}" }
+        ]
+      }
+    },
+    {
+      id: "M09",
+      name: "Clock-Pro Page Cache Pool",
+      path: "src/storage/page_cache.rs",
+      category: "Storage",
+      lines: 1460,
+      symbolsCount: 21,
+      couplingScore: 0.38,
+      couplingState: "Medium (0.38)",
+      couplingLevel: "med",
+      summary: "抗全表扫描污染的 Clock-Pro 页缓存池，采用分片锁与乐观读写锁（Optimistic Lock Coupling）管理 16KB 数据页。",
+      keywords: ["PageCache", "缓存池", "Clock-Pro", "乐观锁", "内存页", "eviction", "buffer pool"],
+      symbols: ["PageCachePool", "PageGuardOptimistic", "ClockProEvictor", "FrameHeader", "ShardDirectory", "DirectIoLoader"],
+      upstream: ["M02", "M07"],
+      downstream: [],
+      lineRange: "Lines 208–228",
+      diffCaption: "Optimistic Page Version Latch Validation // v4.17 vs v4.18",
+      diffStat: "+5 / -2 lines",
+      slices: {
+        diff: [
+          { ln: 208, type: "ctx", code: "pub fn pin_page_optimistic(&self, page_id: PageId) -> Result<PageGuardOptimistic<'_>, CacheError> {" },
+          { ln: 209, type: "ctx", code: "    let shard = self.shard_for(page_id);" },
+          { ln: 210, type: "del", code: "    let frame = shard.lock_exclusive().lookup_or_load(page_id)?;" },
+          { ln: 211, type: "del", code: "    Ok(PageGuardOptimistic::new(frame, 0))" },
+          { ln: 210, type: "add", code: "    let frame = shard.lookup_resident(page_id).ok_or(CacheError::CacheMiss)?;" },
+          { ln: 211, type: "add", code: "    let v0 = frame.latch_version.load_acquire();" },
+          { ln: 212, type: "add", code: "    if v0 & 1 == 1 { return Err(CacheError::LatchedContention); }" },
+          { ln: 213, type: "add", code: "    frame.mark_referenced_hot();" },
+          { ln: 214, type: "add", code: "    Ok(PageGuardOptimistic::new(frame, v0))" },
+          { ln: 215, type: "ctx", code: "}" }
+        ],
+        contract: [
+          { ln: 45, type: "ctx", code: "#[repr(align(64))]" },
+          { ln: 46, type: "ctx", code: "pub struct FrameHeader {" },
+          { ln: 47, type: "ctx", code: "    pub page_id: PageId," },
+          { ln: 48, type: "ctx", code: "    pub latch_version: AtomicU64," },
+          { ln: 49, type: "ctx", code: "    pub clock_status: AtomicU8," },
+          { ln: 50, type: "ctx", code: "}" }
+        ],
+        impl: [
+          { ln: 304, type: "ctx", code: "pub fn validate_version(&self, expected_v: u64) -> bool {" },
+          { ln: 305, type: "ctx", code: "    std::sync::atomic::fence(Ordering::Acquire);" },
+          { ln: 306, type: "ctx", code: "    self.frame.latch_version.load(Ordering::Relaxed) == expected_v" },
+          { ln: 307, type: "ctx", code: "}" }
+        ]
+      }
+    }
+  ];
+
+  const TOTAL_LOC = MODULES.reduce((acc, m) => acc + m.lines, 0);
+
+  let state = {
+    selectedModuleId: "M01",
+    activeCategory: "ALL",
+    searchQuery: "",
+    activeSliceTab: "diff"
+  };
+
+  // DOM 引用
+  const treemapBarEl = document.getElementById("treemap-bar");
+  const treemapReadoutEl = document.getElementById("treemap-hover-readout");
+  const modulesGridEl = document.getElementById("modules-grid");
+  const gridStatusTextEl = document.getElementById("grid-status-text");
+  const searchInputEl = document.getElementById("search-input");
+  const searchClearEl = document.getElementById("search-clear");
+  const filterGroupEl = document.getElementById("filter-group");
+  const sliceTabsEl = document.getElementById("slice-tabs");
+
+  // 辅助：分类对应矿物色彩
+  function getCategoryColor(cat) {
+    if (cat === "Core Engine") return "var(--terracotta)";
+    if (cat === "RPC Adapters") return "var(--azurite)";
+    return "var(--sage)";
+  }
+
+  function getCategoryClass(cat) {
+    if (cat === "Core Engine") return "cat-core";
+    if (cat === "RPC Adapters") return "cat-rpc";
+    return "cat-storage";
+  }
+
+  // 搜索匹配检测
+  function matchesFilter(mod) {
+    if (state.activeCategory !== "ALL

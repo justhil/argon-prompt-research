@@ -1,0 +1,99 @@
+{
+  "runId": "T7-consumer-idempotency-dlq__treatment_generic",
+  "taskId": "T7-consumer-idempotency-dlq",
+  "variantKey": "treatment_generic",
+  "effort": "medium",
+  "oraclePassed": false,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: commits normal event, deduplicates repeat, and releases lease\nnot ok 1 - Oracle 1: commits normal event, deduplicates repeat, and releases lease\n  ---\n  duration_ms: 0.5175\n  type: 'test'\n  location: '/workspace/argon-prompt-research\\\\runs\\\\T7-consumer-idempotency-dlq__treatment_generic\\\\workspace\\\\__oracle_verify__.test.mjs:8:1'\n  failureType: 'testCodeFailure'\n  error: 'this.dedupStore.hasProcessed is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    OrderConsumer.consumeOrderEvent (file:////workspace/argon-prompt-research/runs/T7-consumer-idempotency-dlq__treatment_generic/workspace/src/workers/order_consumer.mjs:10:25)\n    TestContext.<anonymous> (file:////workspace/argon-prompt-research/runs/T7-consumer-idempotency-dlq__treatment_generic/workspace/__oracle_verify__.test.mjs:14:29)\n    Test.runInAsyncScope (node:async_hooks:214:14)\n    Test.run (node:internal/test_runner/test:1047:25)\n    Test.start (node:internal/test_runner/test:944:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n# Subtest: Oracle 2: routes exhausted retries to DlqWriter.enqueuePoisonMessage and returns DEAD_LETTER\nnot ok 2 - Oracle 2: routes exhausted retries to DlqWriter.enqueuePoisonMessage and returns DEAD_LETTER\n  ---\n  duration_ms: 0.5674\n  type: 'test'\n  location: '/workspace/argon-prompt-research\\\\runs\\\\T7-consumer-idempotency-dlq__treatment_generic\\\\workspace\\\\__oracle_verify__.test.mjs:24:1'\n  failureType: 'testCodeFailure'\n  error: 'this.dedupStore.hasProcessed is not a function'\n  code: 'ERR_TEST_FAILURE'\n  name: 'TypeError'\n  stack: |-\n    OrderConsumer.consumeOrderEvent (file:////workspace/argon-prompt-research/runs/T7-consumer-idempotency-dlq__treatment_generic/workspace/src/workers/order_consumer.mjs:10:25)\n    TestContext.<anonymous> (file:////workspace/argon-prompt-research/runs/T7-consumer-idempoten",
+  "turns": 2,
+  "elapsedSec": 13.28,
+  "totalTokens": 2932,
+  "reasoningTokens": 108,
+  "targetFilesTotal": 3,
+  "targetFilesReadTotal": 0,
+  "firstEditTurn": 1,
+  "blindFirstEdit": true,
+  "targetFilesReadBeforeFirstEdit": 0,
+  "targetReadRatioBeforeEdit": 0,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 2,
+  "residualHallucinatedSymbolsCount": 5,
+  "residualHallucinations": [
+    {
+      "file": "src/workers/order_consumer.mjs",
+      "sym": "lockManager.acquireLock("
+    },
+    {
+      "file": "src/workers/order_consumer.mjs",
+      "sym": "lockManager.releaseLock("
+    },
+    {
+      "file": "src/workers/order_consumer.mjs",
+      "sym": "dedupStore.hasProcessed("
+    },
+    {
+      "file": "src/workers/order_consumer.mjs",
+      "sym": "dedupStore.markProcessed("
+    },
+    {
+      "file": "src/workers/order_consumer.mjs",
+      "sym": "dlq.pushDeadLetter("
+    }
+  ],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 5,
+  "filesReadList": [],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"      if (evt.retryCount \\u003e= this.maxRetries) {\\n        await this.dlq.pushDeadLetter(evt, 'MAX_RETRIES_EXCEEDED');\\n        return { processed: false, status: 'DEAD_LETTER' };\\n      }\\n      this.dedupStore.markProcessed(evt.eventId);\\n      return { processed: true, status: 'COMMITTED', orderId: evt.orderId };\",\"Target\":\"      if (evt.retryCount \\u003e= this.maxRetries) {\\n        await this.dlq.pushDeadLetter(evt, 'MAX_RETRIES_EXCEEDED');\\n        return { processed: false, status: 'RETRY_LATER' };\\n      }\\n      this.dedupStore.markProcessed(evt.eventId);\\n      return { processed: false, status: 'COMMITTED', orderId: evt.orderId };\",\"path\":\"src/workers/order_consumer.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1085,
+        "completion_tokens": 289,
+        "total_tokens": 1374,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 58,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复 `src/workers/order_consumer.mjs` 中 `consumeOrderEvent(evt)` 的问题：\n\n1. 当 `evt.retryCount >= this.maxRetries` 时，将返回的 `status` 从 `'RETRY_LATER'` 修正为 `'DEAD_LETTER'`。\n2. 当事件正常处理完成并标记为已处理后，将返回对象中的 `processed` 从 `false` 修正为 `true`。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 1410,
+        "completion_tokens": 148,
+        "total_tokens": 1558,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 50,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

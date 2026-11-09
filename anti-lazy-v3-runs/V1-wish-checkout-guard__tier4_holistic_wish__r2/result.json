@@ -1,0 +1,77 @@
+{
+  "runId": "V1-wish-checkout-guard__tier4_holistic_wish__r2",
+  "taskId": "V1-wish-checkout-guard",
+  "domain": "后端并发与高可用接口",
+  "variantKey": "tier4_holistic_wish",
+  "rep": 2,
+  "turns": 5,
+  "elapsedSec": 191.1,
+  "commandsRunCount": 2,
+  "completeness": {
+    "score": 6,
+    "maxScore": 6,
+    "linesCount": 205,
+    "details": {
+      "linesCount": 205,
+      "t1_sequential_idempotency": true,
+      "t2_inflight_concurrent_race_safe": true,
+      "t3_downstream_error_allows_retry": true,
+      "t4_payload_mismatch_conflict_rejected": true,
+      "t5_ratelimit_blocks_and_window_recovers": true,
+      "t6_input_validation_guards": true
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "已为 `src/checkout.mjs` 中的 `CheckoutController.handleCheckout(req)` 添加防重复提交（幂等性控制）和限流（滑动窗口）功能，并完成了并发、冲突检测、失败回滚与限流窗口验证。\n\n### 核心改进点\n1. **防重复提交 & 并发请求合并（Idempotency & In-Flight Coalescing）**：\n   - **进行中合并（Pending Lock）**：同一 `idempotencyKey` 在 `Promise.all` 并发请求时共享同一个执行 Promise，保证底层 `walletService.debit` 只会被调用一次。\n   - **结果缓存与过期清理（TTL）**：成功完成的请求在 `idempotencyTtlMs`（默认 `300_000ms`）内直接返回深拷贝的缓存结果（带 `replaye",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

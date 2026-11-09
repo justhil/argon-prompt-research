@@ -1,0 +1,35 @@
+{
+  "runKey": "W3-zettelkasten-reading-room__O6_entropy_hash_roulette_72w",
+  "taskId": "W3-zettelkasten-reading-room",
+  "styleId": "O6_entropy_hash_roulette_72w",
+  "elapsedSec": 180.2,
+  "metrics": {
+    "htmlBytes": 47844,
+    "hasDarkBg": false,
+    "darkHexCount": 3,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 3,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 12
+  },
+  "palette": {
+    "primaryBg": "#E6EFE9",
+    "allHex": [
+      "#e6efe9",
+      "#dae6df",
+      "#f4f8f5",
+      "#fcfdfc",
+      "#13261c",
+      "#365243",
+      "#627d6e",
+      "#94aca0"
+    ],
+    "reasoning": ""
+  }
+}

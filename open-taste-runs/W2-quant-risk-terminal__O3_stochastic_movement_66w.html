@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q-DESK // 多因子量化策略回测与风险归因终端</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* 
+   * 设计流派：瑞士国际主义网格 (Swiss International Typographic Style) × 博朗/Teenage Engineering 工业精密仪器
+   * 色彩体系：暖调哑光工业灰白底面、高对比石墨墨水、シグナルオレンジ(信号橙)主色、深海蓝基准线
+   */
+  :root {
+    --bg-canvas: #ECEAE4;
+    --bg-panel: #F6F5F0;
+    --bg-sub: #E4E1D8;
+    --bg-active: #FFFFFF;
+    
+    --ink-high: #141413;
+    --ink-mid: #575652;
+    --ink-low: #8C8A84;
+    
+    --border-hairline: #C7C4BA;
+    --border-strong: #141413;
+    
+    --signal-orange: #D9381E; /* 博朗/TE标志性信号红橙 - 策略主线 */
+    --cobalt-blue: #1D4ED8;   /* 基准指数线 */
+    --forest-green: #15603E;  /* 正向收益/低波暴露 */
+    --ochre-warn: #B45309;    /* 警示/回撤水下填充 */
+    
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--ink-high);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 机械仪器外框 */
+  .chassis {
+    max-width: 1560px;
+    width: 100%;
+    margin: 0 auto;
+    border: 1.5px solid var(--border-strong);
+    background-color: var(--bg-panel);
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    box-shadow: 0 2px 0 var(--border-strong);
+  }
+
+  /* 通用工具类 */
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .serif-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .label-caps {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-mid);
+  }
+  .pos { color: var(--forest-green); }
+  .neg { color: var(--signal-orange); }
+
+  /* 顶部铭牌与状态栏 */
+  .top-deck {
+    display: grid;
+    grid-template-columns: 320px 1fr auto;
+    border-bottom: 1.5px solid var(--border-strong);
+    background-color: var(--bg-sub);
+  }
+
+  .brand-plate {
+    padding: 12px 16px;
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .brand-plate .model-id {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--ink-mid);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-led {
+    width: 7px;
+    height: 7px;
+    background-color: var(--signal-orange);
+    display: inline-block;
+  }
+  .brand-plate h1 {
+    font-size: 22px;
+    line-height: 1.1;
+    margin-top: 4px;
+    color: var(--ink-high);
+  }
+
+  /* 策略实体切换开关区 */
+  .strategy-selector {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-right: 1px solid var(--border-hairline);
+  }
+  .switch-group {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-canvas);
+    padding: 2px;
+    gap: 2px;
+  }
+  .tactile-btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 7px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tactile-btn:hover {
+    color: var(--ink-high);
+    background: rgba(255,255,255,0.5);
+  }
+  .tactile-btn.active {
+    background: var(--bg-active);
+    color: var(--ink-high);
+    border-color: var(--border-strong);
+    font-weight: 600;
+    box-shadow: 1px 1px 0 var(--border-strong);
+  }
+  .tactile-btn .indicator {
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--ink-mid);
+  }
+  .tactile-btn.active .indicator {
+    background-color: var(--signal-orange);
+    border-color: var(--signal-orange);
+  }
+
+  .meta-telemetry {
+    padding: 10px 20px;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 24px;
+    align-items: center;
+    background: var(--bg-panel);
+  }
+  .telemetry-item .val {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* 精密指标横幅 (6列瑞士网格) */
+  .kpi-ribbon {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    border-bottom: 1px solid var(--border-hairline);
+    background-color: var(--bg-panel);
+  }
+  .kpi-cell {
+    padding: 12px 16px;
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .kpi-cell:last-child {
+    border-right: none;
+  }
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .kpi-value {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin: 6px 0 4px 0;
+  }
+  .kpi-sub {
+    font-size: 10px;
+    color: var(--ink-mid);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* 主工作台网格 */
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 450px;
+    min-height: 600px;
+  }
+
+  /* 左侧：净值与水下回撤图 */
+  .chart-column {
+    border-right: 1px solid var(--border-strong);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .section-bar {
+    padding: 8px 16px;
+    background-color: var(--bg-sub);
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-bar .title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .index-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-panel);
+    font-weight: 600;
+  }
+
+  .legend-group {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .swatch-line {
+    width: 14px;
+    height: 2px;
+  }
+
+  .canvas-container {
+    position: relative;
+    flex: 1;
+    min-height: 410px;
+    background-color: var(--bg-panel);
+    cursor: crosshair;
+    user-select: none;
+  }
+  canvas#backtestCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* 浮动十字准星读数器 */
+  .hud-readout {
+    position: absolute;
+    top: 12px;
+    left: 64px;
+    background: rgba(246, 245, 240, 0.92);
+    border: 1px solid var(--border-hairline);
+    padding: 6px 12px;
+    display: flex;
+    gap: 18px;
+    pointer-events: none;
+    font-size: 11px;
+  }
+
+  /* 左下：年度月度收益矩阵与统计明细表 */
+  .stats-split {
+    border-top: 1px solid var(--border-strong);
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+  }
+  .data-table-wrap {
+    padding: 12px 16px;
+    border-right: 1px solid var(--border-hairline);
+  }
+  .data-table-wrap:last-child {
+    border-right: none;
+  }
+  .dense-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  .dense-table th, .dense-table td {
+    padding: 5px 6px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-hairline);
+    font-size: 11px;
+  }
+  .dense-table th:first-child, .dense-table td:first-child {
+    text-align: left;
+    color: var(--ink-mid);
+  }
+  .dense-table th {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--ink-low);
+    font-weight: 500;
+  }
+  .dense-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* 右侧：风险暴露矩阵 + 持仓权重调仓模拟器 */
+  .right-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .factor-module {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  .factor-row {
+    display: grid;
+    grid-template-columns: 105px 1fr 56px;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--border-hairline);
+  }
+  .factor-row:last-child {
+    border-bottom: none;
+  }
+  .factor-name {
+    font-weight: 500;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+  }
+  .factor-name span {
+    font-size: 9px;
+    color: var(--ink-low);
+    font-family: var(--font-mono);
+  }
+
+  /* 双向零轴因子暴露刻度槽 */
+  .bipolar-track {
+    height: 16px;
+    background-color: var(--bg-sub);
+    border: 1px solid var(--border-hairline);
+    position: relative;
+    background-image: linear-gradient(to right, transparent 24.5%, var(--border-hairline) 25%, transparent 25.5%, transparent 74.5%, var(--border-hairline) 75%, transparent 75.5%);
+  }
+  .bipolar-zero {
+    position: absolute;
+    left: 50%;
+    top: -2px;
+    bottom: -2px;
+    width: 1.5px;
+    background-color: var(--ink-high);
+    z-index: 2;
+  }
+  .bipolar-fill {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .factor-scale-header {
+    display: grid;
+    grid-template-columns: 105px 1fr 56px;
+    gap: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-hairline);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-low);
+  }
+  .scale-ticks {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* 持仓权重调仓模拟器 (机械推子风格) */
+  .rebalance-module {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: var(--bg-panel);
+  }
+  .rebalance-body {
+    padding: 12px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .sim-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-hairline);
+    margin-bottom: 8px;
+  }
+  .micro-btn {
+    background: var(--bg-sub);
+    border: 1px solid var(--border-strong);
+    padding: 4px 9px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink-high);
+    text-transform: uppercase;
+  }
+  .micro-btn:hover {
+    background: var(--bg-active);
+  }
+  .micro-btn:active {
+    transform: translateY(1px);
+  }
+  .micro-btn.primary {
+    background: var(--signal-orange);
+    color: #FFF;
+    border-color: var(--border-strong);
+  }
+
+  .fader-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .fader-item {
+    display: grid;
+    grid-template-columns: 118px 1fr 48px 42px;
+    align-items: center;
+    gap: 8px;
+  }
+  .asset-tag {
+    display: flex;
+    flex-direction: column;
+  }
+  .asset-ticker {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .asset-desc {
+    font-size: 10px;
+    color: var(--ink-mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 定制工业级推子 Input Range */
+  input[type="range"].industrial-fader {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 18px;
+    background: transparent;
+    cursor: ew-resize;
+  }
+  input[type="range"].industrial-fader::-webkit-slider-runnable-track {
+    height: 6px;
+    background: var(--bg-sub);
+    border: 1px solid var(--border-hairline);
+  }
+  input[type="range"].industrial-fader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 16px;
+    background: var(--ink-high);
+    border: 1px solid var(--bg-panel);
+    margin-top: -6px;
+    box-shadow: 0 0 0 1px var(--ink-high);
+  }
+  input[type="range"].industrial-fader:focus {
+    outline: none;
+  }
+  input[type="range"].industrial-fader:hover::-webkit-slider-thumb {
+    background: var(--signal-orange);
+  }
+
+  /* 调仓冲击实时预估仪表盘 */
+  .sim-impact-box {
+    margin-top: 12px;
+    background-color: var(--bg-sub);
+    border: 1px solid var(--border-strong);
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .impact-metric .lbl {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+    letter-spacing: 0.04em;
+  }
+  .impact-metric .val {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* 底部状态注脚 */
+  .footer-bar {
+    border-top: 1.5px solid var(--border-strong);
+    background-color: var(--bg-sub);
+    padding: 6px 16px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-mid);
+  }
+
+  @media (max-width: 1200px) {
+    .workspace { grid-template-columns: 1fr; }
+    .chart-column { border-right: none; border-bottom: 1.5px solid var(--border-strong); }
+    .kpi-ribbon { grid-template-columns: repeat(3, 1fr); }
+    .kpi-cell:nth-child(3) { border-right: none; }
+    .kpi-cell:nth-child(-n+3) { border-bottom: 1px solid var(--border-hairline); }
+    .top-deck { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="chassis">
+  <!-- 顶部工业控制栏 -->
+  <header class="top-deck">
+    <div class="brand-plate">
+      <div class="model-id">
+        <span class="status-led"></span>
+        <span>SYS.QF-09 // BARRA-CNE6 ATTRIBUTION</span>
+      </div>
+      <h1 class="serif-title">Quant Factor Backtest &amp; Risk Desk</h1>
+    </div>
+
+    <div class="strategy-selector">
+      <span class="label-caps">STRATEGY ENGINE:</span>
+      <div class="switch-group" role="tablist">
+        <button class="tactile-btn active" data-strategy="momentum" onclick="switchStrategy('momentum')">
+          <span class="indicator"></span>
+          <span>01 / ALPHA-MOMENTUM</span>
+        </button>
+        <button class="tactile-btn" data-strategy="reversion" onclick="switchStrategy('reversion')">
+          <span class="indicator"></span>
+          <span>02 / MEAN-REVERSION</span>
+        </button>
+        <button class="tactile-btn" data-strategy="statarb" onclick="switchStrategy('statarb')">
+          <span class="indicator"></span>
+          <span>03 / STAT-ARB NEUTRAL</span>
+        </button>
+      </div>
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+        <span class="label-caps">SIMULATION OVERLAY:</span>
+        <span id="simStatusBadge" class="index-tag" style="background: var(--bg-sub);">LOCKED TO BASELINE</span>
+      </div>
+    </div>
+
+    <div class="meta-telemetry">
+      <div class="telemetry-item">
+        <div class="label-caps">BACKTEST HORIZON</div>
+        <div class="val mono">2021.01.04 — 2025.12.31</div>
+      </div>
+      <div class="telemetry-item">
+        <div class="label-caps">UNIVERSE / BENCHMARK</div>
+        <div class="val mono" id="metaBenchmark">CSI-800 / EQ-WGT</div>
+      </div>
+      <div class="telemetry-item">
+        <div class="label-caps">EXECUTION COST</div>
+        <div class="val mono">12.5 BPS (SLIP+FEE)</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 核心风险收益精密指标带 -->
+  <section class="kpi-ribbon">
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-caps">ANNUALIZED RETURN (CAGR)</span>
+        <span class="mono" style="font-size:10px; color:var(--ink-low);">NET OF FEES</span>
+      </div>
+      <div class="kpi-value mono pos" id="kpiCagr">+24.82%</div>
+      <div class="kpi-sub mono">
+        <span>BENCH: <strong id="kpiBenchCagr">+4.12%</strong></span>
+        <span>ALPHA: <strong class="pos" id="kpiAlpha">+20.70%</strong></span>
+      </div>
+    </div>
+
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-caps">SHARPE RATIO</span>
+        <span class="mono" style="font-size:10px; color:var(--ink-low);">Rf = 2.0%</span>
+      </div>
+      <div class="kpi-value mono" id="kpiSharpe">2.14</div>
+      <div class="kpi-sub mono">
+        <span>SORTINO: <strong id="kpiSortino">3.08</strong></span>
+        <span>T-STAT: <strong id="kpiTstat">4.79</strong></span>
+      </div>
+    </div>
+
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-caps">CALMAR RATIO</span>
+        <span class="mono" style="font-size:10px; color:var(--ink-low);">CAGR / MDD</span>
+      </div>
+      <div class="kpi-value mono" id="kpiCalmar">2.69</div>
+      <div class="kpi-sub mono">
+        <span>OMEGA: <strong id="kpiOmega">1.64</strong></span>
+        <span>RECOVERY: <strong id="kpiRecovery">38 DAYS</strong></span>
+      </div>
+    </div>
+
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-caps">MAX DRAWDOWN (MDD)</span>
+        <span class="mono" style="font-size:10px; color:var(--ink-low);">HIGH-WATER MARK</span>
+      </div>
+      <div class="kpi-value mono neg" id="kpiMdd">-9.22%</div>
+      <div class="kpi-sub mono">
+        <span>99% VaR (1D): <strong id="kpiVar">-1.48%</strong></span>
+        <span>BENCH MDD: <strong>-27.4%</strong></span>
+      </div>
+    </div>
+
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-caps">ANNUAL TURNOVER (2-WAY)</span>
+        <span class="mono" style="font-size:10px; color:var(--ink-low);">LIQUIDITY CAP</span>
+      </div>
+      <div class="kpi-value mono" id="kpiTurnover">18.4x</div>
+      <div class="kpi-sub mono">
+        <span>AVG HOLD: <strong id="kpiHold">13.6D</strong></span>
+        <span>COST DRAG: <strong class="neg" id="kpiDrag">-2.30%</strong></span>
+      </div>
+    </div>
+
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-caps">INFORMATION RATIO (IR)</span>
+        <span class="mono" style="font-size:10px; color:var(--ink-low);">ACTIVE RISK</span>
+      </div>
+      <div class="kpi-value mono" id="kpiIr">1.89</div>
+      <div class="kpi-sub mono">
+        <span>WIN RATE (D): <strong id="kpiWinRate">56.8%</strong></span>
+        <span>IC MEAN: <strong class="pos" id="kpiIc">0.064</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 主工作区：左侧净值/回撤曲率图，右侧因子归因与调仓器 -->
+  <main class="workspace">
+    <!-- 左栏 -->
+    <div class="chart-column">
+      <div class="section-bar">
+        <div class="title-group">
+          <span class="index-tag">FIG 1.0</span>
+          <span class="label-caps" style="color:var(--ink-high);">CUMULATIVE NAV TRAJECTORY &amp; UNDERWATER DRAWDOWN CURVATURE</span>
+        </div>
+        <div class="legend-group">
+          <div class="legend-item">
+            <span class="swatch-line" style="background:var(--signal-orange); height:2.5px;"></span>
+            <span>STRATEGY NAV (REBALANCED)</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch-line" style="background:var(--ink-low); border-top:1px dashed var(--ink-high);"></span>
+            <span>MODEL BASELINE</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch-line" style="background:var(--cobalt-blue);"></span>
+            <span>BENCHMARK</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch-line" style="background:var(--ochre-warn); height:6px; opacity:0.5;"></span>
+            <span>UNDERWATER DD (%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas 净值与水下回撤双层绘图区 -->
+      <div class="canvas-container" id="canvasWrap">
+        <canvas id="backtestCanvas"></canvas>
+        <div class="hud-readout mono" id="hudReadout">
+          <span>DATE: <strong id="hudDate">2025-12-31</strong></span>
+          <span>STRAT NAV: <strong id="hudNav" style="color:var(--signal-orange)">2.841</strong></span>
+          <span>BENCH NAV: <strong id="hudBench" style="color:var(--cobalt-blue)">1.224</strong></span>
+          <span>DRAWDOWN: <strong id="hudDd" class="neg">-1.12%</strong></span>
+          <span>ACTIVE SPREAD: <strong id="hudSpread" class="pos">+161.7%</strong></span>
+        </div>
+      </div>
+
+      <!-- 左下精密数据表：风险归因拆解与年度表现 -->
+      <div class="stats-split">
+        <div class="data-table-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="label-caps" style="color:var(--ink-high);">RETURN DECOMPOSITION &amp; HIGHER MOMENTS</span>
+            <span class="mono" style="font-size:10px; color:var(--ink-low);">DAILY SAMPLING (N=1250)</span>
+          </div>
+          <table class="dense-table mono" id="decompTable">
+            <thead>
+              <tr>
+                <th>METRIC PARAMETER</th>
+                <th>STRATEGY</th>
+                <th>BENCHMARK</th>
+                <th>SPREAD / ACTIVE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS 渲染填充 -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="data-table-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="label-caps" style="color:var(--ink-high);">ANNUALIZED COHORT MATRIX (YOY &amp; SHARPE)</span>
+            <span class="mono" style="font-size:10px; color:var(--ink-low);">COMPOUNDED</span>
+          </div>
+          <table class="dense-table mono" id="yearlyTable">
+            <thead>
+              <tr>
+                <th>YEAR</th>
+                <th>STRAT RET</th>
+                <th>BENCH RET</th>
+                <th>MAX DD</th>
+                <th>SHARPE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS 渲染填充 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右栏：Barra因子风险暴露 + 持仓权重模拟器 -->
+    <aside class="right-column">
+      <div class="section-bar">
+        <div class="title-group">
+          <span class="index-tag">FIG 2.0</span>
+          <span class="label-caps" style="color:var(--ink-high);">FACTOR EXPOSURE MATRIX (Z-SCORE STANDARDIZED)</span>
+        </div>
+        <span class="mono" style="font-size:10px; color:var(--ink-mid);">[-2.5σ TO +2.5σ]</span>
+      </div>
+
+      <!-- 风险暴露矩阵 (Beta, Volatility, Liquidity, Size, Value) -->
+      <div class="factor-module">
+        <div class="factor-scale-header">
+          <span>STYLE FACTOR</span>
+          <div class="scale-ticks">
+            <span>-2.5σ</span>
+            <span>-1.25σ</span>
+            <span style="color:var(--ink-high); font-weight:600;">0.0</span>
+            <span>+1.25σ</span>
+            <span>+2.5σ</span>
+          </div>
+          <span style="text-align:right;">EXPOSURE</span>
+        </div>
+        <div id="factorBarsContainer">
+          <!-- JS 动态渲染5个核心因子暴露条 -->
+        </div>
+      </div>
+
+      <!-- 持仓权重调仓模拟器 -->
+      <div class="section-bar">
+        <div class="title-group">
+          <span class="index-tag">SIM 3.0</span>
+          <span class="label-caps" style="color:var(--ink-high);">PORTFOLIO SLEEVE WEIGHT REBALANCER</span>
+        </div>
+        <span class="mono" id="grossWeightLabel" style="font-size:10px; font-weight:600;">GROSS: 100.0%</span>
+      </div>
+
+      <div class="rebalance-module">
+        <div class="rebalance-body">
+          <div>
+            <div class="sim-toolbar">
+              <span style="font-size:11px; color:var(--ink-mid);">Adjust factor/sector sleeves to simulate live curve &amp; Barra tilt:</span>
+              <div style="display:flex; gap:6px;">
+                <button class="micro-btn" onclick="equalWeightSleeves()">EQUAL-WGT</button>
+                <button class="micro-btn primary" onclick="resetSleeves()">OPTIMAL RESET</button>
+              </div>
+            </div>
+
+            <div class="fader-list" id="sleeveFaders">
+              <!-- JS 渲染 6 个持仓簇推子 -->
+            </div>
+          </div>
+
+          <!-- 调仓实时边际影响反馈 -->
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-top:14px; margin-bottom:4px;">
+              <span class="label-caps">MARGINAL REBALANCE TELEMETRY</span>
+              <span class="mono" style="font-size:10px; color:var(--signal-orange);" id="activeDriftWarning">DRIFT: 0.0%</span>
+            </div>
+            <div class="sim-impact-box mono">
+              <div class="impact-metric">
+                <div class="lbl">ONE-WAY TRADE</div>
+                <div class="val" id="simTradeTurnover">0.00%</div>
+              </div>
+              <div class="impact-metric">
+                <div class="lbl">EST. SLIPPAGE</div>
+                <div class="val neg" id="simSlippage">-0.0 bps</div>
+              </div>
+              <div class="impact-metric">
+                <div class="lbl">TRACKING ERR</div>
+                <div class="val" id="simTrackingErr">0.00%</div>
+              </div>
+              <div class="impact-metric">
+                <div class="lbl">PROJ. SHARPE Δ</div>
+                <div class="val pos" id="simSharpeDelta">+0.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 底部仪器铭牌栏 -->
+  <footer class="footer-bar">
+    <div>ENGINE: DETERMINISTIC MULTI-FACTOR COVARIANCE SOLVER (SEED #80492) // NO LOOK-AHEAD BIAS</div>
+    <div>RENDER: HTML5 CANVAS 2D HIGH-DPI // TABULAR-NUMS PRECISION</div>
+  </footer>
+</div>
+
+<script>
+/**
+ * 确定性伪随机数生成器 (Mulberry32)
+ * 确保每次切换策略或拖动调仓推子时，序列真实、可复现且具备真实的波动率聚集特征
+ */
+function createRNG(seed) {
+  let a = seed;
+  return function() {
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function normalRandom(rng) {
+  let u = 0, v = 0;
+  while(u === 0) u = rng();
+  while(v === 0) v = rng();
+  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+/**
+ * 三大核心量化策略预设库
+ */
+const STRATEGIES = {
+  momentum: {
+    id: 'momentum',
+    name: '01 / ALPHA-MOMENTUM',
+    benchmarkName: 'CSI-800 / EQ-WGT',
+    seed: 1042,
+    baseTurnover: 18.4,
+    avgHoldDays: 13.6,
+    icMean: 0.064,
+    winRate: 56.8,
+    // 5个核心因子基础暴露 (Beta, Volatility, Liquidity, Size, Value) 及每个持仓簇对因子的敏感度
+    baseFactors: [
+      { id: 'beta', name: 'Market Beta', code: 'BARRA.BETA', base: 0.38, sensitivity: [0.6, 0.4, 0.2, -0.3, 0.5, -0.4] },
+      { id: 'vol',  name: 'Residual Vol', code: 'BARRA.RESVOL', base: 0.82, sensitivity: [0.8, 0.5, -0.2, -0.4, 0.7, -0.5] },
+      { id: 'liq',  name: 'Liquidity', code: 'BARRA.LIQUID', base: 0.45, sensitivity: [0.5, 0.3, 0.4, -0.6, 0.2, -0.2] },
+      { id: 'size', name: 'Size (Mkt Cap)', code: 'BARRA.LNCAP', base: -0.64, sensitivity: [0.3, 0.2, 0.1, -0.9, -0.7, 0.4] },
+      { id: 'val',  name: 'Book-to-Price', code: 'BARRA.BTOP', base: -0.95, sensitivity: [-0.8, -0.6, 0.9, 0.2, -0.5, 0.7] }
+    ],
+    // 6个策略子篮子/持仓权重簇 (总和 100%)
+    sleeves: [
+      { ticker: 'MOM-BREAK', desc: '52W High Cross-Section', optimalWeight: 26, retMu: 0.00115, volSigma: 0.0135, beta: 0.25 },
+      { ticker: 'EARN-SUE',  desc: 'Std Unexpected Earnings', optimalWeight: 22, retMu: 0.00098, volSigma: 0.0110, beta: 0.15 },
+      { ticker: 'REV-DRIFT', desc: 'Analyst Revision Upward', optimalWeight: 18, retMu: 0.00082, volSigma: 0.0105, beta: 0.12 },
+      { ticker: 'SMID-TILT', desc: 'Small-Mid Cap Alpha', optimalWeight: 14, retMu: 0.00090, volSigma: 0.0145, beta: 0.30 },
+      { ticker: 'VOL-SCALED',desc: 'Idiosyncratic Vol Breakout', optimalWeight: 12, retMu: 0.00075, volSigma: 0.0120, beta: 0.18 },
+      { ticker: 'TAIL-HEDGE',desc: 'Index Put / Convexity Overlay', optimalWeight: 8,  retMu: -0.00015, volSigma: 0.0065, beta: -0.45 }
+    ]
+  },
+
+  reversion: {
+    id: 'reversion',
+    name: '02 / MEAN-REVERSION',
+    benchmarkName: 'CSI-500 /INV-VOL',
+    seed: 2089,
+    baseTurnover: 42.6,
+    avgHoldDays: 4.8,
+    icMean: 0.081,
+    winRate: 61.4,
+    baseFactors: [
+      { id: 'beta', name: 'Market Beta', code: 'BARRA.BETA', base: -0.14, sensitivity: [-0.3, -0.2, 0.4, 0.1, -0.4, 0.2] },
+      { id: 'vol',  name: 'Residual Vol', code: 'BARRA.RESVOL', base: -0.58, sensitivity: [-0.6, -0.5, 0.3, -0.4, 0.2, -0.7] },
+      { id: 'liq',  name: 'Liquidity', code: 'BARRA.LIQUID', base: -1.12, sensitivity: [-0.9, -0.7, -0.4, 0.3, -0.6, 0.5] },
+      { id: 'size', name: 'Size (Mkt Cap)', code: 'BARRA.LNCAP', base: -0.28, sensitivity: [-0.4, -0.3, 0.5, 0.2, -0.5, 0.3] },
+      { id: 'val',  name: 'Book-to-Price', code: 'BARRA.BTOP', base: 1.34, sensitivity: [0.9, 0.7, 0.8, 0.4, -0.3, 0.5] }
+    ],
+    sleeves: [
+      { ticker: 'OVERSOLD-5D', desc: '5-Day RSI Extreme Rebound', optimalWeight: 28, retMu: 0.00092, volSigma: 0.0095, beta: -0.05 },
+      { ticker: 'LIQ-SHOCK',   desc: 'Orderbook Imbalance Provision', optimalWeight: 24, retMu: 0.00088, volSigma: 0.0088, beta: -0.08 },
+      { ticker: 'DEEP-VAL',    desc: 'EV/EBITDA Mean Anchor', optimalWeight: 18, retMu: 0.00072, volSigma: 0.0102, beta: 0.12 },
+      { ticker: 'INTRA-REV',   desc: 'Overnight Gap Fade', optimalWeight: 14, retMu: 0.00079, volSigma: 0.0082, beta: -0.02 },
+      { ticker: 'PAIR-COINT',  desc: 'Sector Pair Cointegration', optimalWeight: 10, retMu: 0.00064, volSigma: 0.0070, beta: 0.00 },
+      { ticker: 'CASH-BUFFER', desc: 'T-Bill Margin Collateral', optimalWeight: 6,  retMu: 0.00008, volSigma: 0.0008, beta: 0.00 }
+    ]
+  },
+
+  statarb: {
+    id: 'statarb',
+    name: '03 / STAT-ARB NEUTRAL',
+    benchmarkName: 'MARKET NEUTRAL (RF)',
+    seed: 9015,
+    baseTurnover: 68.2,
+    avgHoldDays: 2.1,
+    icMean: 0.095,
+    winRate: 64.2,
+    baseFactors: [
+      { id: 'beta', name: 'Market Beta', code: 'BARRA.BETA', base: 0.02, sensitivity: [0.15, -0.15, 0.1, -0.1, 0.08, -0.08] },
+      { id: 'vol',  name: 'Residual Vol', code: 'BARRA.RESVOL', base: -0.19, sensitivity: [-0.3, -0.2, 0.2, -0.25, 0.1, -0.15] },
+      { id: 'liq',  name: 'Liquidity', code: 'BARRA.LIQUID', base: 0.76, sensitivity: [0.7, 0.6, 0.4, 0.3, -0.2, 0.1] },
+      { id: 'size', name: 'Size (Mkt Cap)', code: 'BARRA.LNCAP', base: 0.05, sensitivity: [0.2, -0.2, 0.15, -0.15, 0.1, -0.1] },
+      { id: 'val',  name: 'Book-to-Price', code: 'BARRA.BTOP', base: 0.18, sensitivity: [0.25, 0.1, -0.2, 0.3, 0.15, -0.1] }
+    ],
+    sleeves: [
+      { ticker: 'PCA-RESID',   desc: 'Eigen-Portfolio Residual Arb', optimalWeight: 25, retMu: 0.00074, volSigma: 0.0052, beta: 0.01 },
+      { ticker: 'ETF-BASIS',   desc: 'Basket vs Future Mispricing', optimalWeight: 22, retMu: 0.00068, volSigma: 0.0046, beta: -0.01 },
+      { ticker: 'LEAD-LAG',    desc: 'Supply-Chain Cross-Correlation', optimalWeight: 20, retMu: 0.00071, volSigma: 0.0055, beta: 0.02 },
+      { ticker: 'MICRO-VWAP',  desc: 'Tick Level Volume Profile', optimalWeight: 15, retMu: 0.00062, volSigma: 0.0048, beta: 0.00 },
+      { ticker: 'VOL-ARB',     desc: 'Dispersion Correlation Swap', optimalWeight: 10, retMu: 0.00059, volSigma: 0.0060, beta: -0.02 },
+      { ticker: 'BETA-ZERO',   desc: 'Dynamic Kalman Beta Hedge', optimalWeight: 8,  retMu: 0.00012, volSigma: 0.0032, beta: -0.08 }
+    ]
+  }
+};
+
+// 全局终端状态
+let currentStrategyKey = 'momentum';
+let currentWeights = []; // 用户调仓后的权重 (0-100)
+let optimalWeights = []; // 策略默认最优权重
+let simulationSeries = null; // 当前计算的序列数据
+let hoverIndex = -1; // 鼠标十字准星索引
+
+// 生成5年交易日历 (1250个交易日: 2021-01 至 2025-12)
+const TRADING_DAYS = 1250;
+const DATES = (function() {
+  const arr = [];
+  let d = new Date('2021-01-04T00:00:00');
+  while (arr.length < TRADING_DAYS) {
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      arr.push(`${yyyy}-${mm}-${dd}`);
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return arr;
+})();
+
+/**
+ * 生成各子篮子(Sleeves)的底层日收益率矩阵，使得调仓推子可以实时线性组合出新的净值与回撤序列
+ */
+function buildStrategySeries(stratKey, userWeights) {
+  const strat = STRATEGIES[stratKey];
+  const rng = createRNG(strat.seed);
+
+  // 归一化权重
+  const sumW = userWeights.reduce((a, b) => a + b, 0) || 1;
+  const normUserW = userWeights.map(w => w / sumW);
+  const sumOpt = strat.sleeves.reduce((a, s) => a + s.optimalWeight, 0);
+  const normOptW = strat.sleeves.map(s => s.optimalWeight / sumOpt);
+
+  // 计算偏离度惩罚 (如果偏离最优配比过大，会产生换手摩擦与夏普损耗)
+  let l1Drift = 0;
+  for (let i = 0; i < normUserW.length; i++) {
+    l1Drift += Math.abs(normUserW[i] - normOptW[i]);
+  }
+
+  const benchNav = [1.0];
+  const optNav = [1.0];
+  const simNav = [1.0];
+  const simDrawdown = [0.0];
+  const optDrawdown = [0.0];
+  const dailyStratRets = [];
+  const dailyBenchRets = [];
+
+  let simPeak = 1.0;
+  let optPeak = 1.0;
+  let maxDd = 0;
+  let maxDdDuration = 0;
+  let currDdDuration = 0;
+
+  for (let t = 1; t < TRADING_DAYS; t++) {
+    // 市场基准因子噪声 (带轻微周期性波动簇)
+    const regimeWave = Math.sin(t / 95) * 0.00025;
+    const mktShock = normalRandom(rng) * 0.0095 + 0.00018 + regimeWave;
+    dailyBenchRets.push(mktShock);
+    benchNav.push(benchNav[t - 1] * (1 + mktShock));
+
+    let optDayRet = 0;
+    let simDayRet = 0;
+
+    // 合成6个持仓子篮子的当日表现
+    for (let s = 0; s < strat.sleeves.length; s++) {
+      const sleeve = strat.sleeves[s];
+      const idioShock = normalRandom(rng) * sleeve.volSigma;
+      // 局部回撤冲击模拟
+      const eventPenalty = (t > 340 && t < 385 && s === 0) ? -0.0018 : 0;
+      const sleeveRet = sleeve.retMu + sleeve.beta * mktShock + idioShock + eventPenalty;
+
+      optDayRet += normOptW[s] * sleeveRet;
+      simDayRet += normUserW[s] * sleeveRet;
+    }
+
+    // 扣除调仓偏离带来的滑点微损耗
+    simDayRet -= (l1Drift * 0.00012);
+
+    dailyStratRets.push(simDayRet);
+
+    const nextOpt = optNav[t - 1] * (1 + optDayRet);
+    const nextSim = simNav[t - 1] * (1 + simDayRet);
+    optNav.push(nextOpt);
+    simNav.push(nextSim);
+
+    if (nextOpt > optPeak) optPeak = nextOpt;
+    optDrawdown.push(((nextOpt - optPeak) / optPeak) * 100);
+
+    if (nextSim > simPeak) {
+      simPeak = nextSim;
+      currDdDuration = 0;
+    } else {
+      currDdDuration++;
+      if (currDdDuration > maxDdDuration) maxDdDuration = currDdDuration;
+    }
+    const ddPct = ((nextSim - simPeak) / simPeak) * 100;
+    simDrawdown.push(ddPct);
+    if (ddPct < maxDd) maxDd = ddPct;
+  }
+
+  // 统计精密指标计算
+  const years = TRADING_DAYS / 252;
+  const finalNav = simNav[simNav.length - 1];
+  const finalBench = benchNav[benchNav.length - 1];
+  const cagr = (Math.pow(finalNav, 1 / years) - 1) * 100;
+  const benchCagr = (Math.pow(finalBench, 1 / years) - 1) * 100;
+
+  const meanRet = dailyStratRets.reduce((a, b) => a + b, 0) / dailyStratRets.length;
+  const variance = dailyStratRets.reduce((a, b) => a + Math.pow(b - meanRet, 2), 0) / dailyStratRets.length;
+  const annVol = Math.sqrt(variance * 252) * 100;
+
+  const downsideVariance = dailyStratRets.reduce((a, b) => a + (b < 0 ? Math.pow(b, 2) : 0), 0) / dailyStratRets.length;
+  const downsideVol = Math.sqrt(downsideVariance * 252) * 100;
+
+  const rf = 2.0; // 无风险利率 2.0%
+  const sharpe = (cagr - rf) / (annVol || 1);
+  const sortino = (cagr - rf) / (downsideVol || 1);
+  const calmar = cagr / Math.abs(maxDd || -1);
+
+  // 跟踪误差与信息比率
+  const activeRets = dailyStratRets.map((r, idx) => r - dailyBenchRets[idx]);
+  const meanActive = activeRets.reduce((a, b) => a + b, 0) / activeRets.length;
+  const activeVar = activeRets.reduce((a, b) => a + Math.pow(b - meanActive, 2), 0) / activeRets.length;
+  const trackingErr = Math.sqrt(activeVar * 252) * 100;
+  const ir = (cagr - benchCagr) / (trackingErr || 1);
+
+  // 分位数 99% VaR
+  const sortedRets = [...dailyStratRets].sort((a, b) => a - b);
+  const var99 = sortedRets[Math.floor(sortedRets.length * 0.01)] * 100;
+
+  // 换手率随权重调整动态变化
+  const turnover = strat.baseTurnover * (1 + l1Drift * 0.35);
+
+  return {
+    benchNav,
+    optNav,
+    simNav,
+    simDrawdown,
+    optDrawdown,
+    dailyStratRets,
+    dailyBenchRets,
+    l1Drift,
+    normUserW,
+    normOptW,
+    metrics: {
+      cagr,
+      benchCagr,
+      alpha: cagr - benchCagr,
+      annVol,
+      sharpe,
+      sortino,
+      calmar,
+      maxDd,
+      maxDdDuration,
+      var99,
+      turnover,
+      ir,
+      trackingErr,
+      tStat: sharpe * Math.sqrt(years),
+      omega: 1.15 + sharpe * 0.23
+    }
+  };
+}
+
+/**
+ * 切换策略主函数
+ */
+function switchStrategy(stratKey) {
+  currentStrategyKey = stratKey;
+  const strat = STRATEGIES[stratKey];
+
+  // 更新按钮激活态
+  document.querySelectorAll('.tactile-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.strategy === stratKey);
+  });
+
+  document.getElementById('metaBenchmark').textContent = strat.benchmarkName;
+
+  // 初始化权重为该策略的最优权重
+  optimalWeights = strat.sleeves.map(s => s.optimalWeight);
+  currentWeights = [...optimalWeights];
+
+  renderSleeveFaders();
+  recomputeAndRender();
+}
+
+/**
+ * 渲染持仓簇推子控制器
+ */
+function renderSleeveFaders() {
+  const strat = STRATEGIES[currentStrategyKey];
+  const container = document.getElementById('sleeveFaders');
+  container.innerHTML = '';
+
+  strat.sleeves.forEach((sleeve, idx) => {
+    const w = currentWeights[idx];
+    const row = document.createElement('div');
+    row.className = 'fader-item';
+    row.innerHTML = `
+      <div class="asset-tag">
+        <span class="asset-ticker">${sleeve.ticker}</span>
+        <span class="asset-desc">${sleeve.desc}</span>
+      </div>
+      <input type="range" min="0" max="50" step="1" value="${w}" 
+             class="industrial-fader" data-idx="${idx}" 
+             oninput="onFaderInput(${idx}, this.value)">
+      <span class="mono" id="faderVal_${idx}" style="text-align:right; font-weight:600;">${w.toFixed(1)}%</span>
+      <span class="mono" id="faderDelta_${idx}" style="text-align:right; font-size:10px; color:var(--ink-low);">0.0%</span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+/**
+ * 当用户拖动权重推子时触发实时重算
+ */
+function onFaderInput(idx, val) {
+  currentWeights[idx] = parseFloat(val);
+  recomputeAndRender();
+}
+
+function resetSleeves() {
+  currentWeights = [...optimalWeights];
+  renderSleeveFaders();
+  recomputeAndRender();
+}
+
+function equalWeightSleeves() {
+  currentWeights = currentWeights.map(() => 16.7);
+  renderSleeveFaders();
+  recomputeAndRender();
+}
+
+/**
+ * 全局重算并更新所有图表、因子条、数据表
+ */
+function recomputeAndRender() {
+  const strat = STRATEGIES[currentStrategyKey];
+  simulationSeries = buildStrategySeries(currentStrategyKey, currentWeights);
+  const m = simulationSeries.metrics;
+
+  // 更新推子归一化百分比读数与边际变化
+  const rawSum = currentWeights.reduce((a, b) => a + b, 0) || 1;
+  document.getElementById('grossWeightLabel').textContent = `RAW SUM: ${rawSum.toFixed(0)}% → NORM: 100%`;
+
+  let oneWayTurn = 0;
+  currentWeights.forEach((w, i) => {
+    const normW = (w / rawSum) * 100;
+    const optW = optimalWeights[i];
+    const diff = normW - optW;
+    oneWayTurn += Math.abs(diff) / 2;
+
+    const valEl = document.getElementById(`faderVal_${i}`);
+    const deltaEl = document.getElementById(`faderDelta_${i}`);
+    if (valEl) valEl.textContent = `${normW.toFixed(1)}%`;
+    if (deltaEl) {
+      deltaEl.textContent = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%`;
+      deltaEl.style.color = Math.abs(diff) < 0.2 ? 'var(--ink-low)' : (diff > 0 ? 'var(--forest-green)' : 'var(--signal-orange)');
+    }
+  });
+
+  // 更新状态徽章
+  const badge = document.getElementById('simStatusBadge');
+  if (oneWayTurn > 0.3) {
+    badge.textContent = 'SIMULATION OVERRIDE ACTIVE';
+    badge.style.background = 'var(--signal-orange)';
+    badge.style.color = '#FFF';
+  } else {
+    badge.textContent = 'LOCKED TO BASELINE';
+    badge.style.background = 'var(--bg-sub)';
+    badge.style.color = 'var(--ink-high)';
+  }
+
+  // 更新顶部 6 个核心 KPI
+  const fmtPct = (v, sign = true) => `${sign && v > 0 ? '+' : ''}${v.toFixed(2)}%`;
+  document.getElementById('kpiCagr').textContent = fmtPct(m.cagr);
+  document.getElementById('kpiBenchCagr').textContent = fmtPct(m.benchCagr);
+  document.getElementById('kpiAlpha').textContent = fmtPct(m.alpha);
+  document.getElementById('kpiSharpe').textContent = m.sharpe.toFixed(2);
+  document.getElementById('kpiSortino').textContent = m.sortino.toFixed(2);
+  document.getElementById('kpiTstat').textContent = m.tStat.toFixed(2);
+  document.getElementById('kpiCalmar').textContent = m.calmar.toFixed(2);
+  document.getElementById('kpiOmega').textContent = m.omega.toFixed(2);
+  document.getElementById('kpiRecovery').textContent = `${m.maxDdDuration} DAYS`;
+  document.getElementById('kpiMdd').textContent = `${m.maxDd.toFixed(2)}%`;
+  document.getElementById('kpiVar').textContent = `${m.var99.toFixed(2)}%`;
+  document.getElementById('kpiTurnover').textContent = `${m.turnover.toFixed(1)}x`;
+  document.getElementById('kpiHold').textContent = `${strat.avgHoldDays}D`;
+  document.getElementById('kpiDrag').textContent = `-${(m.turnover * 0.125).toFixed(2)}%`;
+  document.getElementById('kpiIr').textContent = m.ir.toFixed(2);
+  document.getElementById('kpiWinRate').textContent = `${strat.winRate.toFixed(1)}%`;
+  document.getElementById('kpiIc').textContent = strat.icMean.toFixed(3);
+
+  // 计算基准最优夏普，用于对比调仓后的 ΔSharpe
+  const baseSeries = buildStrategySeries(currentStrategyKey, optimalWeights);
+  const sharpeDelta = m.sharpe - baseSeries.metrics.sharpe;
+
+  // 更新模拟器底部冲击盒子
+  document.getElementById('activeDriftWarning').textContent = `ACTIVE DRIFT: ${oneWayTurn.toFixed(1)}%`;
+  document.getElementById('simTradeTurnover').textContent = `${oneWayTurn.toFixed(2)}%`;
+  document.getElementById('simSlippage').textContent = `-${(oneWayTurn * 0.25).toFixed(1)} bps`;
+  document.getElementById('simTrackingErr').textContent = `${(oneWayTurn * 0.14).toFixed(2)}%`;
+  const sDeltaEl = document.getElementById('simSharpeDelta');
+  sDeltaEl.textContent = `${sharpeDelta >= 0 ? '+' : ''}${sharpeDelta.toFixed(2)}`;
+  sDeltaEl.className = `val ${sharpeDelta >= 0 ? 'pos' : 'neg'}`;
+
+  // 渲染 Barra 因子暴露条
+  renderFactorExposures(strat, simulationSeries.normUserW, simulationSeries.normOptW);
+
+  // 渲染底部两张精密数据表
+  renderTables(m, simulationSeries);
+
+  // 繪制核心 Canvas 净值与水下回撤图
+  drawBacktestCanvas();
+}
+
+/**
+ * 渲染 Barra 风险暴露矩阵 (Beta, Volatility, Liquidity, Size, Value)
+ */
+function renderFactorExposures(strat, normUserW, normOptW) {
+  const container = document.getElementById('factorBarsContainer');
+  container.innerHTML = '';
+
+  strat.baseFactors.forEach(f => {
+    // 根据用户调整的持仓权重动态计算因子暴露偏移
+    let shift = 0;
+    for (let i = 0; i < normUserW.length; i++) {
+      shift += (normUserW[i] - normOptW[i]) * f.sensitivity[i] * 2.2;
+    }
+    const zScore = Math.max(-2.5, Math.min(2.5, f.base + shift));
+
+    // 计算进度条左右位置 (零轴在 50%，满量程 ±2.5σ)
+    const widthPct = (Math.abs(zScore) / 2.5) * 50;
+    const leftPct = zScore >= 0 ? 50 : (50 - widthPct);
+    const barColor = zScore >= 0 ? 'var(--forest-green)' : 'var(--signal-orange)';
+
+    const row = document.createElement('div');
+    row.className = 'factor-row';
+    row.innerHTML = `
+      <div class="factor-name">
+        ${f.name}
+        <span>${f.code}</span>
+      </div>
+      <div class="bipolar-track">
+        <div class="bipolar-zero"></div>
+        <div class="bipolar-fill" style="left:${leftPct}%; width:${widthPct}%; background:${barColor};"></div>
+      </div>
+      <div class="mono" style="text-align:right; font-weight:600; color:${Math.abs(zScore) > 1.0 ? barColor : 'var(--ink-high)'}">
+        ${zScore >= 0 ? '+' : ''}${zScore.toFixed(2)}σ
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+/**
+ * 渲染左下角两张归因与年度切片表
+ */
+function renderTables(m, series) {
+  const decompBody = document.querySelector('#decompTable tbody');
+  const benchVol = 16.42;
+  decompBody.innerHTML = `
+    <tr>
+      <td>Annualized Volatility (σ)</td>
+      <td>${m.annVol.toFixed(2)}%</td>
+      <td>${benchVol.toFixed(2)}%</td>
+      <td class="${m.annVol < benchVol ? 'pos' : 'neg'}">${(m.annVol - benchVol).toFixed(2)}%</td>
+    </tr>
+    <tr>
+      <td>Factor Timing Return</td>
+      <td class="pos">+${(m.cagr * 0.28).toFixed(2)}%</td>
+      <td>+0.00%</td>
+      <td class="pos">+${(m.cagr * 0.28).toFixed(2)}%</td>
+    </tr>
+    <tr>
+      <td>Specific / Idio Alpha</td>
+      <td class="pos">+${(m.cagr * 0.62).toFixed(2)}%</td>
+      <td>+0.00%</td>
+      <td class="pos">+${(m.cagr * 0.62).toFixed(2)}%</td>
+    </tr>
+    <tr>
+      <td>Return Skewness / Kurtosis</td>
+      <td>+0.42 / 3.81</td>
+      <td>-0.68 / 5.42</td>
+      <td class="pos">+1.10 Skew</td>
+    </tr>
+    <tr>
+      <td>Tail Ratio (95th / 5th)</td>
+      <td>1.38x</td>
+      <td>0.89

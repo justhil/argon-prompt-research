@@ -1,0 +1,8 @@
+{
+  "name": "d1-delulu-sharethrift",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/smoke.test.mjs"
+  }
+}

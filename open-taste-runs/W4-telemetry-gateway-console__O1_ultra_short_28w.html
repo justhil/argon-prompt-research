@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AETHER // 大模型推理网关监控与成本分析台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 瑞士工业图纸与精密仪器色板 (Warm Archival Paper & Graphite Ink) */
+    --bg-canvas: #F3F1EC;
+    --bg-surface: #FAF9F5;
+    --bg-tinted: #EAE6DF;
+    --bg-inverse: #161615;
+    
+    --ink-primary: #161615;
+    --ink-secondary: #5A5852;
+    --ink-muted: #8C8980;
+    
+    --border-strong: #161615;
+    --border-subtle: #D5D0C5;
+    --border-hairline: #E2DEC9;
+
+    /* 工业信号色 (非荧光) */
+    --sig-orange: #D94E28; /* 警告/高成本/主强调 */
+    --sig-green: #1E6B4B;  /* 正常/高命中 */
+    --sig-amber: #C87D12;  /* 降级/P95延迟 */
+    --sig-cobalt: #224B8B; /* 缓存/路由标记 */
+
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-serif: 'Newsreader', Georgia, serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 宏观图纸外框 */
+  .blueprint-frame {
+    border: 2px solid var(--border-strong);
+    background-color: var(--bg-surface);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 6px 6px 0px rgba(22, 22, 21, 0.08);
+    max-width: 1680px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* 顶部铭牌栏 */
+  .masthead {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    border-bottom: 2px solid var(--border-strong);
+    background-color: var(--bg-canvas);
+  }
+
+  .masthead-brand {
+    padding: 14px 20px;
+    border-right: 1px solid var(--border-strong);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .brand-title {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .brand-sub {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-secondary);
+  }
+
+  .masthead-status {
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-secondary);
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    color: var(--ink-primary);
+    font-weight: 500;
+  }
+
+  .indicator-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--sig-green);
+    display: inline-block;
+    position: relative;
+  }
+  .indicator-dot::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border: 1px solid var(--sig-green);
+    animation: pulse-ring 2s infinite ease-out;
+  }
+
+  @keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  .masthead-controls {
+    padding: 10px 20px;
+    border-left: 1px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-surface);
+  }
+
+  .btn-mechanical {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 6px 12px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-strong);
+    color: var(--ink-primary);
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--border-strong);
+    transition: all 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-mechanical:hover {
+    background: var(--bg-tinted);
+  }
+
+  .btn-mechanical:active, .btn-mechanical.active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px var(--border-strong);
+    background: var(--ink-primary);
+    color: var(--bg-surface);
+  }
+
+  /* 第一层：核心汇总指标带 (5列) */
+  .kpi-ribbon {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 2px solid var(--border-strong);
+    background: var(--bg-surface);
+  }
+
+  .kpi-cell {
+    padding: 18px 22px;
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+  .kpi-cell:last-child {
+    border-right: none;
+    background: linear-gradient(135deg, var(--bg-surface) 0%, #F4EFE6 100%);
+  }
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .kpi-code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .kpi-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-secondary);
+  }
+
+  .kpi-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 12px 0;
+  }
+
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--ink-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-unit {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-secondary);
+    margin-left: 4px;
+  }
+
+  .kpi-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-subtle);
+    color: var(--ink-secondary);
+  }
+
+  .delta-badge {
+    font-weight: 500;
+    padding: 1px 5px;
+  }
+  .delta-good { color: var(--sig-green); background: rgba(30, 107, 75, 0.08); }
+  .delta-warn { color: var(--sig-orange); background: rgba(217, 78, 40, 0.08); }
+  .delta-info { color: var(--sig-cobalt); background: rgba(34, 75, 139, 0.08); }
+
+  /* 第二层：中部工作台 (三栏工程网格) */
+  .console-workspace {
+    display: grid;
+    grid-template-columns: 1.05fr 1.15fr 1.3fr;
+    flex: 1;
+    min-height: 540px;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-strong);
+    background: var(--bg-surface);
+  }
+  .panel:last-child {
+    border-right: none;
+  }
+
+  .panel-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-strong);
+    background: var(--bg-canvas);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-title-group {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .panel-index {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--ink-primary);
+    color: var(--bg-surface);
+    padding: 1px 6px;
+  }
+
+  .panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .panel-subtitle {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .panel-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  /* 面板 01：延迟分布箱线/分位图 (Box & Quantile Plot) */
+  .legend-bar {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .latency-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 16px 0;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .model-latency-row {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .model-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .model-name-tag {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .provider-tag {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--ink-muted);
+    border: 1px solid var(--border-subtle);
+    padding: 0 4px;
+    background: var(--bg-canvas);
+  }
+
+  .quantile-nums {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .quantile-nums strong {
+    color: var(--ink-primary);
+  }
+
+  /* 精密刻度轨道 */
+  .track-ruler {
+    height: 24px;
+    background-color: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    position: relative;
+    background-image: linear-gradient(to right, var(--border-hairline) 1px, transparent 1px);
+    background-size: 10% 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  /* P50 到 P99 的连接线 */
+  .whisker-line {
+    position: absolute;
+    height: 2px;
+    background-color: var(--ink-primary);
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* P50 - P90 密集区箱体 */
+  .iqr-box {
+    position: absolute;
+    height: 12px;
+    background-color: rgba(34, 75, 139, 0.18);
+    border: 1px solid var(--sig-cobalt);
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* TTFT 锚点 */
+  .marker-ttft {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: var(--bg-surface);
+    border: 2px solid var(--sig-green);
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    z-index: 2;
+    transition: left 0.4s ease;
+  }
+
+  /* P50 中位线 */
+  .marker-p50 {
+    position: absolute;
+    width: 3px;
+    height: 16px;
+    background-color: var(--ink-primary);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    transition: left 0.4s ease;
+  }
+
+  /* P99 极值点 */
+  .marker-p99 {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background-color: var(--sig-orange);
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    transition: left 0.4s ease;
+  }
+
+  .scale-axis {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    padding-top: 6px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .sla-callout {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--bg-canvas);
+    border-left: 3px solid var(--sig-cobalt);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 面板 02：路由权重调音台与实时成本精算 */
+  .routing-Preset-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 8px;
+  }
+
+  .preset-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-preset {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 4px 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-preset:hover, .btn-preset.active {
+    border-color: var(--ink-primary);
+    background: var(--ink-primary);
+    color: var(--bg-surface);
+  }
+
+  .sliders-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 14px 0;
+  }
+
+  .slider-card {
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    transition: border-color 0.2s;
+  }
+  .slider-card:focus-within {
+    border-color: var(--ink-primary);
+    background: var(--bg-surface);
+  }
+
+  .slider-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .slider-model-info {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .slider-model-title {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .slider-price-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+
+  .slider-weight-readout {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    background: var(--bg-surface);
+    padding: 1px 6px;
+    border: 1px solid var(--border-subtle);
+    min-width: 52px;
+    text-align: right;
+  }
+
+  /* 机械感推子样式 */
+  input[type=range].fader-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--border-subtle);
+    outline: none;
+    position: relative;
+    cursor: ew-resize;
+  }
+
+  input[type=range].fader-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 20px;
+    background: var(--ink-primary);
+    border: 2px solid var(--bg-surface);
+    box-shadow: 1px 1px 0px var(--ink-primary);
+    cursor: ew-resize;
+    transition: background 0.15s;
+  }
+
+  input[type=range].fader-input::-webkit-slider-thumb:hover {
+    background: var(--sig-orange);
+  }
+
+  /* 成本仿真输出矩阵 */
+  .cost-matrix {
+    border: 1px solid var(--border-strong);
+    background: var(--bg-canvas);
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    position: relative;
+  }
+
+  .cost-matrix::before {
+    content: 'LIVE COST SIMULATOR // 实时重算引擎';
+    position: absolute;
+    top: -8px;
+    left: 10px;
+    background: var(--ink-primary);
+    color: var(--bg-surface);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 1px 6px;
+    letter-spacing: 0.06em;
+  }
+
+  .matrix-box {
+    padding-top: 4px;
+  }
+  .matrix-box:first-child {
+    border-right: 1px dashed var(--border-subtle);
+    padding-right: 12px;
+  }
+
+  .matrix-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    margin-bottom: 4px;
+  }
+
+  .matrix-val {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .matrix-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  /* 面板 03：实时请求追踪流 (Live Telemetry Stream) */
+  .stream-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--ink-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .tab-btn.active {
+    background: var(--ink-primary);
+    color: var(--bg-surface);
+    border-color: var(--ink-primary);
+    font-weight: 500;
+  }
+
+  .tab-count {
+    font-size: 10px;
+    opacity: 0.75;
+  }
+
+  .trace-table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    max-height: 390px;
+  }
+
+  table.trace-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .trace-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-tinted);
+    color: var(--ink-secondary);
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-strong);
+    z-index: 4;
+  }
+
+  .trace-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border-hairline);
+    color: var(--ink-primary);
+    white-space: nowrap;
+  }
+
+  .trace-row {
+    background: var(--bg-surface);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .trace-row:hover {
+    background: #EFECE4;
+  }
+  .trace-row.selected {
+    background: #E5E0D5;
+    outline: 1px solid var(--ink-primary);
+  }
+
+  @keyframes rowFlash {
+    0% { background-color: rgba(217, 78, 40, 0.18); }
+    100% { background-color: var(--bg-surface); }
+  }
+  .trace-row.new-entry {
+    animation: rowFlash 0.8s ease-out;
+  }
+
+  .status-tag {
+    display: inline-block;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid currentColor;
+  }
+  .st-ok { color: var(--sig-green); background: rgba(30, 107, 75, 0.06); }
+  .st-cache { color: var(--sig-cobalt); background: rgba(34, 75, 139, 0.08); }
+  .st-warn { color: var(--sig-amber); background: rgba(200, 125, 18, 0.1); }
+  .st-err { color: var(--sig-orange); background: rgba(217, 78, 40, 0.1); }
+
+  /* 底部选中 Trace 详情检视槽 */
+  .trace-inspector {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--bg-inverse);
+    color: var(--bg-surface);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .inspector-detail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #D5D0C5;
+  }
+  .inspector-detail strong {
+    color: #FFF;
+  }
+
+  /* 底部工程图纸签注栏 */
+  .blueprint-footer {
+    border-top: 2px solid var(--border-strong);
+    background: var(--bg-canvas);
+    padding: 8px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 1320px) {
+    .kpi-ribbon {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .kpi-cell:nth-child(4), .kpi-cell:nth-child(5) {
+      border-top: 1px solid var(--border-subtle);
+    }
+    .console-workspace {
+      grid-template-columns: 1fr;
+    }
+    .panel {
+      border-right: none;
+      border-bottom: 2px solid var(--border-strong);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="blueprint-frame">
+  <!-- 顶部网关状态与全局开关 -->
+  <header class="masthead">
+    <div class="masthead-brand">
+      <span class="brand-title">AETHER // GW-09</span>
+      <span class="brand-sub">Inference Telemetry & Cost Ledger</span>
+    </div>
+
+    <div class="masthead-status">
+      <div class="status-pill">
+        <span class="indicator-dot" id="gatewayDot"></span>
+        <span id="gatewayStateText">CLUSTER: US-EAST / AP-SOUTH [ACTIVE]</span>
+      </div>
+      <span>PROXY OVERHEAD: <strong>1.4ms</strong></span>
+      <span>SEMANTIC CACHE: <strong>REDIS-V8 (SIM-0.92)</strong></span>
+      <span>CLOCK: <strong id="utcClock">00:00:00 UTC</strong></span>
+    </div>
+
+    <div class="masthead-controls">
+      <button class="btn-mechanical" id="btnSimSpike" title="注入突发高并发请求流">
+        <span>⚡ 注入流量洪峰</span>
+      </button>
+      <button class="btn-mechanical" id="btnToggleStream">
+        <span id="streamToggleText">⏸ 暂停遥测流</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 核心汇总指标带 (5个关键指标) -->
+  <section class="kpi-ribbon">
+    <!-- 1. 总请求数 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-title">今日累计推理请求</span>
+        <span class="kpi-code">METRIC // 01-REQ</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiTotalReq">1,482,910</span>
+          <span class="kpi-unit">reqs</span>
+        </div>
+        <svg width="72" height="26" viewBox="0 0 72 26">
+          <polyline fill="none" stroke="#161615" stroke-width="1.5" points="0,22 12,18 24,20 36,12 48,14 60,6 72,4" />
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>实时并发: <strong id="kpiRps">248</strong> req/s</span>
+        <span class="delta-badge delta-good">+14.2% 同比</span>
+      </div>
+    </div>
+
+    <!-- 2. 平均 TTFT 首字延迟 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-title">平均首字延迟 (TTFT)</span>
+        <span class="kpi-code">METRIC // 02-LAT</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiTtft">312</span>
+          <span class="kpi-unit">ms</span>
+        </div>
+        <svg width="72" height="26" viewBox="0 0 72 26">
+          <polyline fill="none" stroke="#1E6B4B" stroke-width="1.5" points="0,8 14,10 28,19 42,15 56,18 72,16" />
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>全局 P99: <strong id="kpiGlobalP99">890ms</strong></span>
+        <span class="delta-badge delta-good">SLA &lt; 500ms</span>
+      </div>
+    </div>
+
+    <!-- 3. 流式吞吐 tok/s -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-title">实时流式生成吞吐</span>
+        <span class="kpi-code">METRIC // 03-TPS</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiTps">18,420</span>
+          <span class="kpi-unit">tok/s</span>
+        </div>
+        <svg width="72" height="26" viewBox="0 0 72 26">
+          <polyline fill="none" stroke="#224B8B" stroke-width="1.5" points="0,20 15,14 30,16 45,7 60,11 72,3" />
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>单流均值: <strong id="kpiSingleTps">84.6</strong> tok/s</span>
+        <span class="delta-badge delta-info">FP8 量化加速</span>
+      </div>
+    </div>
+
+    <!-- 4. 缓存命中率 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-title">语义与前缀缓存命中率</span>
+        <span class="kpi-code">METRIC // 04-HIT</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiCacheHit">38.4</span>
+          <span class="kpi-unit">%</span>
+        </div>
+        <svg width="72" height="26" viewBox="0 0 72 26">
+          <rect x="2" y="14" width="10" height="12" fill="#D5D0C5"/>
+          <rect x="16" y="10" width="10" height="16" fill="#D5D0C5"/>
+          <rect x="30" y="8" width="10" height="18" fill="#D5D0C5"/>
+          <rect x="44" y="5" width="10" height="21" fill="#224B8B"/>
+          <rect x="58" y="3" width="10" height="23" fill="#224B8B"/>
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>今日免算: <strong>$412.80</strong></span>
+        <span class="delta-badge delta-info">+4.1% 命中提升</span>
+      </div>
+    </div>
+
+    <!-- 5. 今日账单 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-title">今日实时累计账单</span>
+        <span class="kpi-code">LEDGER // 05-USD</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiBill">$1,284.62</span>
+        </div>
+      </div>
+      <div class="kpi-footer">
+        <span>全天预测: <strong id="kpiProjectedDaily">$1,840.00</strong></span>
+        <span class="delta-badge delta-warn" id="kpiBurnRateBadge">$76.67 / hr</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 中部核心三栏控制台 -->
+  <main class="console-workspace">
+    
+    <!-- 左栏：4个主力模型延迟分布对比 -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <span class="panel-index">01</span>
+          <h2 class="panel-title">主力模型延迟分位对比</h2>
+        </div>
+        <span class="panel-subtitle">TTFT / P50 / P90 / P99 (ms)</span>
+      </div>
+
+      <div class="panel-body">
+        <div class="legend-bar">
+          <div class="legend-item">
+            <span style="width:7px;height:7px;border:2px solid var(--sig-green);display:inline-block;transform:rotate(45deg);"></span>
+            <span>TTFT 首字</span>
+          </div>
+          <div class="legend-item">
+            <span style="width:12px;height:8px;background:rgba(34,75,139,0.2);border:1px solid var(--sig-cobalt);display:inline-block;"></span>
+            <span>P50-P90 密集带</span>
+          </div>
+          <div class="legend-item">
+            <span style="width:3px;height:11px;background:var(--ink-primary);display:inline-block;"></span>
+            <span>P50 中位</span>
+          </div>
+          <div class="legend-item">
+            <span style="width:7px;height:7px;background:var(--sig-orange);border-radius:50%;display:inline-block;"></span>
+            <span>P99 长尾极值</span>
+          </div>
+        </div>
+
+        <div class="latency-list" id="latencyChartContainer">
+          <!-- 由 JS 渲染并实时微调 4 个主力模型的箱线分位图 -->
+        </div>
+
+        <div>
+          <div class="scale-axis">
+            <span>0ms</span>
+            <span>300ms</span>
+            <span>600ms</span>
+            <span>900ms</span>
+            <span>1200ms</span>
+            <span>1500ms+</span>
+          </div>
+          <div class="sla-callout">
+            <span><strong>智能熔断状态：</strong> 当单模型 P99 &gt; 1350ms 时自动降权 50%</span>
+            <span style="font-family:var(--font-mono);color:var(--sig-green);font-weight:600;">[GUARD: NORMAL]</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 中栏：路由权重滑块与实时成本重算 -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <span class="panel-index">02</span>
+          <h2 class="panel-title">流量路由权重与成本精算器</h2>
+        </div>
+        <span class="panel-subtitle">AUTO-NORMALIZED 100%</span>
+      </div>
+
+      <div class="panel-body">
+        <div class="routing-Preset-bar">
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-secondary);">快速策略预设:</span>
+          <div class="preset-group">
+            <button class="btn-preset active" data-preset="balanced">均衡生产态</button>
+            <button class="btn-preset" data-preset="cost">极致降本 (省62%)</button>
+            <button class="btn-preset" data-preset="latency">极速低延</button>
+          </div>
+        </div>
+
+        <!-- 4个模型路由滑块 -->
+        <div class="sliders-container" id="slidersContainer">
+          <!-- 由 JS 动态生成与绑定联动 -->
+        </div>
+
+        <!-- 底部实时重算矩阵 -->
+        <div class="cost-matrix">
+          <div class="matrix-box">
+            <div class="matrix-label">百万 Token 加权均价 (Blended)</div>
+            <div class="matrix-val" id="simBlendedCost">$3.42 <span style="font-size:12px;font-weight:400;color:var(--ink-secondary);">/ 1M tok</span></div>
+            <div class="matrix-sub" id="simVsBaseline" style="color:var(--sig-green);">较全量旗舰路由节省 58.4%</div>
+          </div>
+          <div class="matrix-box">
+            <div class="matrix-label">按当前权重预计月度账单 (30D)</div>
+            <div class="matrix-val" id="simMonthlyCost">$55,210</div>
+            <div class="matrix-sub" id="simLatencyImpact" style="color:var(--ink-secondary);">加权预期 TTFT: <strong>284ms</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右栏：实时请求追踪流 (支持按状态筛选) -->
+    <section class="panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <span class="panel-index">03</span>
+          <h2 class="panel-title">实时推理请求追踪流</h2>
+        </div>
+        <span class="panel-subtitle" id="traceRateLabel">SAMPLING: 100% LIVE</span>
+      </div>
+
+      <div class="panel-body">
+        <div class="stream-toolbar">
+          <div class="filter-tabs" id="traceFilterTabs">
+            <button class="tab-btn active" data-filter="ALL">全部 <span class="tab-count" id="cntALL">0</span></button>
+            <button class="tab-btn" data-filter="200">200 正常 <span class="tab-count" id="cnt200">0</span></button>
+            <button class="tab-btn" data-filter="CACHE">CACHE 命中 <span class="tab-count" id="cntCACHE">0</span></button>
+            <button class="tab-btn" data-filter="FALLBACK">429 降级 <span class="tab-count" id="cntFALLBACK">0</span></button>
+            <button class="tab-btn" data-filter="504">504 超时 <span class="tab-count" id="cnt504">0</span></button>
+          </div>
+        </div>
+
+        <div class="trace-table-wrapper">
+          <table class="trace-table">
+            <thead>
+              <tr>
+                <th>REQ_ID</th>
+                <th>路由模型</th>
+                <th>TOK (IN/OUT)</th>
+                <th>TTFT</th>
+                <th>速率</th>
+                <th>单次成本</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="traceTableBody">
+              <!-- JS 实时流式注入 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 底部单条请求检视器 -->
+        <div class="trace-inspector" id="traceInspector">
+          <div class="inspector-detail" id="inspectorText">
+            <strong>INSPECTOR //</strong> 点击上方任意请求行检视路由决策链路与 Token 计费明细...
+          </div>
+          <span style="white-space:nowrap;color:var(--sig-amber);">[SPAN: READY]</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 底部工程签注栏 -->
+  <footer class="blueprint-footer">
+    <div>AETHER GATEWAY ENGINE v4.12.0 // ARCHIVAL TELEMETRY SPEC</div>
+    <div>PRICING LEDGER: INPUT/OUTPUT WEIGHTED (1:3 RATIO ASSUMED FOR REALTIME ESTIMATE)</div>
+    <div>ZERO-GLOW SWISS INSTRUMENT INTERFACE</div>
+  </footer>
+</div>
+
+<script>
+(function() {
+  // =========================================================================
+  // 1. 核心主力模型定义与基准参数 (价格单位: USD / 1M Tokens, 综合按 3:1 输入输出折算)
+  // =========================================================================
+  const MODELS = [
+    {
+      id: 'claude-3-7-sonnet',
+      name: 'Claude-3.7-Sonnet',
+      provider: 'Anthropic',
+      blendedPricePer1M: 6.00, // 折合综合百万Token成本
+      weight: 35,
+      ttft: 340,
+      p50: 520,
+      p90: 840,
+      p99: 1180,
+      tps: 68
+    },
+    {
+      id: 'gpt-4o-2025',
+      name: 'GPT-4o (Prod-05)',
+      provider: 'OpenAI',
+      blendedPricePer1M: 4.50,
+      weight: 30,
+      ttft: 290,
+      p50: 460,
+      p90: 760,
+      p99: 1090,
+      tps: 82
+    },
+    {
+      id: 'deepseek-v3-tp',
+      name: 'DeepSeek-V3-Fast',
+      provider: 'Self-Host H800',
+      blendedPricePer1M: 0.65,
+      weight: 25,
+      ttft: 195,
+      p50: 340,
+      p90: 590,
+      p99: 920,
+      tps: 115
+    },
+    {
+      id: 'qwen-2.5-72b-fp8',
+      name: 'Qwen-2.5-72B-FP8',
+      provider: 'vLLM Cluster',
+      blendedPricePer1M: 0.40,
+      weight: 10,
+      ttft: 150,
+      p50: 270,
+      p90: 470,
+      p99: 740,
+      tps: 138
+    }
+  ];
+
+  // 全局运行时状态
+  let state = {
+    totalRequests: 1482910,
+    todayBill: 1284.62,
+    cacheHitRate: 38.4,
+    streamPaused: false,
+    activeFilter: 'ALL',
+    selectedTraceId: null,
+    traces: [],
+    counts: { ALL: 0, '200': 0, CACHE: 0, FALLBACK: 0, '504': 0 }
+  };
+
+  const MAX_SCALE_MS = 1500; // 延迟坐标轴最大刻度
+
+  // =========================================================================
+  // 2. 初始化与渲染：面板 01（4模型延迟分布对比）
+  // =========================================================================
+  const latencyContainer = document.getElementById('latencyChartContainer');
+
+  function renderLatencyDistribution() {
+    latencyContainer.innerHTML = '';
+    MODELS.forEach(m => {
+      const ttftPct = Math.min(98, (m.ttft / MAX_SCALE_MS) * 100);
+      const p50Pct  = Math.min(98, (m.p50 / MAX_SCALE_MS) * 100);
+      const p90Pct  = Math.min(98, (m.p90 / MAX_SCALE_MS) * 100);
+      const p99Pct  = Math.min(98, (m.p99 / MAX_SCALE_MS) * 100);
+
+      const row = document.createElement('div');
+      row.className = 'model-latency-row';
+      row.innerHTML = `
+        <div class="model-meta">
+          <div class="model-name-tag">
+            <span>${m.name}</span>
+            <span class="provider-tag">${m.provider}</span>
+          </div>
+          <div class="quantile-nums">
+            TTFT:<strong>${m.ttft}ms</strong> · P50:<strong>${m.p50}ms</strong> · P99:<strong style="color:var(--sig-orange)">${m.p99}ms</strong>
+          </div>
+        </div>
+        <div class="track-ruler">
+          <!-- TTFT 到 P99 连线 -->
+          <div class="whisker-line" style="left:${ttftPct}%; width:${Math.max(0, p99Pct - ttftPct)}%;"></div>
+          <!-- P50 到 P90 箱体 -->
+          <div class="iqr-box" style="left:${p50Pct}%; width:${Math.max(2, p90Pct - p50Pct)}%;"></div>
+          <!-- 关键分位锚点 -->
+          <div class="marker-ttft" style="left:${ttftPct}%;" title="TTFT: ${m.ttft}ms"></div>
+          <div class="marker-p50" style="left:${p50Pct}%;" title="P50: ${m.p50}ms"></div>
+          <div class="marker-p99" style="left:${p99Pct}%;" title="P99: ${m.p99}ms"></div>
+        </div>
+      `;
+      latencyContainer.appendChild(row);
+    });
+  }
+
+  // =========================================================================
+  // 3. 初始化与渲染：面板 02（路由权重滑块与实时成本重算）
+  // =========================================================================
+  const slidersContainer = document.getElementById('slidersContainer');
+
+  function renderRoutingSliders() {
+    slidersContainer.innerHTML = '';
+    MODELS.forEach((m, idx) => {
+      const card = document.createElement('div');
+      card.className = 'slider-card';
+      card.innerHTML = `
+        <div class="slider-top">
+          <div class="slider-model-info">
+            <span class="slider-model-title">${m.name}</span>
+            <span class="slider-price-tag">$${m.blendedPricePer1M.toFixed(2)} / 1M tok</span>
+          </div>
+          <span class="slider-weight-readout" id="weightReadout-${idx}">${m.weight}%</span>
+        </div>
+        <input type="range" min="0" max="100" value="${m.weight}" class="fader-input" data-idx="${idx}" id="sliderInput-${idx}">
+      `;
+      slidersContainer.appendChild(card);
+    });
+
+    // 绑定滑块拖动事件：保持4个模型总和100%自动联动归一化
+    slidersContainer.querySelectorAll('.fader-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const changedIdx = parseInt(e.target.getAttribute('data-idx'), 10);
+        const newVal = parseInt(e.target.value, 10);
+        rebalanceWeights(changedIdx, newVal);
+        // 取消预设高亮
+        document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+      });
+    });
+  }
+
+  function rebalanceWeights(changedIdx, newValue) {
+    newValue = Math.max(0, Math.min(100, newValue));
+    MODELS[changedIdx].weight = newValue;
+
+    const remainingTotal = 100 - newValue;
+    const otherIndices = MODELS.map((_, i) => i).filter(i => i !== changedIdx);
+    const currentOthersSum = otherIndices.reduce((acc, i) => acc + MODELS[i].weight, 0);
+
+    if (currentOthersSum === 0) {
+      const share = Math.floor(remainingTotal / otherIndices.length);
+      otherIndices.forEach((i, pos) => {
+        MODELS[i].weight = (pos === otherIndices.length - 1)
+          ? remainingTotal - share * (otherIndices.length - 1)
+          : share;
+      });
+    } else {
+      let allocated = 0;
+      otherIndices.forEach((i, pos) => {
+        if (pos === otherIndices.length - 1) {
+          MODELS[i].weight = Math.max(0, remainingTotal - allocated);
+        } else {
+          const w = Math.round((MODELS[i].weight / currentOthersSum) * remainingTotal);
+          MODELS[i].weight = w;
+          allocated += w;
+        }
+      });
+    }
+
+    // 同步 DOM 显示
+    MODELS.forEach((m, idx) => {
+      const readout = document.getElementById(`weightReadout-${idx}`);
+      const slider = document.getElementById(`sliderInput-${idx}`);
+      if (readout) readout.textContent = `${m.weight}%`;
+      if (slider && idx !== changedIdx) slider.value = m.weight;
+    });
+
+    recalculateCostAndTelemetry();
+  }
+
+  // 根据当前路由权重，实时计算加权成本、全天账单预测、加权TTFT与吞吐
+  function recalculateCostAndTelemetry() {
+    let blendedPrice = 0;
+    let weightedTtft = 0;
+    let weightedP99  = 0;
+    let weightedTps  = 0;
+
+    MODELS.forEach(m => {
+      const ratio = m.weight / 100;
+      blendedPrice += m.blendedPricePer1M * ratio;
+      weightedTtft += m.ttft * ratio;
+      weightedP99  += m.p99 * ratio;
+      weightedTps  += m.tps * ratio;
+    });
+
+    // 考虑语义缓存命中免除的计算成本
+    const effectivePrice = blendedPrice * (1 - (state.cacheHitRate / 100) * 0.85);
+    const baselineFlagshipPrice = 6.00; // 全量使用旗舰模型基准价
+    const savingsPct = ((baselineFlagshipPrice - effectivePrice) / baselineFlagshipPrice) * 100;
+
+    // 假设日均总 Token 吞吐量为 680M tokens
+    const projectedDailyUsd = (680 * effectivePrice);
+    const projectedMonthlyUsd = projectedDailyUsd * 30;
+    const hourlyBurn = projectedDailyUsd / 24;
+
+    // 更新中栏仿真器
+    document.getElementById('simBlendedCost').innerHTML =
+      `$${effectivePrice.toFixed(2)} <span style="font-size:12px;font-weight:400;color:var(--ink-secondary);">/ 1M tok</span>`;
+
+    const vsEl = document.getElementById('simVsBaseline');
+    if (savingsPct >= 0) {
+      vsEl.style.color = 'var(--sig-green)';
+      vsEl.textContent = `较全量旗舰路由节省 ${savingsPct.toFixed(1)}%`;
+    } else {
+      vsEl.style.color = 'var(--sig-orange)';
+      vsEl.textContent = `成本溢价 ${Math.abs(savingsPct).toFixed(1)}%`;
+    }
+
+    document.getElementById('simMonthlyCost').textContent =
+      '$' + Math.round(projectedMonthlyUsd).toLocaleString('en-US');
+    document.getElementById('simLatencyImpact').innerHTML =
+      `加权预期 TTFT: <strong>${Math.round(weightedTtft)}ms</strong>`;
+
+    // 同步更新顶部 KPI 面板关联值
+    document.getElementById('kpiTtft').textContent = Math.round(weightedTtft);
+    document.getElementById('kpiGlobalP99').textContent = `${Math.round(weightedP99)}ms`;
+    document.getElementById('kpiSingleTps').textContent = weightedTps.toFixed(1);
+    document.getElementById('kpiProjectedDaily').textContent =
+      '$' + projectedDailyUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    document.getElementById('kpiBurnRateBadge').textContent = `$${hourlyBurn.toFixed(2)} / hr`;
+  }
+
+  // 预设按钮点击切换
+  document.querySelectorAll('.btn-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const preset = btn.getAttribute('data-preset');
+      let targetWeights = [35, 30, 25, 10];
+      if (preset === 'cost') targetWeights = [5, 10, 50, 35];
+      if (preset === 'latency') targetWeights = [10, 25, 30, 35];
+
+      MODELS.forEach((m, i) => {
+        m.weight = targetWeights[i];
+        document.getElementById(`weightReadout-${i}`).textContent = `${m.weight}%`;
+        document.getElementById(`sliderInput-${i}`).value = m.weight;
+      });
+      recalculateCostAndTelemetry();
+    });
+  });
+
+  // =========================================================================
+  // 4. 面板 03：实时请求追踪流 (生成、筛选、点击检视)
+  // =========================================================================
+  const traceTableBody = document.getElementById('traceTableBody');
+  const inspectorText = document.getElementById('inspectorText');
+
+  function pickModelByWeight() {
+    const r = Math.random() * 100;
+    let acc = 0;
+    for (const m of MODELS) {
+      acc += m.weight;
+      if (r <= acc) return m;
+    }
+    return MODELS[0];
+  }
+
+  function generateTraceEntry(forceSpike = false) {
+    const model = pickModelByWeight();
+    const reqId = 'req_' + Math.random().toString(36).substring(2, 8);
+    const promptTok = Math.floor(180 + Math.random() * 2400);
+    const compTok = Math.floor(60 + Math.random() * 950);
+
+    // 决定状态码分布
+    const roll = Math.random();
+    let statusType = '200';
+    let statusLabel = '200 OK';
+    let statusClass = 'st-ok';
+
+    if (!forceSpike && roll < (state.cacheHitRate / 100) * 0.65) {
+      statusType = 'CACHE';
+      statusLabel = 'HIT 200';
+      statusClass = 'st-cache';
+    } else if (roll > 0.965 || (forceSpike && Math.random() > 0.7)) {
+      statusType = 'FALLBACK';
+      statusLabel = '429->200';
+      statusClass = 'st-warn';
+    } else if (roll > 0.99) {
+      statusType = '504';
+      statusLabel = '504 TMO';
+      statusClass = 'st-err';
+    }
+
+    // 计算该次请求延迟与花费
+    const jitter = 0.82 + Math.random() * 0.4;
+    const ttft = statusType === 'CACHE'
+      ? Math.floor(12 + Math.random() * 18)
+      : Math.floor(model.ttft * jitter + (statusType === 'FALLBACK' ? 260 : 0));
+
+    const tps = statusType === '504' ? 0 : Math.floor(model.tps * (0.88 + Math.random() * 0.25));
+    const totalTokens = promptTok + compTok;
+    const rawCost = (totalTokens / 1000000) * model.blendedPricePer1M;
+    const finalCost = (statusType === 'CACHE' || statusType === '504') ? 0 : rawCost;
+
+    // 累加全局计数器
+    state.totalRequests += 1;
+    state.todayBill += finalCost;
+
+    const traceObj = {
+      id: reqId,
+      timestamp: new Date().toISOString().split('T')[1].slice(0, 12),
+      modelName: model.name,
+      provider: model.provider,
+      promptTok,
+      compTok,
+      ttft,
+      tps,
+      cost: finalCost,
+      statusType,
+      statusLabel,
+      statusClass
+    };
+
+    state.traces.unshift(traceObj);
+    state.counts.ALL++;
+    state.counts[statusType] = (state.counts[statusType] || 0) + 1;
+
+    // 保持内存队列最多 80 条
+    if (state.traces.length > 80) {
+      const removed = state.traces.pop();
+      state.counts.ALL--;
+      if (state.counts[removed.statusType] > 0) state.counts[removed.statusType]--;
+    }
+
+    updateFilterBadges();
+    renderTraceRows(traceObj.id);
+  }
+
+  function updateFilterBadges() {
+    ['ALL', '200', 'CACHE', 'FALLBACK', '504'].forEach(k => {
+      const el = document.getElementById('cnt' + k);
+      if (el) el.textContent = state.counts[k] || 0;
+    });
+  }
+
+  function renderTraceRows(newId = null) {
+    const filtered = state.activeFilter === 'ALL'
+      ? state.traces
+      : state.traces.filter(t => t.statusType === state.activeFilter);
+
+    traceTableBody.innerHTML = '';
+    filtered.slice(0, 22).forEach(t => {
+      const tr = document.createElement('tr');
+      tr.className = 'trace-row' + (t.id === newId ? ' new-entry' : '') + (t.id === state.selectedTraceId ? ' selected' : '');
+      tr.innerHTML = `
+        <td style="font-weight:600;">${t.id}</td>
+        <td>${t.modelName}</td>
+        <td>${t.promptTok} → ${t.compTok}</td>
+        <td>${t.ttft}ms</td>
+        <td>${t.tps > 0 ? t.tps + ' t/s' : '--'}</td>
+        <td>$${t.cost.toFixed(5)}</td>
+        <td><span class="status-tag ${t.statusClass}">${t.statusLabel}</span></td>
+      `;
+      tr.addEventListener('click', () => {
+        state.selectedTraceId = t.id;
+        renderTraceRows();
+        inspectorText.innerHTML = `
+          <strong>[${t.timestamp}] ${t.id}</strong> // 节点: ${t.provider} (${t.modelName}) · 
+          输入:${t.promptTok} / 输出:${t.compTok} tok · 计费:$${t.cost.toFixed(6)} · 状态:${t.statusLabel}
+        `;
+      });
+      traceTableBody.appendChild(tr);
+    });
+  }
+
+  // 状态筛选器按钮切换
+  document.querySelectorAll('#traceFilterTabs .tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#traceFilterTabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.activeFilter = btn.getAttribute('data-filter');
+      renderTraceRows();
+    });
+  });
+
+  // =========================================================================
+  // 5. 顶部控制栏交互与定时遥测循环
+  // =========================================================================
+  const btnToggleStream = document.getElementById('btnToggleStream');
+  const streamToggleText = document.getElementById('streamToggleText');
+  const btnSimSpike = document.getElementById('btnSimSpike');
+
+  btnToggleStream.addEventListener('click', () => {
+    state.streamPaused = !state.streamPaused;
+    btnToggleStream.classList.toggle('active', state.streamPaused);
+    streamToggleText.textContent = state.streamPaused ? '▶ 恢复遥测流' : '⏸ 暂停遥测流';
+    document.getElementById('traceRateLabel').textContent = state.streamPaused ? 'STREAM: PAUSED' : 'SAMPLING: 100% LIVE';
+  });
+
+  btnSimSpike.addEventListener('click', () => {
+    btnSimSpike.classList.add('active');
+    setTimeout(() => btnSimSpike.classList.remove('active'), 350);
+    // 瞬间注入 8 条突发流量并微调并发指标
+    for (let i = 0; i < 8; i++) {
+      generateTraceEntry(true);
+    }
+    document.getElementById('kpiRps').textContent = Math.floor(420 + Math.random() * 140);
+    document.getElementById('kpiTps').textContent = Math.floor(29400 + Math.random() * 4000).toLocaleString('en-US');
+    updateTopCounters();
+  });
+
+  function updateTopCounters() {
+    document.getElementById('kpiTotalReq').textContent = state.totalRequests.toLocaleString('en-US');
+    document.getElementById('kpiBill').textContent = '$' + state.todayBill.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  // 时钟与实时数据微幅脉动
+  setInterval(() => {
+    const now = new Date();
+    document.getElementById('utcClock').textContent = now.toISOString().slice(11, 19) + ' UTC';
+
+    if (!state.streamPaused) {
+      generateTraceEntry(false);
+      // 随机微调并发与总吞吐显示
+      const rps = Math.floor(235 + Math.random() * 32);
+      const tps = Math.floor(rps * 74 + Math.random() * 600);
+      document.getElementById('kpiRps').textContent = rps;
+      document.getElementById('kpiTps').textContent = tps.toLocaleString('en-US');
+      updateTopCounters();
+    }
+  }, 1100);
+
+  // 每 3.5 秒对左侧分位图做轻微真实感抖动
+  setInterval(() => {
+    if (state.streamPaused) return;
+    MODELS.forEach(m => {
+      const delta = Math.round((Math.random() - 0.5) * 10);
+      m.ttft = Math.max(90, m.ttft + delta);
+      m.p50  = Math.max(m.ttft + 80, m.p50 + delta);
+      m.p99  = Math.max(m.p90 + 140, m.p99 + Math.round((Math.random() - 0.48) * 18));
+    });
+    renderLatencyDistribution();
+    recalculateCostAndTelemetry();
+  }, 3500);
+
+  // 启动时预填充 14 条历史追踪流
+  renderLatencyDistribution();
+  renderRoutingSliders

@@ -1,0 +1,49 @@
+{
+  "runId": "L2-durable-task-queue__control_stock__r1",
+  "taskId": "L2-durable-task-queue",
+  "domain": "后端并发与分布式容错引擎",
+  "variantKey": "control_stock",
+  "rep": 1,
+  "turns": 2,
+  "elapsedSec": 58.9,
+  "filesWrittenCount": 1,
+  "commandsRunCount": 0,
+  "completeness": {
+    "score": 9,
+    "maxScore": 10,
+    "linesCount": 596,
+    "details": {
+      "linesCount": 596,
+      "c1_class_exported": true,
+      "c2_concurrency_limit_enforced": true,
+      "c3_exponential_backoff_and_jitter": true,
+      "c4_timeout_abort_handling": true,
+      "c5_durable_disk_checkpoint": true,
+      "c6_resume_skips_completed": true,
+      "c7_atomic_or_safe_persistence": true,
+      "c8_priority_or_dependencies": true,
+      "c9_pause_drain_lifecycle": true,
+      "c10_self_tests_created": false
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "已在 `src/task_queue.mjs` 中实现并导出 `DurableTaskQueue`（同时导出别名 `TaskQueue` 与 `TaskStatus`）。\n\n### 核心特性一览\n1. **并发限流与优先级调度**：通过 `concurrency` 控制最大并行任务数，支持按 `priority`（降序）及创建时间（FIFO）调度，支持 `pause()` / `resume()` / `onIdle()`。\n2. **失败指数退避重试**：基于 `min(maxDelayMs, baseDelayMs * 2^(attempt - 1))` 计算退避时间，内置 Equal Jitter 随机抖动避免惊群，支持通过错误对象属性 `err.noRetry = true` 跳过重试。\n3. **单任务超时与取消中断**：每个任务执行时创建独立的 `AbortController`，将 `signal` 传入任务上下文；超时或调用 `queue.cancel(id)` 时自动触发 `AbortSignal` 中断。\n4. **本地文件断点续传（原子写入）**：\n   - 使用 `registerHandler(type, fn)` 注册可序列化处理器。\n   - 状态变更通过“写临时文件 + `fs.rename`”原子落盘，避免崩溃导致 JSON 损坏。\n   - 任务",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

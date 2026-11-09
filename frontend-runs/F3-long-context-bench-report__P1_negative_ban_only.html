@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>长上下文注意力衰减与编码幻觉实测报告 | Long-Context Fidelity Report</title>
+<style>
+  :root {
+    --bg-primary: #FAF9F5;
+    --bg-card: #FFFFFF;
+    --bg-subtle: #F2F0E8;
+    --bg-code: #F6F5F0;
+    --text-main: #1C1B18;
+    --text-secondary: #5A5852;
+    --text-muted: #8C8980;
+    --border-color: #E4E1D8;
+    --border-strong: #C9C5B8;
+    --accent-teal: #165B5C;
+    --accent-teal-light: #E6F0F0;
+    --accent-coral: #C84B31;
+    --accent-coral-light: #F9EBE8;
+    --accent-gold: #D48C29;
+    --font-serif: "Newsreader", "Source Han Serif SC", "Noto Serif SC", "Songti SC", Georgia, serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --shadow-sm: 0 1px 3px rgba(28, 27, 24, 0.04);
+    --shadow-md: 0 4px 16px rgba(28, 27, 24, 0.06);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 80px;
+  }
+
+  /* 顶部装饰线与元信息栏 */
+  .top-bar {
+    border-top: 4px solid var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    padding: 12px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  .top-bar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge {
+    background: var(--text-main);
+    color: var(--bg-primary);
+    padding: 2px 8px;
+    font-weight: 600;
+    border-radius: 2px;
+    margin-right: 8px;
+  }
+
+  /* 首屏 Hero */
+  .hero {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .report-category {
+    color: var(--accent-coral);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .report-category::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 2px;
+    background: var(--accent-coral);
+  }
+
+  h1 {
+    font-family: var(--font-serif);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+    color: var(--text-main);
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    font-family: var(--font-serif);
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--text-secondary);
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 28px;
+  }
+
+  .lead-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-teal);
+    padding: 24px 28px;
+    border-radius: 0 6px 6px 0;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 36px;
+  }
+
+  .lead-title {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--accent-teal);
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .lead-text {
+    font-size: 16.5px;
+    color: var(--text-main);
+    line-height: 1.75;
+  }
+
+  .lead-text strong {
+    background: linear-gradient(transparent 65%, #E6F0F0 65%);
+    font-weight: 600;
+  }
+
+  /* 关键结论概览 KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .kpi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 22px 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+  }
+
+  .kpi-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-teal);
+  }
+
+  .kpi-card.danger::after {
+    background: var(--accent-coral);
+  }
+
+  .kpi-card.warn::after {
+    background: var(--accent-gold);
+  }
+
+  .kpi-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .kpi-num {
+    font-family: var(--font-serif);
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.1;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+
+  .kpi-num .unit {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-left: 4px;
+    font-family: var(--font-mono);
+  }
+
+  .kpi-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* 章节通用样式 */
+  .section {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-teal);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .section-sub {
+    color: var(--text-secondary);
+    font-size: 14.5px;
+    max-width: 680px;
+    margin-top: 6px;
+  }
+
+  /* 图表控制与容器 */
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .chart-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .legend-group {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  .legend-line {
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  .filter-pills {
+    display: flex;
+    background: var(--bg-subtle);
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+  }
+
+  .pill-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .pill-btn.active {
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+  }
+
+  .chart-layout {
+    display: grid;
+    grid-template-columns: 1fr 310px;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .svg-wrapper {
+    position: relative;
+    width: 100%;
+    user-select: none;
+  }
+
+  svg.main-chart {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  /* SVG 交互样式 */
+  .chart-col-group {
+    cursor: pointer;
+  }
+
+  .chart-col-bg {
+    fill: transparent;
+    transition: fill 0.2s ease;
+  }
+
+  .chart-col-group:hover .chart-col-bg,
+  .chart-col-group.selected .chart-col-bg {
+    fill: rgba(22, 91, 92, 0.05);
+  }
+
+  .chart-node {
+    transition: r 0.2s ease, stroke-width 0.2s ease;
+  }
+
+  .chart-col-group:hover .chart-node,
+  .chart-col-group.selected .chart-node {
+    r: 7;
+    stroke-width: 3px;
+  }
+
+  /* 图表右侧详情面板 */
+  .inspector-panel {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 20px;
+  }
+
+  .inspector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px dashed var(--border-strong);
+  }
+
+  .inspector-ctx {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .inspector-tag {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--accent-teal-light);
+    color: var(--accent-teal);
+    font-weight: 600;
+  }
+
+  .inspector-tag.critical {
+    background: var(--accent-coral-light);
+    color: var(--accent-coral);
+  }
+
+  .metric-row {
+    margin-bottom: 14px;
+  }
+
+  .metric-row-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
+
+  .metric-name {
+    color: var(--text-secondary);
+  }
+
+  .metric-val {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .breakdown-box {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .breakdown-title {
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    padding: 4px 0;
+    color: var(--text-secondary);
+  }
+
+  .breakdown-item span:last-child {
+    font-family: var(--font-mono);
+    color: var(--text-main);
+    font-weight: 500;
+  }
+
+  .inspector-note {
+    margin-top: 14px;
+    font-size: 12.5px;
+    background: var(--bg-card);
+    padding: 10px 12px;
+    border-radius: 4px;
+    border-left: 3px solid var(--accent-gold);
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* 第二部分：提示词干预方案切换台 */
+  .workbench-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .strategy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .strategy-btn {
+    text-align: left;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .strategy-btn:hover {
+    border-color: var(--border-strong);
+    background: #FDFCFA;
+  }
+
+  .strategy-btn.active {
+    border-color: var(--accent-teal);
+    background: var(--bg-card);
+    box-shadow: 0 4px 14px rgba(22, 91, 92, 0.08);
+  }
+
+  .strategy-btn.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: var(--accent-teal);
+    border-radius: 5px 0 0 5px;
+  }
+
+  .strat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .strat-code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-teal);
+    background: var(--accent-teal-light);
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+
+  .strat-badge {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+  }
+
+  .strat-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+
+  .strat-summary {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* 右侧详情展示台 */
+  .workbench-detail {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+  }
+
+  .detail-title-area h3 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+
+  .detail-mechanism {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .overhead-pills {
+    display: flex;
+    gap: 12px;
+  }
+
+  .overhead-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-radius: 4px;
+    text-align: right;
+  }
+
+  .overhead-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: block;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .overhead-val {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  /* 实验对比数据表 */
+  .table-title {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .data-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 28px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+  }
+
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    text-align: left;
+  }
+
+  table.data-table th {
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  table.data-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-color);
+    font-family: var(--font-mono);
+    color: var(--text-main);
+  }
+
+  table.data-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  table.data-table tr:hover td {
+    background: var(--bg-primary);
+  }
+
+  .delta-tag {
+    display: inline-block;
+    font-size: 11.5px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+    font-weight: 600;
+  }
+
+  .delta-up {
+    background: var(--accent-teal-light);
+    color: var(--accent-teal);
+  }
+
+  .delta-down {
+    background: var(--accent-coral-light);
+    color: var(--accent-coral);
+  }
+
+  .delta-neutral {
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+  }
+
+  /* 推理链与代码样本展示 */
+  .trace-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .code-panel {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .code-panel-head {
+    background: var(--bg-subtle);
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .status-pill {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .status-pill.pass {
+    background: var(--accent-teal-light);
+    color: var(--accent-teal);
+  }
+
+  .status-pill.fail {
+    background: var(--accent-coral-light);
+    color: var(--accent-coral);
+  }
+
+  .status-pill.warn {
+    background: #FDF3E3;
+    color: #B56E12;
+  }
+
+  pre.code-content {
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 12.8px;
+    line-height: 1.65;
+    color: var(--text-main);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .hl-tag {
+    color: var(--accent-teal);
+    font-weight: 600;
+  }
+
+  .hl-err {
+    background: var(--accent-coral-light);
+    color: var(--accent-coral);
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-weight: 600;
+    border-bottom: 1px dashed var(--accent-coral);
+  }
+
+  .hl-ok {
+    background: var(--accent-teal-light);
+    color: var(--accent-teal);
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+
+  .hl-comment {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* 底部方法论说明 */
+  .methodology {
+    margin-top: 48px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 24px 28px;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .meth-col h4 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 980px) {
+    .kpi-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .chart-layout,
+    .workbench-grid {
+      grid-template-columns: 1fr;
+    }
+    .methodology {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+    .chart-card, .workbench-detail {
+      padding: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 顶部期刊式元信息栏 -->
+  <div class="top-bar">
+    <div class="container top-bar-inner">
+      <div><span class="badge">EMPIRICAL STUDY</span> REPO-SCALE BENCHMARK v4.2 · 1,200 MULTI-FILE TASKS</div>
+      <div>EVAL WINDOW: 32K — 983K TOKENS · TEMPERATURE = 0.0</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 1. 首屏：研究标题、核心发现导语与关键结论概览 -->
+    <header class="hero">
+      <div class="report-category">大模型工程可靠性实测报告 · Long-Context Fidelity & Coding Hallucination</div>
+      <h1>长上下文注意力衰减与编码幻觉实测报告</h1>
+      <div class="subtitle">Empirical Analysis of Attention Sinks, Mid-Context Degradation, and Symbol Hallucination across 32K–983K Context Windows</div>
+
+      <div class="lead-box">
+        <div class="lead-title">Executive Summary · 核心发现导语</div>
+        <p class="lead-text">
+          基于 42 个真实开源生产级代码库（涵盖 Rust、TypeScript 与 Python 混合架构）构造的跨文件依赖检索与重构基准显示：主流前沿大模型在上下文突破 <strong>256K Tokens</strong> 临界点后，Attention 权重分布出现显著的“双端极化与中段塌陷（Lost-in-the-Middle）”。当上下文扩展至满载 <strong>983K Tokens</strong> 时，尽管单针表面检索率仍维持在 58% 以上，但跨文件符号引用与类型签名的<strong>编码幻觉率飙升至 37.9%</strong>（主要表现为虚构未导出的方法签名、混淆同名异构结构体、以及遗忘早期声明的生命周期约束）。实验证明，单纯扩充上下文窗口无法替代结构化注意力引导——通过引入<strong>“结构化符号锚定 + 证据链先验（Anchor + Cite-CoT）”</strong>提示词干预，可在 983K 极长窗口下将编码幻觉率压降至 <strong>11.4%</strong>。
+        </p>
+      </div>
+
+      <!-- 关键结论概览 KPI -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label"><span>有效保真拐点</span><span>INFLECTION</span></div>
+          <div class="kpi-num">256K<span class="unit">Tokens</span></div>
+          <div class="kpi-desc">32K–128K 区间模型编码一致性达 94%+；超过 256K 后注意力熵增斜率陡峭上升 2.4 倍。</div>
+        </div>
+        <div class="kpi-card warn">
+          <div class="kpi-label"><span>中段注意力黑洞</span><span>DEPTH 40%–65%</span></div>
+          <div class="kpi-num">-31.2<span class="unit">% 召回</span></div>
+          <div class="kpi-desc">在 512K+ 窗口中，位于上下文深度 40%–65% 区间的接口定义比首尾两端更容易被忽略。</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-label"><span>983K 峰值编码幻觉</span><span>BASELINE P0</span></div>
+          <div class="kpi-num">37.9<span class="unit">% 幻觉率</span></div>
+          <div class="kpi-desc">平均每 3 次跨模块调用即出现 1 次虚构参数、废弃 API 复活或隐式类型契约违背。</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label"><span>最佳干预净收益</span><span>INTERVENTION P3</span></div>
+          <div class="kpi-num">-26.5<span class="unit">pct 幻觉</span></div>
+          <div class="kpi-desc">采用 AST 符号表前置与强制行号引用，使 983K 检索准确率由 58.4% 逆势回升至 86.2%。</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. 正文第一部分：不同上下文长度下的检索准确率与幻觉率对比可视化 -->
+    <section class="section" id="section-chart">
+      <div class="section-header">
+        <div>
+          <div class="section-num">Section 01 · Scaling Law of Attention Decay</div>
+          <h2>全窗口尺度（32K – 983K）检索保真度与编码幻觉对比</h2>
+          <p class="section-sub">对比标准大海捞针（Single-Needle）、跨文件依赖追踪（Multi-Hop AST）以及生成阶段的代码幻觉率（Coding Hallucination Rate）。点击图表数据列可检视对应窗口深度的注意力衰减剖析。</p>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-toolbar">
+          <div class="legend-group">
+            <div class="legend-item">
+              <span class="legend-line" style="background: #165B5C;"></span>
+              <span>跨文件检索准确率 (Multi-Hop Retrieval %)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-line" style="background: #7A9E9F; border-bottom: 2px dashed #165B5C; height:0;"></span>
+              <span>单针基础召回率 (Single-Needle %)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-line" style="background: #C84B31;"></span>
+              <span>编码幻觉率 (Coding Hallucination %)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background: rgba(200, 75, 49, 0.14); border: 1px solid #C84B31;"></span>
+              <span>中段深度 (50% Depth) 局部幻觉峰值</span>
+            </div>
+          </div>
+
+          <div class="filter-pills" id="chartModePills">
+            <button class="pill-btn active" data-mode="baseline">零干预基线 (P0 Baseline)</button>
+            <button class="pill-btn" data-mode="intervened">干预后表现 (P3 Anchor+CoT)</button>
+          </div>
+        </div>
+
+        <div class="chart-layout">
+          <!-- 原生交互式 SVG 图表 -->
+          <div class="svg-wrapper">
+            <svg class="main-chart" id="fidelityChart" viewBox="0 0 740 390" aria-label="上下文检索准确率与幻觉率趋势图"></svg>
+          </div>
+
+          <!-- 右侧联动检视器 -->
+          <div class="inspector-panel" id="chartInspector">
+            <!-- 由 JS 实时渲染 -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 正文第二部分：4 种提示词干预方案的对比实验切换台 -->
+    <section class="section" id="section-workbench" style="border-bottom: none; padding-bottom: 10px;">
+      <div class="section-header">
+        <div>
+          <div class="section-num">Section 02 · Prompt Intervention Workbench</div>
+          <h2>4 种提示词干预方案对比实验切换台</h2>
+          <p class="section-sub">固定模型权重与测试集，在相同上下文负载下对比 4 种提示词工程策略（P0–P3）。点击左侧不同方案，实时切换右侧全尺度评测数据表与 983K 窗口下的真实推理链样本。</p>
+        </div>
+      </div>
+
+      <div class="workbench-grid">
+        <!-- 左侧方案切换按钮组 -->
+        <div class="strategy-list" id="strategySelector">
+          <!-- 由 JS 渲染 -->
+        </div>
+
+        <!-- 右侧实时数据表与推理链面板 -->
+        <div class="workbench-detail" id="workbenchDetail">
+          <!-- 由 JS 渲染 -->
+        </div>
+      </div>
+
+      <!-- 底部实验方法论注释 -->
+      <div class="methodology">
+        <div class="meth-col">
+          <h4>01. 评测基准构造 (Benchmark)</h4>
+          <p>采集真实多模块代码仓库，将核心接口定义随机埋入 15%、50%、85% 三个上下文深度区间，并在上下文中混入 6 个历史废弃版本的同名相似函数（Distractor APIs）以诱发真实工程幻觉。</p>
+        </div>
+        <div class="meth-col">
+          <h4>02. 编码幻觉判定 (Hallucination Metric)</h4>
+          <p>生成代码经由 Tree-sitter 静态语法树解析与编译器类型检查（cargo check / tsc --noEmit）。任何引用不存在的符号、虚构参数名或违背显式非空/生命周期约束均记为幻觉样本。</p>
+        </div>
+        <div class="meth-col">
+          <h4>03. 为什么 983K 是关键测试点</h4>
+          <p>百万级上下文窗口（1M = 1,048,576）扣除系统提示词、工具 Schema 与输出预留空间后，实际可用代码装载上限约为 983K Tokens，代表当前单次全量代码库喂入的极限边界。</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+  // ==================== 数据集 1：各上下文长度表现数据 ====================
+  const CONTEXT_DATA = {
+    baseline: [
+      {
+        ctx: "32K",
+        tokens: "32,768",
+        singleAcc: 99.1,
+        multiAcc: 96.4,
+        hallucination: 3.1,
+        midDepthHalluc: 4.5,
+        status: "高保真安全区",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "1.2%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "1.1%",
+          "跨文件约束遗忘 (Constraint Drop)": "0.8%"
+        },
+        note: "32K 窗口下注意力分布均匀，首尾与中段检索无统计学差异，静态编译一次通过率达 96.9%。"
+      },
+      {
+        ctx: "128K",
+        tokens: "131,072",
+        singleAcc: 95.8,
+        multiAcc: 89.2,
+        hallucination: 8.4,
+        midDepthHalluc: 12.8,
+        status: "轻微衰减区",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "3.4%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "3.1%",
+          "跨文件约束遗忘 (Constraint Drop)": "1.9%"
+        },
+        note: "当调用链跨越 3 个以上文件且目标定义位于 45%–60% 深度时，模型开始偶发使用默认推断替代显式声明。"
+      },
+      {
+        ctx: "256K",
+        tokens: "262,144",
+        singleAcc: 88.5,
+        multiAcc: 78.6,
+        hallucination: 16.8,
+        midDepthHalluc: 24.6,
+        status: "注意力拐点",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "6.8%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "5.9%",
+          "跨文件约束遗忘 (Constraint Drop)": "4.1%"
+        },
+        note: "256K 是显著的工程保真度分水岭：模型开始受预训练先验干扰，用标准库惯用写法覆盖代码库内的自定义签名。"
+      },
+      {
+        ctx: "512K",
+        tokens: "524,288",
+        singleAcc: 76.2,
+        multiAcc: 66.8,
+        hallucination: 27.5,
+        midDepthHalluc: 39.2,
+        status: "中段塌陷区",
+        critical: true,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "11.4%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "9.8%",
+          "跨文件约束遗忘 (Constraint Drop)": "6.3%"
+        },
+        note: "Attention Sink 现象加剧，前 5% tokens 消耗了超 42% 的注意力权重，中段代码被严重稀释，废弃 API 频繁复活。"
+      },
+      {
+        ctx: "983K",
+        tokens: "983,040",
+        singleAcc: 69.0,
+        multiAcc: 58.4,
+        hallucination: 37.9,
+        midDepthHalluc: 51.4,
+        status: "极高幻觉风险",
+        critical: true,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "16.2%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "13.1%",
+          "跨文件约束遗忘 (Constraint Drop)": "8.6%"
+        },
+        note: "满载 983K 时，中段 50% 深度处的编码幻觉率突破 51.4%。模型在未检索到确切签名时会高自信度地捏造参数列表。"
+      }
+    ],
+    intervened: [
+      {
+        ctx: "32K",
+        tokens: "32,768",
+        singleAcc: 99.6,
+        multiAcc: 98.4,
+        hallucination: 1.2,
+        midDepthHalluc: 1.6,
+        status: "近乎零幻觉",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "0.4%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "0.5%",
+          "跨文件约束遗忘 (Constraint Drop)": "0.3%"
+        },
+        note: "在 P3 方案下，32K 窗口通过强制文件行号引用，几乎彻底消除了微小的类型签名偏差。"
+      },
+      {
+        ctx: "128K",
+        tokens: "131,072",
+        singleAcc: 98.1,
+        multiAcc: 95.8,
+        hallucination: 2.9,
+        midDepthHalluc: 4.1,
+        status: "高保真稳定区",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "1.1%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "1.0%",
+          "跨文件约束遗忘 (Constraint Drop)": "0.8%"
+        },
+        note: "128K 表现追平基线 32K 水平，AST 符号索引卡有效引导注意力跳过噪声文件块。"
+      },
+      {
+        ctx: "256K",
+        tokens: "262,144",
+        singleAcc: 95.4,
+        multiAcc: 92.5,
+        hallucination: 5.4,
+        midDepthHalluc: 7.8,
+        status: "拐点成功抑制",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "2.1%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "1.9%",
+          "跨文件约束遗忘 (Constraint Drop)": "1.4%"
+        },
+        note: "原本在 256K 出现的衰减拐点被抚平，跨文件类型契约校验使幻觉率下降 11.4 个百分点。"
+      },
+      {
+        ctx: "512K",
+        tokens: "524,288",
+        singleAcc: 92.0,
+        multiAcc: 89.1,
+        hallucination: 8.3,
+        midDepthHalluc: 11.9,
+        status: "受控可用区",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "3.3%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "2.9%",
+          "跨文件约束遗忘 (Constraint Drop)": "2.1%"
+        },
+        note: "即使在半百万级上下文中，先验引用声明（Cite-Before-Code）依然能迫使注意力头重新聚焦于中段代码块。"
+      },
+      {
+        ctx: "983K",
+        tokens: "983,040",
+        singleAcc: 89.5,
+        multiAcc: 86.2,
+        hallucination: 11.4,
+        midDepthHalluc: 15.8,
+        status: "大幅收敛 (+27.8%)",
+        critical: false,
+        breakdown: {
+          "虚构方法/参数签名 (Fabricated API)": "4.6%",
+          "同名异构结构体混淆 (Shadowing Mixup)": "4.0%",
+          "跨文件约束遗忘 (Constraint Drop)": "2.8%"
+        },
+        note: "在 983K 极限窗口下，幻觉率从 37.9% 压降至 11.4%，具备生产级辅助重构可行性。"
+      }
+    ]
+  };
+
+  // ==================== 数据集 2：4 种提示词干预方案实验数据 ====================
+  const STRATEGIES = [
+    {
+      id: "P0",
+      code: "SCHEME P0",
+      badge: "Control Group",
+      name: "零干预直接指令 (Zero-Shot Baseline)",
+      shortDesc: "标准长文档拼接后在末尾直接追加编码指令，无任何结构锚点或推理格式约束。",
+      mechanism: "将全部代码库按文件路径顺序拼接为单一长上下文，末尾直接给出需求描述。模型倾向于直接进入代码补全模式，依赖隐式注意力分布。",
+      tokenOverhead: "+0 Tokens",
+      latencyOverhead: "1.00x (基准)",
+      metrics: [
+        { ctx: "32K", acc: 96.4, hall: 3.1, compile: 96.9 },
+        { ctx: "128K", acc: 89.2, hall: 8.4, compile: 90.8 },
+        { ctx: "256K", acc: 78.6, hall: 16.8, compile: 81.2 },
+        { ctx: "512K", acc: 66.8, hall: 27.5, compile: 69.5 },
+        { ctx: "983K", acc: 58.4, hall: 37.9, compile: 57.1 }
+      ],
+      traceStatus: "fail",
+      traceStatusText: "FAIL · 编译失败 (E0599 / 虚构方法与参数)",
+      promptTemplate: `[CONTEXT: 983,040 tokens of repository files...]
+User: 请在 crates/settlement/src/dispatcher.rs 中实现 dispatch_batch_tx，调用位于上下文中段 (Depth 52%, core/ledger/src/vault.rs) 的 LedgerVault::commit_atomic_journal 接口完成跨分片记账。`,
+      reasoningSample: `<span class="hl-comment">// [模型隐式状态] 未执行前置符号定位，直接激活首尾注意力与预训练分布先验...</span>
+<span class="hl-comment">// 受到 Depth 91% 处旧版注释和通用命名习惯干扰，发生严重签名幻觉：</span>
+
+pub async fn dispatch_batch_tx(vault: &LedgerVault, batch: Vec<TxEntry>) -> Result<Receipt, Error> {
+    <span class="hl-comment">// ❌ 幻觉 1：虚构了 with_isolation_level 链式方法（代码库中并不存在）</span>
+    <span class="hl-comment">// ❌ 幻觉 2：将真实的 commit_atomic_journal(slice, &EpochGuard) 误写为单参数 commit_journal</span>
+    let receipt = vault
+        .<span class="hl-err">with_isolation_level(Isolation::Serializable)</span>
+        .<span class="hl-err">commit_journal(batch, true)</span>
+        .await?;
+    Ok(receipt)
+}`
+    },
+    {
+      id: "P1",
+      code: "SCHEME P1",
+      badge: "Recency Sandwich",
+      name: "首尾双端约束重申 (Sandwich Recency Framing)",
+      shortDesc: "在超长上下文的开头与结尾双重声明任务目标及禁止猜测规则，缓解首因偏差。",
+      mechanism: "利用 Transformer 对序列起始（Attention Sink）和末尾（Recency Bias）的高敏感度，在上下文头部植入任务扫描目标，并在尾部重申严格遵循既有 API 签名。",
+      tokenOverhead: "+420 Tokens",
+      latencyOverhead: "1.04x",
+      metrics: [
+        { ctx: "32K", acc: 97.1, hall: 2.5, compile: 97.4 },
+        { ctx: "128K", acc: 91.5, hall: 6.8, compile: 92.6 },
+        { ctx: "256K", acc: 82.9, hall: 13.4, compile: 85.0 },
+        { ctx: "512K", acc: 72.4, hall: 22.1, compile: 75.8 },
+        { ctx: "983K", acc: 65.2, hall: 29.8, compile: 66.4 }
+      ],
+      traceStatus: "warn",
+      traceStatusText: "PARTIAL · 找对函数名但遗漏生命周期守卫参数",
+      promptTemplate: `[SYSTEM HEAD]: 仔细扫描后续代码库中的 LedgerVault 结构体签名，严禁虚构未定义的成员方法。
+[CONTEXT: 983,040 tokens of repository files...]
+[USER TAIL]: 再次提醒：仅使用仓库内实际存在的 API 实现 dispatch_batch_tx，若不确定参数顺序请先核对定义。`,
+      reasoningSample: `<span class="hl-comment">// [模型隐式状态] 头部提示词增强了对 "LedgerVault" 词元的扫描权重，成功抑制了虚构链式调用。</span>
+<span class="hl-comment">// 但由于中段注意力分辨率不足，仍遗漏了第 2 个必填参数 &EpochGuard：</span>
+
+pub async fn dispatch_batch_tx(vault: &LedgerVault, batch: Vec<TxEntry>) -> Result<Receipt, Error> {
+    <span class="hl-comment">// ✅ 正确检索到目标函数名 commit_atomic_journal</span>
+    <span class="hl-comment">// ❌ 幻觉残留：遗漏了 core/ledger/src/vault.rs:418 要求的 epoch_guard: &EpochGuard 参数</span>
+    let receipt = vault
+        .<span class="hl-ok">commit_atomic_journal</span>(<span class="hl-err">&batch</span>)
+        .await?;
+    Ok(receipt)
+}`
+    },
+    {
+      id: "P2",
+      code: "SCHEME P2",
+      badge: "Cite-Before-Code",
+      name: "强制行号摘录与证据链 (Cite-Before-Code CoT)",
+      shortDesc: "要求模型在输出任何代码前，必须先在 <evidence> 块中逐字摘录目标 API 的原文件行号与函数签名。",
+      mechanism: "通过自回归生成的首个阶段强制输出原文字面量（Verbatim Quote），在 KV Cache 近端重建一个高保真的局部上下文窗口，将远程检索转化为近端复制。",
+      tokenOverhead: "+1,150 Tokens",
+      latencyOverhead: "1.18x",
+      metrics: [
+        { ctx: "32K", acc: 98.0, hall: 1.6, compile: 98.2 },
+        { ctx: "128K", acc: 94.6, hall: 4.1, compile: 95.3 },
+        { ctx: "256K", acc: 89.3, hall: 8.2, compile: 91.0 },
+        { ctx: "512K", acc: 83.5, hall: 13.6, compile: 85.4 },
+        { ctx: "983K", acc: 79.1, hall: 16.5, compile: 81.9 }
+      ],
+      traceStatus: "pass",
+      traceStatusText: "PASS · 签名完全匹配 (偶发被旧版同名文件误导)",
+      promptTemplate: `在编写代码前，你必须严格按以下两步输出：
+Step 1 <evidence>: 检索并逐字复制目标函数所在的文件路径、起止行号及完整 Rust 函数签名；
+Step 2 <code>: 仅基于 <evidence> 中摘录的签名编写调用代码。`,
+      reasoningSample: `<span class="hl-tag">&lt;evidence&gt;</span>
+- Target File: <span class="hl-ok">core/ledger/src/vault.rs (Lines 416–422, Context Depth 52.4%)</span>
+- Verbatim Signature:
+  <span class="hl-ok">pub async fn commit_atomic_journal&lt;'a&gt;(&amp;self, entries: &amp;'a [TxEntry], guard: &amp;EpochGuard) -&gt; Result&lt;JournalReceipt, VaultError&gt;</span>
+<span class="hl-tag">&lt;/evidence&gt;</span>
+
+<span class="hl-comment">// 签名已被复制到生成序列近端，后续代码生成段注意力直接指向 20 tokens 前的 <evidence>：</span>
+pub async fn dispatch_batch_tx(vault: &LedgerVault, batch: Vec<TxEntry>, guard: &EpochGuard) -> Result<JournalReceipt, Error> {
+    let receipt = vault.<span class="hl-ok">commit_atomic_journal(&batch, guard)</span>.await?;
+    Ok(receipt)
+}`
+    },
+    {
+      id: "P3",
+      code: "SCHEME P3",
+      badge: "Recommended Best",
+      name: "结构化符号锚定 + 证据链先验 (AST Anchor + Cite-CoT)",
+      shortDesc: "在每个文件块头部注入轻量级 AST 导出符号摘要锚点，并结合强制原文引用与反幻觉契约校验。",
+      mechanism: "双管齐下：(1) 为每个代码文件头添加 [SYMBOL_ANCHOR] 元数据标签，在稀薄的中段注意力区建立高对比度语义路标；(2) 结合 <evidence> 原文摘录与 <contract_check> 类型契约自检。",
+      tokenOverhead: "+2,480 Tokens",
+      latencyOverhead: "1.26x",
+      metrics: [
+        { ctx: "32K", acc: 98.4, hall: 1.2, compile: 98.8 },
+        { ctx: "128K", acc: 95.8, hall: 2.9, compile: 96.7 },
+        { ctx: "256K", acc: 92.5, hall: 5.4, compile: 94.1 },
+        { ctx: "512K", acc: 89.1, hall: 8.3, compile: 91.2 },
+        { ctx: "983K", acc: 86.2, hall: 11.4, compile: 88.6 }
+      ],
+      traceStatus: "pass",
+      traceStatusText: "PASS · 983K 极限窗口下精准排除废弃同名 API",
+      promptTemplate: `[FILE_HEADER_ANCHOR]: 每个文件块均包含 @exports 符号指纹与 @deprecated 警告标签。
+请按 <anchor_scan> -> <evidence_quote> -> <contract_check> -> <code> 四阶段推理。`,
+      reasoningSample: `<span class="hl-tag">&lt;anchor_scan&gt;</span>
+- 排除干扰项: <span class="hl-comment">legacy/v1_vault.rs (@deprecated) 中的 commit_journal</span>
+- 锁定有效锚点: <span class="hl-ok">[ANCHOR #0419] core/ledger/src/vault.rs :: LedgerVault::commit_atomic_journal</span>
+<span class="hl-tag">&lt;/anchor_scan&gt;</span>
+<span class="hl-tag">&lt;contract_check&gt;</span>
+- 参数 1: entries 需为切片 <span class="hl-ok">&amp;[TxEntry]</span>（调用方需将 Vec 借用为 &amp;batch）
+- 参数 2: guard 需满足 <span class="hl-ok">guard.is_active_epoch()</span> 前置断言
+- 返回值转换: <span class="hl-ok">VaultError -&gt; Error::from</span>
+<span class="hl-tag">&lt;/contract_check&gt;</span>
+
+pub async fn dispatch_batch_tx(vault: &LedgerVault, batch: Vec<TxEntry>, guard: &EpochGuard) -> Result<JournalReceipt, Error> {
+    if !guard.<span class="hl-ok">is_active_epoch()</span> {
+        return Err(Error::StaleEpoch);
+    }
+    let receipt = vault.<span class="hl-ok">commit_atomic_journal(&batch, guard)</span>.await.map_err(Error::from)?;
+    Ok(receipt)
+}`
+    }
+  ];
+
+  // ==================== 状态管理 ====================
+  let currentChartMode = "baseline";
+  let selectedCtxIndex = 4; // 默认选中 983K 展示最具代表性的衰减剖析
+  let selectedStrategyId = "P3"; // 默认展示最佳方案对比
+
+  // ==================== 渲染第一部分：SVG 图表与右侧详情面板 ====================
+  function renderChart() {
+    const svg = document.getElementById("fidelityChart");
+    const dataset = CONTEXT_DATA[currentChartMode];
+
+    const width = 740;
+    const height = 390;
+    const pad = { top: 28, right: 32, bottom: 54, left: 52 };
+    const plotW = width - pad.left - pad.right;
+    const plotH = height - pad.top - pad.bottom;
+
+    const xStep = plotW / (dataset.length - 1);
+    const getX = (i) => pad.left + i * xStep;
+    const getY = (val) => pad.top + plotH - (val / 100) * plotH;
+
+    let html = "";
+
+    // 1. 256K 临界拐点背景高亮区 (256K 到 983K)
+    const inflectionX = getX(2);
+    html += `
+      <rect x="${inflectionX}" y="${pad.top}" width="${pad.left + plotW - inflectionX}" height="${plotH}"
+            fill="rgba(200, 75, 49, 0.035)" />
+      <line x1="${inflectionX}" y1="${pad.top}" x2="${inflectionX}" y2="${pad.top + plotH}"
+            stroke="#C84B31" stroke-width="1" stroke-dasharray="4 4" opacity="0.55" />
+      <text x="${inflectionX + 8}" y="${pad.top + 16}" fill="#C84B31" font-size="11" font-family="var(--font-mono)" font-weight="600">
+        256K 衰减拐点区 (Attention Decay Zone →)
+      </text>
+    `;
+
+    // 2. 水平参考网格线 (0% - 100%)
+    for (let v = 0; v <= 100; v += 20) {
+      const y = getY(v);
+      html += `
+        <line x1="${pad.left}" y1="${y}" x2="${width - pad.right}" y2="${y}"
+              stroke="#E4E1D8" stroke-width="1" ${v === 0 ? "" : 'stroke-dasharray="2 3"'} />
+        <text x="${pad.left - 10}" y="${y + 4}" text-anchor="end" fill="#8C8980" font-size="11.5" font-family="var(--font-mono)">
+          ${v}%
+        </text>
+      `;
+    }
+
+    // 3. 构造路径点
+    const singlePts = dataset.map((d, i) => `${getX(i)},${getY(d.singleAcc)}`).join(" ");
+    const multiPts = dataset.map((d, i) => `${getX(i)},${getY(d.multiAcc)}`).join(" ");
+    const hallPts = dataset.map((d, i) => `${getX(i)},${getY(d.hallucination)}`).join(" ");
+
+    // 幻觉率与中段局部幻觉峰值之间的阴影带
+    const bandTop = dataset.map((d, i) => `${getX(i)},${getY(d.midDepthHalluc)}`).join(" L ");
+    const bandBottom = [...dataset].reverse().map((d, revI) => {
+      const i = dataset.length - 1 - revI;
+      return `${getX(i)},${getY(d.hallucination)}`;
+    }).join(" L ");
+
+    html += `
+      <path d="M ${bandTop} L ${bandBottom} Z" fill="rgba(200, 75, 49, 0.12)" />
+    `;
+
+    // 中段峰值虚线
+    const midHallPts = dataset.map((d, i) => `${getX(i)},${getY(d.midDepthHalluc)}`).join(" ");
+    html += `
+      <polyline fill="none" stroke="#C84B31" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.65" points="${midHallPts}" />
+    `;
+
+    // 单针召回率折线
+    html += `
+      <polyline fill="none" stroke="#7A9E9F" stroke-width="2.2" stroke-dasharray="5 4" points="${singlePts}" />
+    `;
+
+    // 跨文件检索准确率主折线
+    html += `
+      <polyline fill="none" stroke="#165B5C" stroke-width="3" points="${multiPts}" />
+    `;
+
+    // 编码幻觉率主折线
+    html += `
+      <polyline fill="none" stroke="#C84B31" stroke-width="3" points="${hallPts}" />
+    `;
+
+    // 4. 逐列交互热区与数据节点
+    dataset.forEach((d, i) => {
+      const cx = getX(i);
+      const colW = xStep * 0.75;
+      const isSel = i === selectedCtxIndex;
+
+      const ySingle = getY(d.singleAcc);
+      const yMulti = getY(d.multiAcc);
+      const yHall = getY(d.hallucination);
+      const yMidHall = getY(d.midDepthHalluc);
+
+      html += `
+        <g class="chart-col-group ${isSel ? "selected" : ""}" data-index="${i}">
+          <rect class="chart-col-bg" x="${cx - colW / 2}" y="${pad.top}" width="${colW}" height="${plotH}" rx="4" />
+          <line x1="${cx}" y1="${pad.top}" x2="${cx}" y2="${pad.top + plotH}"
+                stroke="${isSel ? "#165B5C" : "transparent"}" stroke-width="1.5" stroke-dasharray="2 2" />
+
+          <!-- 中段幻觉峰值点 -->
+          <circle cx="${cx}" cy="${yMidHall}" r="3.5" fill="#FAF9F5" stroke="#C84B31" stroke-width="1.5" />
+
+          <!-- 单针准确率节点 -->
+          <circle class="chart-node" cx="${cx}" cy="${ySingle}" r="4.5" fill="#FAF9F5" stroke="#7A9E9F" stroke-width="2" />
+
+          <!-- 跨文件检索准确率节点 -->
+          <circle class="chart-node" cx="${cx}" cy="${yMulti}" r="5.5" fill="#165B5C" stroke="#FFFFFF" stroke-width="2" />
+          <text x="${cx}" y="${yMulti - 11}" text-anchor="middle" fill="#165B5C" font-size="11.5" font-family="var(--font-mono)" font-weight="700">
+            ${d.multiAcc}%
+          </text>
+
+          <!-- 编码幻觉率节点 -->
+          <circle class="chart-node" cx="${cx}" cy="${yHall}" r="5.5" fill="#C84B31" stroke="#FFFFFF" stroke-width="2" />
+          <text x="${cx}" y="${yHall + 19}" text-anchor="middle" fill="#C84B31" font-size="11.5" font-family="var(--font-mono)" font-weight="700">
+            ${d.hallucination}%
+          </text>
+
+          <!-- X轴标签 -->
+          <text x="${cx}" y="${pad.top + plotH + 24}" text-anchor="middle"
+                fill="${isSel ? "#1C1B18" : "#5A5852"}" font-size="13" font-family="var(--font-mono)" font-weight="${isSel ? "700" : "500"}">
+            ${d.ctx}
+          </text>
+          <text x="${cx}" y="${pad.top + plotH + 40}" text-anchor="middle"
+                fill="#8C8980" font-size="10.5" font-family="var(--font-mono)">
+            ${d.tokens}
+          </text>
+        </g>
+      `;
+    });
+
+    svg.innerHTML = html;
+
+    // 绑定点击事件
+    svg.querySelectorAll(".chart-col-group").forEach((el) => {
+      el.addEventListener("click", () => {
+        selectedCtxIndex = parseInt(el.getAttribute("data-index"), 10);
+        renderChart();
+        renderInspector();
+      });
+    });
+  }
+
+  function renderInspector() {
+    const panel = document.getElementById("chartInspector");
+    const d = CONTEXT_DATA[currentChartMode][selectedCtxIndex];
+
+    const breakdownRows = Object.entries(d.breakdown)
+      .map(([k, v]) => `<div class="breakdown-item"><span>${k}</span><span>${v}</span></div>`)
+      .join("");
+
+    panel.innerHTML = `
+      <div class="inspector-header">
+        <div>
+          <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">SELECTED WINDOW</div>
+          <div class="inspector-ctx">${d.ctx} <span style="font-size:12px; font-weight:400; color:var(--text-secondary);">(${d.tokens} tok)</span></div>
+        </div>
+        <span class="inspector-tag ${d.critical ? "critical" : ""}">${d.status}</span>
+      </div>
+
+      <div class="metric-row">
+        <div class="metric-row-top">
+          <span class="metric-name">跨文件检索准确率 (Multi-Hop)</span>
+          <span class="metric-val" style="color:var(--accent-teal);">${d.multiAcc}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="

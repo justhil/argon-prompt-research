@@ -1,0 +1,44 @@
+{
+  "runKey": "F3-long-context-bench-report__P0_default_zero_style",
+  "taskId": "F3-long-context-bench-report",
+  "taskTitle": "长上下文注意力与幻觉评测报告页",
+  "styleId": "P0_default_zero_style",
+  "styleLabel": "P0 · 零风格引导 (Argon 默认审美)",
+  "styleCharCount": 0,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 144.78,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 327,
+    "completion_tokens": 16384,
+    "total_tokens": 16711,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 46786,
+    "hasDarkBg": true,
+    "darkHexCount": 13,
+    "neonColorHits": 11,
+    "neonColorSamples": [
+      "#38bdf8",
+      "#6366f1"
+    ],
+    "linearGradientCount": 4,
+    "neonGlowShadowCount": 1,
+    "backdropBlurCount": 2,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 85
+  }
+}

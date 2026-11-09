@@ -1,0 +1,278 @@
+{
+  "runId": "T5-mux-protocol-decoy__treatment_tier4_guardrails",
+  "taskId": "T5-mux-protocol-decoy",
+  "variantKey": "treatment_tier4_guardrails",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\nok 1 - Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\n  ---\n  duration_ms: 0.4931\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 52.7228\n",
+  "turns": 8,
+  "elapsedSec": 92.12,
+  "totalTokens": 27743,
+  "reasoningTokens": 0,
+  "targetFilesTotal": 1,
+  "targetFilesReadTotal": 1,
+  "firstEditTurn": 4,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 1,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 1,
+  "filesReadList": [
+    "src/net/frame_wire.mjs",
+    "src/net/mux_session.mjs",
+    "package.json",
+    "test/smoke.test.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/net\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/net/frame_wire.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/net/mux_session.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1651,
+        "completion_tokens": 94,
+        "total_tokens": 1745,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"package.json\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2457,
+        "completion_tokens": 60,
+        "total_tokens": 2517,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2637,
+        "completion_tokens": 28,
+        "total_tokens": 2665,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  onDataFrame(frame) {\\n    const canProcess =\\n      this.state === 'ACTIVE' || (this.state === 'DRAINING' \\u0026\\u0026 frame.fin === true);\\n    if (!canProcess) {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\\n    const wire = encodeWireFrame(frame.channelId, frame.payload);\",\"Target\":\"  onDataFrame(frame) {\\n    if (this.state !== 'ACTIVE') {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\\n    const wire = encodeWireFrame(frame.channelId, frame.payload);\",\"path\":\"src/net/mux_session.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = Buffer.byteLength(str, 'utf8');\\n  const buf = Buffer.alloc(6 + len);\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"Target\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = str.length;\\n  const buf = Buffer.alloc(6 + Buffer.byteLength(str, 'utf8'));\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"path\":\"src/net/frame_wire.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2796,
+        "completion_tokens": 463,
+        "total_tokens": 3259,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 589
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test \\u0026\\u0026 node -e \\\"\\nimport assert from 'node:assert/strict';\\nimport { MuxSession } from './src/net/mux_session.mjs';\\n\\nconst s = new MuxSession();\\nconst r1 = s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: false });\\nassert.deepEqual(r1, { handled: true, payload: '尾帧完整载荷测试', fin: false });\\nassert.equal(s.metrics.dataBytes, 24);\\n\\ns.state = 'DRAINING';\\nassert.deepEqual(s.onOpenChannel({ channelId: 2 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onWindowUpdate({ delta: 100 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onPingFrame({ nonce: 42 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onDataFrame({ channelId: 1, payload: '测试', fin: false }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onDataFrame({ channelId: 1, payload: '测试', fin: 1 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.equal(s.metrics.droppedFrames, 5);\\n\\nconst r2 = s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: true });\\nassert.deepEqual(r2, { handled: true, payload: '尾帧完整载荷测试', fin: true });\\nassert.equal(s.metrics.dataBytes, 48);\\nassert.equal(s.metrics.droppedFrames, 5);\\n\\ns.state = 'CLOSED';\\nassert.deepEqual(s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: true }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.equal(s.metrics.droppedFrames, 6);\\nconsole.log('ALL PASSED');\\n\\\"\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3331,
+        "completion_tokens": 509,
+        "total_tokens": 3840,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 748
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"node --input-type=module -e \\\"\\nimport assert from 'node:assert/strict';\\nimport { MuxSession } from './src/net/mux_session.mjs';\\n\\nconst s = new MuxSession();\\nconst r1 = s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: false });\\nassert.deepEqual(r1, { handled: true, payload: '尾帧完整载荷测试', fin: false });\\nassert.equal(s.metrics.dataBytes, 24);\\n\\ns.state = 'DRAINING';\\nassert.deepEqual(s.onOpenChannel({ channelId: 2 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onWindowUpdate({ delta: 100 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onPingFrame({ nonce: 42 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onDataFrame({ channelId: 1, payload: '测试', fin: false }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.deepEqual(s.onDataFrame({ channelId: 1, payload: '测试', fin: 1 }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.equal(s.metrics.droppedFrames, 5);\\n\\nconst r2 = s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: true });\\nassert.deepEqual(r2, { handled: true, payload: '尾帧完整载荷测试', fin: true });\\nassert.equal(s.metrics.dataBytes, 48);\\nassert.equal(s.metrics.droppedFrames, 5);\\n\\ns.state = 'CLOSED';\\nassert.deepEqual(s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: true }), { handled: false, reason: 'SESSION_INACTIVE' });\\nassert.equal(s.metrics.droppedFrames, 6);\\nconsole.log('ALL PASSED');\\n\\\"\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3993,
+        "completion_tokens": 512,
+        "total_tokens": 4505,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1020
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"git status \\u0026\\u0026 git diff\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4530,
+        "completion_tokens": 26,
+        "total_tokens": 4556,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1945
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/net/mux_session.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/net/frame_wire.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4600,
+        "completion_tokens": 56,
+        "total_tokens": 4656,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 2482
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

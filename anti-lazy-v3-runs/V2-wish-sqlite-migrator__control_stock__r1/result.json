@@ -1,0 +1,92 @@
+{
+  "runId": "V2-wish-sqlite-migrator__control_stock__r1",
+  "taskId": "V2-wish-sqlite-migrator",
+  "domain": "数据库工具与事务安全",
+  "variantKey": "control_stock",
+  "rep": 1,
+  "turns": 6,
+  "elapsedSec": 190.1,
+  "commandsRunCount": 4,
+  "completeness": {
+    "score": 3,
+    "maxScore": 6,
+    "linesCount": 118,
+    "details": {
+      "linesCount": 118,
+      "t1_idempotent_second_run_skips": true,
+      "t2_sorts_out_of_order_versions": true,
+      "t3_atomic_rollback_on_failed_migration": true,
+      "t4_detects_checksum_tampering": false,
+      "t5_supports_down_rollback": false,
+      "t6_supports_status_or_dryrun": false
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "runKey": "W4-telemetry-gateway-console__O1_ultra_short_28w",
+  "taskId": "W4-telemetry-gateway-console",
+  "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+  "styleId": "O1_ultra_short_28w",
+  "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 110.82,
+  "metrics": {
+    "htmlBytes": 47648,
+    "hasDarkBg": true,
+    "darkHexCount": 0,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 2,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 1,
+    "hasWarmPaper": true,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 21
+  },
+  "palette": {
+    "primaryBg": "#F3F1EC",
+    "allHex": [
+      "#f3f1ec",
+      "#faf9f5",
+      "#eae6df",
+      "#161615",
+      "#5a5852",
+      "#8c8980",
+      "#d5d0c5",
+      "#e2dec9"
+    ],
+    "rootCss": "/* 瑞士工业图纸与精密仪器色板 (Warm Archival Paper & Graphite Ink) */ --bg-canvas: #F3F1EC; --bg-surface: #FAF9F5; --bg-tinted: #EAE6DF; --bg-inverse: #161615; --ink-primary: #161615; --ink-secondary: #5A5852; --ink-muted: #8C8980; --border-strong: #161615; --border-subtle: #D5D0C5; --border-hairline: #E2DEC9; /* 工业信号色 (非荧光) */ --sig-orange: #D94E28; ",
+    "themeNote": ""
+  }
+}

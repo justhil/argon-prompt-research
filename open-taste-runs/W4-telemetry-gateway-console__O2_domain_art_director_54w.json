@@ -1,0 +1,40 @@
+{
+  "runKey": "W4-telemetry-gateway-console__O2_domain_art_director_54w",
+  "taskId": "W4-telemetry-gateway-console",
+  "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+  "styleId": "O2_domain_art_director_54w",
+  "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 129.91,
+  "metrics": {
+    "htmlBytes": 45901,
+    "hasDarkBg": true,
+    "darkHexCount": 3,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 1,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 34
+  },
+  "palette": {
+    "primaryBg": "#F3F1EC",
+    "allHex": [
+      "#f3f1ec",
+      "#faf8f5",
+      "#eae6df",
+      "#141413",
+      "#5a5751",
+      "#8c887f",
+      "#d5d0c5",
+      "#d83a1a"
+    ],
+    "rootCss": "/* 纸本工程日志与精密仪器美学 - 暖灰亚麻底色与深碳黑墨水 */ --bg-canvas: #F3F1EC; --bg-panel: #FAF8F5; --bg-subtle: #EAE6DF; --bg-inverse: #141413; --ink-primary: #141413; --ink-secondary: #5A5751; --ink-muted: #8C887F; --ink-on-dark: #F3F1EC; --border-hairline: #D5D0C5; --border-heavy: #141413; /* 克制的工程信号色 */ --signal-vermilion: #D83A1A; /* 告警/重点强调 */ --signal-f",
+    "themeNote": ""
+  }
+}

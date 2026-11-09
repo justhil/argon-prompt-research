@@ -1,0 +1,1551 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M-DESK // QUANT FACTOR BACKTEST & RISK ATTRIBUTION</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Seed #1: Leica Matte Carbon Black & Amber Engraving */
+    --bg-carbon: #141517;
+    --bg-chassis: #1A1C1F;
+    --bg-well: #101113;
+    --bg-hover: #22252A;
+    --border-hairline: #2A2D32;
+    --border-bezel: #363940;
+    
+    --text-ivory: #EAE6DF;
+    --text-warm-grey: #8C8881;
+    --text-muted: #56544F;
+    
+    --amber-primary: #E07A2E;
+    --amber-glow: rgba(224, 122, 46, 0.16);
+    --amber-dim: #7A4319;
+    --leica-red: #D93829;
+    --leica-red-dim: rgba(217, 56, 41, 0.22);
+    --olive-brass: #A39B7E;
+    --silver-chrome: #C4C1BA;
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+  }
+
+  html, body {
+    background-color: var(--bg-carbon);
+    color: var(--text-ivory);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.4;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Subtle Optical Grain & Technical Vernier Texture */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(rgba(234, 230, 223, 0.03) 1px, transparent 0),
+      linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 24px 24px, 100% 4px;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Main Asymmetric Precision Frame */
+  .desk-frame {
+    max-width: 1640px;
+    margin: 0 auto;
+    padding: 16px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Top Optical Rangefinder Header */
+  .top-bezel {
+    display: grid;
+    grid-template-columns: 320px 1fr 390px;
+    align-items: center;
+    background: var(--bg-chassis);
+    border: 1px solid var(--border-hairline);
+    border-top: 2px solid var(--border-bezel);
+    padding: 10px 18px;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .brand-cluster {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .leica-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--leica-red);
+    box-shadow: 0 0 10px rgba(217, 56, 41, 0.6), inset 0 1px 2px rgba(255,255,255,0.4);
+    flex-shrink: 0;
+  }
+
+  .brand-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--text-ivory);
+    text-transform: uppercase;
+  }
+
+  .brand-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-warm-grey);
+    letter-spacing: 0.08em;
+    display: block;
+    margin-top: 1px;
+  }
+
+  /* Mechanical Strategy Turret Switcher */
+  .turret-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .turret-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-warm-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .turret-label::before {
+    content: "⌜⌟";
+    color: var(--amber-primary);
+    font-weight: 700;
+  }
+
+  .strat-btn {
+    background: var(--bg-well);
+    border: 1px solid var(--border-hairline);
+    color: var(--text-warm-grey);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 7px 14px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .strat-btn:hover {
+    color: var(--text-ivory);
+    border-color: var(--text-warm-grey);
+    background: var(--bg-hover);
+  }
+
+  .strat-btn .f-stop {
+    font-size: 9px;
+    color: var(--text-muted);
+    padding: 1px 4px;
+    border: 1px solid var(--border-hairline);
+  }
+
+  .strat-btn.active {
+    background: #231D18;
+    border-color: var(--amber-primary);
+    color: var(--text-ivory);
+    box-shadow: inset 0 0 12px var(--amber-glow);
+  }
+
+  .strat-btn.active .f-stop {
+    color: var(--amber-primary);
+    border-color: var(--amber-dim);
+    background: rgba(224, 122, 46, 0.1);
+  }
+
+  .strat-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background: var(--amber-primary);
+  }
+
+  /* Right Telemetry Readout */
+  .telemetry-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .telemetry-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .telemetry-item span:first-child {
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .telemetry-item span:last-child {
+    color: var(--olive-brass);
+    font-weight: 600;
+  }
+
+  .sim-badge {
+    padding: 3px 8px;
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-well);
+    font-size: 10px;
+    color: var(--text-warm-grey);
+    letter-spacing: 0.08em;
+  }
+
+  .sim-badge.modified {
+    border-color: var(--amber-primary);
+    color: var(--amber-primary);
+    background: rgba(224, 122, 46, 0.08);
+  }
+
+  /* Asymmetric 3-Zone Main Architecture */
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr 430px;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  @media (max-width: 1360px) {
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+    .top-bezel {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .telemetry-bar {
+      justify-content: flex-start;
+    }
+  }
+
+  /* Shared Panel Styling */
+  .panel {
+    background: var(--bg-chassis);
+    border: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .panel-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(16, 17, 19, 0.45);
+  }
+
+  .panel-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--text-warm-grey);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .panel-title .idx {
+    color: var(--amber-primary);
+    font-weight: 700;
+  }
+
+  .panel-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ZONE 1: Left Vertical Vernier Telemetry Spine */
+  .vernier-spine {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px 12px;
+    background: 
+      linear-gradient(90deg, rgba(234,230,223,0.03) 0px, transparent 1px),
+      var(--bg-chassis);
+  }
+
+  .spine-kpi-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .spine-kpi {
+    border-left: 2px solid var(--border-bezel);
+    padding-left: 10px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .spine-kpi.highlight {
+    border-left-color: var(--amber-primary);
+  }
+
+  .spine-kpi.danger {
+    border-left-color: var(--leica-red);
+  }
+
+  .spine-kpi-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-warm-grey);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .spine-kpi-val {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-ivory);
+    letter-spacing: -0.03em;
+    margin-top: 2px;
+  }
+
+  .spine-kpi-val.amber { color: var(--amber-primary); }
+  .spine-kpi-val.red { color: var(--leica-red); }
+
+  .spine-kpi-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  /* Vertical Exposure Meter Graphic in Spine */
+  .light-meter-box {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-hairline);
+  }
+
+  .meter-header {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-warm-grey);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .ev-scale {
+    height: 130px;
+    background: var(--bg-well);
+    border: 1px solid var(--border-hairline);
+    position: relative;
+    display: flex;
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .ev-ticks {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--text-muted);
+    padding-right: 4px;
+    border-right: 1px solid var(--border-hairline);
+  }
+
+  .ev-bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+  }
+
+  .ev-col {
+    flex: 1;
+    height: 100%;
+    background: rgba(255,255,255,0.02);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .ev-fill {
+    width: 100%;
+    background: var(--amber-primary);
+    transition: height 0.3s ease;
+  }
+
+  .ev-col:nth-child(2) .ev-fill { background: var(--olive-brass); }
+  .ev-col:nth-child(3) .ev-fill { background: var(--leica-red); }
+
+  .ev-legend {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--text-muted);
+    margin-top: 5px;
+  }
+
+  .optical-stamp {
+    margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    border: 1px solid var(--border-hairline);
+    padding: 8px;
+    background: var(--bg-well);
+  }
+
+  /* ZONE 2: Center Chart & Precision Ratio Matrix */
+  .center-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .chart-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .legend-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-warm-grey);
+  }
+
+  .swatch {
+    width: 10px;
+    height: 2px;
+    display: inline-block;
+  }
+
+  .swatch.amber { background: var(--amber-primary); height: 3px; }
+  .swatch.ghost { background: var(--text-muted); border-top: 1px dashed var(--text-warm-grey); }
+  .swatch.bench { background: var(--olive-brass); }
+  .swatch.dd { background: var(--leica-red); height: 6px; opacity: 0.6; }
+
+  .regime-toggle-group {
+    display: flex;
+    gap: 4px;
+  }
+
+  .mini-btn {
+    background: var(--bg-well);
+    border: 1px solid var(--border-hairline);
+    color: var(--text-warm-grey);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 3px 7px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+  }
+
+  .mini-btn.active, .mini-btn:hover {
+    border-color: var(--amber-primary);
+    color: var(--amber-primary);
+  }
+
+  /* Canvas Viewport */
+  .canvas-viewport {
+    position: relative;
+    height: 430px;
+    background: var(--bg-well);
+    border-bottom: 1px solid var(--border-hairline);
+    cursor: crosshair;
+  }
+
+  canvas#quantCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Live Crosshair HUD Overlay */
+  .hud-readout {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    pointer-events: none;
+    display: flex;
+    gap: 18px;
+    background: rgba(20, 21, 23, 0.88);
+    border: 1px solid var(--border-hairline);
+    padding: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    backdrop-filter: blur(4px);
+  }
+
+  .hud-item span.k {
+    color: var(--text-muted);
+    margin-right: 5px;
+    font-size: 10px;
+  }
+
+  .hud-item span.v {
+    color: var(--text-ivory);
+    font-weight: 600;
+  }
+
+  .hud-item span.v.amber { color: var(--amber-primary); }
+  .hud-item span.v.red { color: var(--leica-red); }
+
+  /* Precision Audit Table */
+  .precision-table-wrap {
+    padding: 0;
+    overflow-x: auto;
+  }
+
+  table.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  table.audit-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-hairline);
+    background: rgba(16, 17, 19, 0.6);
+    font-weight: 500;
+  }
+
+  table.audit-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(42, 45, 50, 0.55);
+    color: var(--text-ivory);
+  }
+
+  table.audit-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  table.audit-table tr:hover td {
+    background: rgba(224, 122, 46, 0.04);
+  }
+
+  .metric-name {
+    color: var(--text-warm-grey);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .metric-unit {
+    color: var(--text-muted);
+    font-size: 9px;
+  }
+
+  .delta-pos { color: var(--amber-primary); }
+  .delta-neg { color: var(--leica-red); }
+  .delta-neutral { color: var(--text-muted); }
+
+  /* ZONE 3: Right Risk Attribution & Rebalance Simulator */
+  .right-rack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Factor Exposure Matrix */
+  .factor-matrix-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .factor-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .factor-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+
+  .factor-name {
+    color: var(--text-ivory);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .factor-stats {
+    display: flex;
+    gap: 10px;
+  }
+
+  .factor-z {
+    color: var(--amber-primary);
+    font-weight: 600;
+  }
+
+  .factor-contrib {
+    color: var(--text-warm-grey);
+  }
+
+  /* Bidirectional Vernier Gauge */
+  .vernier-track {
+    height: 16px;
+    background: var(--bg-well);
+    border: 1px solid var(--border-hairline);
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Scale ticks inside track */
+  .vernier-track::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to right, rgba(140, 136, 129, 0.18) 1px, transparent 1px);
+    background-size: 10% 100%;
+    pointer-events: none;
+  }
+
+  .zero-center-line {
+    position: absolute;
+    left: 50%;
+    top: -2px;
+    bottom: -2px;
+    width: 1px;
+    background: var(--text-warm-grey);
+    z-index: 3;
+  }
+
+  .factor-bar {
+    position: absolute;
+    height: 8px;
+    top: 3px;
+    transition: left 0.25s ease, width 0.25s ease, background-color 0.2s;
+    z-index: 2;
+  }
+
+  .factor-bar.positive {
+    background: linear-gradient(90deg, var(--amber-dim), var(--amber-primary));
+    border-right: 2px solid var(--text-ivory);
+  }
+
+  .factor-bar.negative {
+    background: linear-gradient(270deg, rgba(217, 56, 41, 0.3), var(--leica-red));
+    border-left: 2px solid var(--text-ivory);
+  }
+
+  .factor-baseline-pip {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    width: 2px;
+    background: var(--olive-brass);
+    z-index: 4;
+    opacity: 0.85;
+  }
+
+  .vernier-axis-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--text-muted);
+    padding-top: 2px;
+  }
+
+  /* Portfolio Weight Rebalancing Simulator */
+  .rebalance-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .sim-controls-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .gross-leverage-box {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-warm-grey);
+  }
+
+  .gross-leverage-box strong {
+    color: var(--amber-primary);
+    font-size: 12px;
+    margin-left: 4px;
+  }
+
+  .btn-group-mechanical {
+    display: flex;
+    gap: 6px;
+  }
+
+  .mech-btn {
+    background: var(--bg-well);
+    border: 1px solid var(--border-bezel);
+    color: var(--text-ivory);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 4px 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: all 0.12s;
+  }
+
+  .mech-btn:hover {
+    border-color: var(--amber-primary);
+    color: var(--amber-primary);
+  }
+
+  .mech-btn.primary {
+    background: var(--amber-primary);
+    color: #101113;
+    border-color: var(--amber-primary);
+    font-weight: 700;
+  }
+
+  .mech-btn.primary:hover {
+    background: #f08a3e;
+  }
+
+  /* Constituent Sliders */
+  .slider-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .holding-item {
+    background: var(--bg-well);
+    border: 1px solid var(--border-hairline);
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .holding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+
+  .ticker-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ticker-code {
+    color: var(--text-ivory);
+    font-weight: 700;
+    background: var(--bg-chassis);
+    padding: 1px 5px;
+    border: 1px solid var(--border-hairline);
+  }
+
+  .ticker-sector {
+    color: var(--text-muted);
+    font-size: 9px;
+  }
+
+  .weight-readout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .weight-delta {
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+
+  .weight-val {
+    color: var(--amber-primary);
+    font-weight: 700;
+    min-width: 44px;
+    text-align: right;
+  }
+
+  /* Custom Mechanical Aperture Range Input */
+  input[type="range"].aperture-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #1C1E22;
+    border: 1px solid #2E3138;
+    outline: none;
+    cursor: ew-resize;
+  }
+
+  input[type="range"].aperture-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 14px;
+    background: var(--text-ivory);
+    border: 2px solid var(--amber-primary);
+    cursor: ew-resize;
+    box-shadow: 0 0 6px rgba(0,0,0,0.8);
+  }
+
+  input[type="range"].aperture-slider::-moz-range-thumb {
+    width: 12px;
+    height: 14px;
+    background: var(--text-ivory);
+    border: 2px solid var(--amber-primary);
+    cursor: ew-resize;
+    border-radius: 0;
+  }
+
+  /* Attribution Impact Summary Footer inside Simulator */
+  .sim-impact-footer {
+    margin-top: auto;
+    padding: 9px 10px;
+    background: rgba(16, 17, 19, 0.75);
+    border: 1px solid var(--border-hairline);
+    border-left: 2px solid var(--amber-primary);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    font-family: var(--font-mono);
+  }
+
+  .impact-cell {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .impact-cell span:first-child {
+    font-size: 8px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .impact-cell span:last-child {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-ivory);
+    margin-top: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="desk-frame">
+  <!-- TOP OPTICAL RANGEFINDER HEADER -->
+  <header class="top-bezel">
+    <div class="brand-cluster">
+      <div class="leica-dot" title="M-Series Optical Quant Core"></div>
+      <div>
+        <div class="brand-title">CHRONO-M // QUANT DESK</div>
+        <span class="brand-sub">MULTI-FACTOR BACKTEST &amp; RISK ATTRIBUTION ENGINE</span>
+      </div>
+    </div>
+
+    <div class="turret-selector" role="tablist" aria-label="Strategy Selection">
+      <span class="turret-label">LENS / STRATEGY</span>
+      <button class="strat-btn active" data-strat="momentum" onclick="switchStrategy('momentum')">
+        <span class="f-stop">f/1.4</span>
+        <span>ALPHA-MOMENTUM</span>
+      </button>
+      <button class="strat-btn" data-strat="reversion" onclick="switchStrategy('reversion')">
+        <span class="f-stop">f/2.0</span>
+        <span>MEAN-REVERSION</span>
+      </button>
+      <button class="strat-btn" data-strat="statarb" onclick="switchStrategy('statarb')">
+        <span class="f-stop">f/2.8</span>
+        <span>STAT-ARB</span>
+      </button>
+    </div>
+
+    <div class="telemetry-bar">
+      <div class="telemetry-item">
+        <span>SAMPLE HORIZON</span>
+        <span>2023.01 — 2025.02 (520D)</span>
+      </div>
+      <div class="telemetry-item">
+        <span>EXECUTION SLIPPAGE</span>
+        <span>3.5 BPS FIXED</span>
+      </div>
+      <div id="simStatusBadge" class="sim-badge">BASELINE LOCKED</div>
+    </div>
+  </header>
+
+  <!-- MAIN 3-ZONE ASYMMETRIC WORKSPACE -->
+  <main class="workspace-grid">
+    
+    <!-- ZONE 1: LEFT VERTICAL VERNIER TELEMETRY SPINE -->
+    <aside class="panel vernier-spine">
+      <div class="spine-kpi-list">
+        <div class="panel-title" style="margin-bottom:4px;">
+          <span class="idx">01</span><span>OPTICAL READOUT</span>
+        </div>
+
+        <div class="spine-kpi highlight">
+          <div class="spine-kpi-label">NET CUMULATIVE NAV</div>
+          <div class="spine-kpi-val amber" id="kpiNav">2.418x</div>
+          <div class="spine-kpi-sub" id="kpiNavSub">+141.8% TOTAL RETURN</div>
+        </div>
+
+        <div class="spine-kpi">
+          <div class="spine-kpi-label">ANNUALIZED ALPHA (α)</div>
+          <div class="spine-kpi-val" id="kpiAlpha">+18.42%</div>
+          <div class="spine-kpi-sub" id="kpiAlphaSub">t-stat: 3.84 (p&lt;0.001)</div>
+        </div>
+
+        <div class="spine-kpi">
+          <div class="spine-kpi-label">SHARPE RATIO (RF=4%)</div>
+          <div class="spine-kpi-val" id="kpiSharpe">2.64</div>
+          <div class="spine-kpi-sub" id="kpiSharpeSub">SORTINO: 3.71</div>
+        </div>
+
+        <div class="spine-kpi danger">
+          <div class="spine-kpi-label">MAX DRAWDOWN (MDD)</div>
+          <div class="spine-kpi-val red" id="kpiMdd">-6.84%</div>
+          <div class="spine-kpi-sub" id="kpiMddSub">VALLEY RECOVERY: 19 DAYS</div>
+        </div>
+
+        <div class="spine-kpi">
+          <div class="spine-kpi-label">CALMAR RATIO</div>
+          <div class="spine-kpi-val" id="kpiCalmar">3.98</div>
+          <div class="spine-kpi-sub" id="kpiTurnSub">TURNOVER: 42.6% / MO</div>
+        </div>
+      </div>
+
+      <!-- Vertical EV Exposure Meter -->
+      <div class="light-meter-box">
+        <div class="meter-header">
+          <span>RISK BUDGET EV</span>
+          <span id="evReadout">+0.8 EV</span>
+        </div>
+        <div class="ev-scale">
+          <div class="ev-ticks">
+            <span>+3.0</span>
+            <span>+1.5</span>
+            <span>0.0</span>
+            <span>-1.5</span>
+            <span>-3.0</span>
+          </div>
+          <div class="ev-bars">
+            <div class="ev-col" title="Systematic Variance">
+              <div class="ev-fill" id="evBarSys" style="height: 42%;"></div>
+            </div>
+            <div class="ev-col" title="Factor Specific">
+              <div class="ev-fill" id="evBarFac" style="height: 68%;"></div>
+            </div>
+            <div class="ev-col" title="Tail Drawdown Impulse">
+              <div class="ev-fill" id="evBarTail" style="height: 29%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ev-legend">
+          <span>SYS</span>
+          <span>FAC</span>
+          <span>TAIL</span>
+        </div>
+
+        <div class="optical-stamp">
+          CALIBRATION: BARRA CNE6<br>
+          COV MATRIX: EWMA λ=0.94<br>
+          CURRENCY: USD SYNTHETIC
+        </div>
+      </div>
+    </aside>
+
+    <!-- ZONE 2: CENTER NAV & UNDERWATER DRAWDOWN CURVATURE + AUDIT TABLE -->
+    <section class="center-stage">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="idx">02</span>
+            <span id="chartTitleText">NAV TRAJECTORY &amp; UNDERWATER DRAWDOWN CURVATURE [ALPHA-MOMENTUM]</span>
+          </div>
+          <div class="chart-toolbar">
+            <div class="legend-pill"><span class="swatch amber"></span><span>SIMULATED NAV</span></div>
+            <div class="legend-pill"><span class="swatch ghost"></span><span>BASELINE LOCKED</span></div>
+            <div class="legend-pill"><span class="swatch bench"></span><span>EQUAL-WT BENCH</span></div>
+            <div class="legend-pill"><span class="swatch dd"></span><span>UNDERWATER DD%</span></div>
+            <div class="regime-toggle-group">
+              <button class="mini-btn active" id="btnLogScale" onclick="toggleLogScale()">LOG SCALE: OFF</button>
+              <button class="mini-btn active" id="btnHwmLine" onclick="toggleHwm()">HWM PEAKS</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual-Pane Interactive Canvas -->
+        <div class="canvas-viewport" id="canvasContainer">
+          <canvas id="quantCanvas"></canvas>
+          <div class="hud-readout" id="chartHud">
+            <div class="hud-item"><span class="k">DATE</span><span class="v" id="hudDate">2025-02-14</span></div>
+            <div class="hud-item"><span class="k">SIM NAV</span><span class="v amber" id="hudNav">2.418</span></div>
+            <div class="hud-item"><span class="k">BASE NAV</span><span class="v" id="hudBase">2.418</span></div>
+            <div class="hud-item"><span class="k">BENCH</span><span class="v" id="hudBench">1.312</span></div>
+            <div class="hud-item"><span class="k">DRAWDOWN</span><span class="v red" id="hudDd">-0.42%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precision Performance & Ratio Audit Table -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="idx">03</span>
+            <span>PRECISION RATIO &amp; TURNOVER MICROSTRUCTURE MATRIX</span>
+          </div>
+          <div class="panel-meta">LIVE ATTRIBUTION DELTA VS. STRATEGY BASELINE</div>
+        </div>
+        <div class="precision-table-wrap">
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>METRIC SPECIFICATION</th>
+                <th>BASELINE LOCKED</th>
+                <th>REBALANCED SIM</th>
+                <th>ATTRIBUTION Δ</th>
+                <th>BENCHMARK (EW)</th>
+                <th>INFORMATION / REGIME NOTE</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 3: RIGHT FACTOR EXPOSURE MATRIX & REBALANCING SIMULATOR -->
+    <aside class="right-rack">
+      <!-- Factor Exposure Matrix -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="idx">04</span>
+            <span>FACTOR EXPOSURE VERNIER (Z-SCORE)</span>
+          </div>
+          <div class="panel-meta">PIP = BASELINE | BAR = ACTIVE</div>
+        </div>
+        <div class="factor-matrix-body" id="factorMatrixContainer">
+          <!-- 5 Core Factors: Beta, Volatility, Liquidity, Size, Value -->
+        </div>
+      </div>
+
+      <!-- Portfolio Weight Rebalancing Simulator -->
+      <div class="panel" style="flex: 1;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="idx">05</span>
+            <span>HOLDINGS APERTURE // REBALANCE SIMULATOR</span>
+          </div>
+          <div class="panel-meta">DRAG RINGS TO PERTURB WEIGHTS</div>
+        </div>
+        <div class="rebalance-body">
+          <div class="sim-controls-top">
+            <div class="gross-leverage-box">
+              NET / GROSS EXP: <strong id="grossExpReadout">100.0% / 135.0%</strong>
+            </div>
+            <div class="btn-group-mechanical">
+              <button class="mech-btn" onclick="normalizeWeights()" title="Scale weights proportionally to 100% Net">NORM 100%</button>
+              <button class="mech-btn primary" onclick="resetWeights()" title="Restore default baseline weights">RESET LOCK</button>
+            </div>
+          </div>
+
+          <div class="slider-list" id="holdingsSliderList">
+            <!-- Dynamically populated 6 factor baskets / holdings -->
+          </div>
+
+          <div class="sim-impact-footer">
+            <div class="impact-cell">
+              <span>EX-ANTE TE (年化跟踪误差)</span>
+              <span id="simTrackingError">4.12%</span>
+            </div>
+            <div class="impact-cell">
+              <span>ACTIVE SHARE</span>
+              <span id="simActiveShare">68.4%</span>
+            </div>
+            <div class="impact-cell">
+              <span>EST. REBALANCE COST</span>
+              <span id="simRebalCost" style="color: var(--amber-primary);">0.0 bps</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+</div>
+
+<script>
+/**
+ * QUANT FACTOR BACKTEST & RISK ATTRIBUTION ENGINE
+ * Aesthetic Seed #1: Leica Matte Carbon Black (#141517) + Amber Engraving (#E07A2E)
+ */
+
+const DAYS = 260; // 260 Trading Days high-resolution curve
+
+// Generate trading date labels
+const tradingDates = [];
+(function initDates() {
+  let d = new Date('2024-02-01T00:00:00Z');
+  for (let i = 0; i < DAYS; i++) {
+    while (d.getDay() === 0 || d.getDay() === 6) {
+      d.setDate(d.getDate() + 1);
+    }
+    tradingDates.push(d.toISOString().slice(0, 10));
+    d.setDate(d.getDate() + 1);
+  }
+})();
+
+// Deterministic pseudo-random generator for reproducible factor return series
+function mulberry32(a) {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// 5 Core Risk Factors Definition
+const FACTOR_KEYS = [
+  { id: 'beta',       name: 'MARKET BETA (β)',     code: 'MKT_BETA' },
+  { id: 'volatility', name: 'IDIO VOLATILITY (σ)', code: 'RES_VOL'  },
+  { id: 'liquidity',  name: 'LIQUIDITY (AMIHUD)',  code: 'LIQUID'   },
+  { id: 'size',       name: 'SIZE (LN MKTCAP)',    code: 'MCAP_SZ'  },
+  { id: 'value',      name: 'BOOK-TO-PRICE (VAL)', code: 'B2P_VAL'  }
+];
+
+// Three distinct strategy configurations with constituent sleeves & factor loadings
+const STRATEGIES = {
+  momentum: {
+    name: 'ALPHA-MOMENTUM',
+    seed: 1042,
+    baseTurnover: 42.6,
+    capacityM: 480,
+    holdings: [
+      { ticker: 'NVDA-Q', sector: 'AI SEMIS MOMENTUM',   baseWeight: 28, factorLoadings: { beta: 1.35, volatility: 0.90, liquidity: 1.15, size: 1.40, value: -1.10 }, drift: 0.0021, vol: 0.0155 },
+      { ticker: 'META-Q', sector: 'LARGE CAP QUALITY',   baseWeight: 22, factorLoadings: { beta: 1.05, volatility: 0.45, liquidity: 1.30, size: 1.50, value: -0.45 }, drift: 0.0017, vol: 0.0125 },
+      { ticker: 'PLTR-Q', sector: 'HIGH-BETA BREAKOUT',  baseWeight: 18, factorLoadings: { beta: 1.65, volatility: 1.55, liquidity: 0.65, size: 0.25, value: -1.45 }, drift: 0.0024, vol: 0.0210 },
+      { ticker: 'LLY-Q',  sector: 'DEFENSIVE GROWTH',    baseWeight: 18, factorLoadings: { beta: 0.65, volatility: 0.30, liquidity: 0.95, size: 1.35, value: -0.80 }, drift: 0.0014, vol: 0.0105 },
+      { ticker: 'VRT-Q',  sector: 'INFRASTRUCTURE MOM',  baseWeight: 14, factorLoadings: { beta: 1.25, volatility: 1.10, liquidity: 0.45, size: -0.35, value: -0.60 }, drift: 0.0016, vol: 0.0170 },
+      { ticker: 'SMH-H',  sector: 'INDEX BETA HEDGE',    baseWeight: -15, factorLoadings: { beta: 1.20, volatility: 0.60, liquidity: 1.60, size: 1.10, value: -0.50 }, drift: 0.0006, vol: 0.0135 }
+    ]
+  },
+  reversion: {
+    name: 'MEAN-REVERSION',
+    seed: 2089,
+    baseTurnover: 118.4,
+    capacityM: 210,
+    holdings: [
+      { ticker: 'RSI-OVS', sector: 'OVERSOLD DECIL L/S', baseWeight: 26, factorLoadings: { beta: 0.25, volatility: -0.65, liquidity: 0.70, size: -0.45, value: 1.25 }, drift: 0.0015, vol: 0.0095 },
+      { ticker: 'BB-LOW',  sector: 'BOLLINGER REBOUND',  baseWeight: 24, factorLoadings: { beta: 0.15, volatility: -0.40, liquidity: 0.85, size: -0.20, value: 0.95 }, drift: 0.0013, vol: 0.0088 },
+      { ticker: 'VWAP-REV',sector: 'INTRADAY LIQUIDITY', baseWeight: 20, factorLoadings: { beta: -0.05, volatility: -0.85, liquidity: 1.45, size: 0.65, value: 0.40 }, drift: 0.0011, vol: 0.0072 },
+      { ticker: 'VAL-DEEP',sector: 'DEEP VALUE CONTRAR', baseWeight: 18, factorLoadings: { beta: 0.40, volatility: -0.20, liquidity: 0.35, size: -0.75, value: 1.85 }, drift: 0.0012, vol: 0.0108 },
+      { ticker: 'VOL-CRSH',sector: 'POST-EARNINGS DRIFT',baseWeight: 12, factorLoadings: { beta: 0.10, volatility: 0.55, liquidity: -0.25, size: -0.90, value: 0.65 }, drift: 0.0016, vol: 0.0125 },
+      { ticker: 'SPY-NEUT',sector: 'RESIDUAL OVERLAY',   baseWeight: -12, factorLoadings: { beta: 1.00, volatility: 0.10, liquidity: 1.80, size: 1.60, value: 0.00 }, drift: 0.0005, vol: 0.0085 }
+    ]
+  },
+  statarb: {
+    name: 'STAT-ARB',
+    seed: 3317,
+    baseTurnover: 284.0,
+    capacityM: 145,
+    holdings: [
+      { ticker: 'PCA-RES1', sector: 'EIGENPORTFOLIO #1', baseWeight: 25, factorLoadings: { beta: 0.02, volatility: -1.15, liquidity: 0.95, size: -0.55, value: 0.35 }, drift: 0.0012, vol: 0.0054 },
+      { ticker: 'COINT-SF', sector: 'SEMI-FINLAND PAIRS',baseWeight: 25, factorLoadings: { beta: -0.04, volatility: -0.95, liquidity: 0.60, size: -0.30, value: 0.20 }, drift: 0.0013, vol: 0.0058 },
+      { ticker: 'OU-KRNL',  sector: 'ORNSTEIN-UHLENBECK',baseWeight: 20, factorLoadings: { beta: 0.01, volatility: -1.30, liquidity: 1.10, size: 0.15, value: 0.45 }, drift: 0.0011, vol: 0.0048 },
+      { ticker: 'ETF-BAS',  sector: 'NAV ARBITRAGE',     baseWeight: 18, factorLoadings: { beta: -0.02, volatility: -1.45, liquidity: 1.65, size: 0.80, value: 0.10 }, drift: 0.0009, vol: 0.0042 },
+      { ticker: 'XSEC-VOL', sector: 'DISPERSION SKEW',   baseWeight: 12, factorLoadings: { beta: 0.08, volatility: -0.60, liquidity: -0.45, size: -0.85, value: 0.50 }, drift: 0.0014, vol: 0.0068 },
+      { ticker: 'Q-HEDGE',  sector: 'TAIL BETA NEUTRAL', baseWeight: -8,  factorLoadings: { beta: 0.95, volatility: 0.40, liquidity: 1.50, size: 1.20, value: -0.20 }, drift: 0.0004, vol: 0.0075 }
+    ]
+  }
+};
+
+// Application State
+let currentStratKey = 'momentum';
+let activeWeights = []; // Current user-adjusted weights
+let dailyReturnsMatrix = {}; // Pre-generated daily returns per holding for each strategy
+let benchReturnsMatrix = {};
+let useLogScale = false;
+let showHwmPeaks = true;
+let hoverIndex = DAYS - 1;
+
+// Pre-compute deterministic return matrices for all strategies
+function initReturnSeries() {
+  Object.keys(STRATEGIES).forEach(sKey => {
+    const strat = STRATEGIES[sKey];
+    const rng = mulberry32(strat.seed);
+    dailyReturnsMatrix[sKey] = [];
+    benchReturnsMatrix[sKey] = [];
+
+    // Common market shocks for realistic drawdown clusters
+    const marketShocks = [];
+    for (let t = 0; t < DAYS; t++) {
+      let u1 = Math.max(1e-7, rng());
+      let u2 = rng();
+      let z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+      // Inject two realistic drawdown regimes around day 75 and day 175
+      let regimeDrag = 0;
+      if (t >= 68 && t <= 86) regimeDrag = -0.0055;
+      if (t >= 168 && t <= 182) regimeDrag = -0.0048;
+      marketShocks.push(z * 0.008 + regimeDrag);
+      benchReturnsMatrix[sKey].push(0.00045 + z * 0.0078 + regimeDrag * 0.85);
+    }
+
+    strat.holdings.forEach((h, hIdx) => {
+      const hSeries = [];
+      for (let t = 0; t < DAYS; t++) {
+        let u1 = Math.max(1e-7, rng());
+        let u2 = rng();
+        let idioZ = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+        // Combine drift, beta sensitivity to market shock, and idiosyncratic volatility
+        let ret = h.drift + (h.factorLoadings.beta * 0.55) * marketShocks[t] + idioZ * h.vol;
+        hSeries.push(ret);
+      }
+      dailyReturnsMatrix[sKey][hIdx] = hSeries;
+    });
+  });
+}
+
+// Compute NAV, Drawdown, Factor Exposures, and Precision Metrics for a given weight vector
+function computeSimulation(stratKey, weights) {
+  const strat = STRATEGIES[stratKey];
+  const hReturns = dailyReturnsMatrix[stratKey];
+  const bReturns = benchReturnsMatrix[stratKey];
+
+  const navSeries = [1.0];
+  const benchNav = [1.0];
+  const ddSeries = [0.0];
+  const hwmSeries = [1.0];
+  const dailyPortRets = [];
+
+  let peak = 1.0;
+  let maxDd = 0;
+  let currentDdDays = 0;
+  let maxRecoveryDays = 0;
+
+  for (let t = 0; t < DAYS; t++) {
+    let portRet = 0;
+    for (let i = 0; i < strat.holdings.length; i++) {
+      portRet += (weights[i] / 100) * hReturns[i][t];
+    }
+    dailyPortRets.push(portRet);
+
+    const nextNav = navSeries[navSeries.length - 1] * (1 + portRet);
+    const nextBench = benchNav[benchNav.length - 1] * (1 + bReturns[t]);
+    navSeries.push(nextNav);
+    benchNav.push(nextBench);
+
+    if (nextNav >= peak) {
+      peak = nextNav;
+      currentDdDays = 0;
+    } else {
+      currentDdDays++;
+      if (currentDdDays > maxRecoveryDays) maxRecoveryDays = currentDdDays;
+    }
+    hwmSeries.push(peak);
+
+    const dd = ((nextNav - peak) / peak) * 100; // negative percentage
+    ddSeries.push(dd);
+    if (dd < maxDd) maxDd = dd;
+  }
+
+  // Statistical Moments
+  const n = dailyPortRets.length;
+  const meanRet = dailyPortRets.reduce((a, b) => a + b, 0) / n;
+  const variance = dailyPortRets.reduce((a, b) => a + Math.pow(b - meanRet, 2), 0) / (n - 1);
+  const annVol = Math.sqrt(variance * 252) * 100;
+  const totalReturn = (navSeries[n] - 1) * 100;
+  const cagr = (Math.pow(navSeries[n], 252 / n) - 1) * 100;
+
+  // Downside deviation for Sortino
+  const downsideSq = dailyPortRets.reduce((acc, r) => {
+    const excess = r - (0.04 / 252);
+    return excess < 0 ? acc + excess * excess : acc;
+  }, 0) / n;
+  const downsideVol = Math.sqrt(downsideSq * 252) * 100;
+
+  const rf = 4.0;
+  const sharpe = annVol > 0.1 ? (cagr - rf) / annVol : 0;
+  const sortino = downsideVol > 0.1 ? (cagr - rf) / downsideVol : 0;
+  const calmar = Math.abs(maxDd) > 0.05 ? cagr / Math.abs(maxDd) : 0;
+
+  // Win Rate & Profit Factor
+  const posDays = dailyPortRets.filter(r => r > 0).length;
+  const winRate = (posDays / n) * 100;
+
+  // Factor Exposures (Weighted Z-Scores)
+  const factorExposures = {};
+  FACTOR_KEYS.forEach(fk => {
+    let weightedZ = 0;
+    for (let i = 0; i < strat.holdings.length; i++) {
+      weightedZ += (weights[i] / 100) * strat.holdings[i].factorLoadings[fk.id];
+    }
+    factorExposures[fk.id] = Math.max(-2.5, Math.min(2.5, weightedZ));
+  });
+
+  // Net & Gross Exposure
+  const netExp = weights.reduce((a, b) => a + b, 0);
+  const grossExp = weights.reduce((a, b) => a + Math.abs(b), 0);
+
+  // Weight perturbation vs baseline
+  let l1Diff = 0;
+  for (let i = 0; i < strat.holdings.length; i++) {
+    l1Diff += Math.abs(weights[i] - strat.holdings[i].baseWeight);
+  }
+
+  const turnover = strat.baseTurnover * (grossExp / 100) + l1Diff * 0.45;
+  const alphaAnn = cagr - (4.0 + factorExposures.beta * 9.5);
+
+  return {
+    navSeries: navSeries.slice(1),
+    benchNav: benchNav.slice(1),
+    ddSeries: ddSeries.slice(1),
+    hwmSeries: hwmSeries.slice(1),
+    finalNav: navSeries[n],
+    totalReturn,
+    cagr,
+    annVol,
+    sharpe,
+    sortino,
+    maxDd,
+    calmar,
+    winRate,
+    maxRecoveryDays,
+    turnover,
+    alphaAnn,
+    factorExposures,
+    netExp,
+    grossExp,
+    l1Diff
+  };
+}
+
+// Switch Strategy Handler
+function switchStrategy(stratKey) {
+  currentStratKey = stratKey;
+  document.querySelectorAll('.strat-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.strat === stratKey);
+  });
+
+  const strat = STRATEGIES[stratKey];
+  activeWeights = strat.holdings.map(h => h.baseWeight);
+
+  document.getElementById('chartTitleText').textContent =
+    `NAV TRAJECTORY & UNDERWATER DRAWDOWN CURVATURE [${strat.name}]`;
+
+  buildFactorMatrixDOM();
+  buildHoldingsSlidersDOM();
+  updateAllViews();
+}
+
+// Build Factor Exposure Matrix DOM
+function buildFactorMatrixDOM() {
+  const container = document.getElementById('factorMatrixContainer');
+  container.innerHTML = '';
+
+  FACTOR_KEYS.forEach(fk => {
+    const row = document.createElement('div');
+    row.className = 'factor-row';
+    row.innerHTML = `
+      <div class="factor-meta">
+        <span class="factor-name">${fk.name}</span>
+        <div class="factor-stats">
+          <span class="factor-contrib" id="fContrib_${fk.id}">CONTRIB: +0.0%</span>
+          <span class="factor-z" id="fVal_${fk.id}">+0.00σ</span>
+        </div>
+      </div>
+      <div class="vernier-track">
+        <div class="zero-center-line"></div>
+        <div class="factor-baseline-pip" id="fPip_${fk.id}" title="Baseline Exposure"></div>
+        <div class="factor-bar positive" id="fBar_${fk.id}"></div>
+      </div>
+      <div class="vernier-axis-labels">
+        <span>-2.5σ</span>
+        <span>-1.25σ</span>
+        <span>0.0 (NEUTRAL)</span>
+        <span>+1.25σ</span>
+        <span>+2.5σ</span>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// Build Holdings Sliders DOM
+function buildHoldingsSlidersDOM() {
+  const container = document.getElementById('holdingsSliderList');
+  container.innerHTML = '';
+  const strat = STRATEGIES[currentStratKey];
+
+  strat.holdings.forEach((h, idx) => {
+    const item = document.createElement('div');
+    item.className = 'holding-item';
+    item.innerHTML = `
+      <div class="holding-header">
+        <div class="ticker-tag">
+          <span class="ticker-code">${h.ticker}</span>
+          <span class="ticker-sector">${h.sector}</span>
+        </div>
+        <div class="weight-readout">
+          <span class="weight-delta" id="wDelta_${idx}">BASE ${h.baseWeight > 0 ? '+' : ''}${h.baseWeight}%</span>
+          <span class="weight-val" id="wVal_${idx}">${activeWeights[idx] > 0 ? '+' : ''}${activeWeights[idx].toFixed(1)}%</span>
+        </div>
+      </div>
+      <input type="range" class="aperture-slider" min="-35" max="50" step="0.5"
+             value="${activeWeights[idx]}" data-idx="${idx}"
+             oninput="onWeightSliderInput(this)" />
+    `;
+    container.appendChild(item);
+  });
+}
+
+function onWeightSliderInput(inputEl) {
+  const idx = parseInt(inputEl.dataset.idx, 10);
+  activeWeights[idx] = parseFloat(inputEl.value);
+  updateAllViews();
+}
+
+function resetWeights() {
+  const strat = STRATEGIES[currentStratKey];
+  activeWeights = strat.holdings.map(h => h.baseWeight);
+  const sliders = document.querySelectorAll('.aperture-slider');
+  sliders.forEach((s, i) => { s.value = activeWeights[i]; });
+  updateAllViews();
+}
+
+function normalizeWeights() {
+  const netSum = activeWeights.reduce((a, b) => a + b, 0);
+  if (Math.abs(netSum) < 1) return;
+  const scale = 100 / netSum;
+  activeWeights = activeWeights.map(w => Math.max(-35, Math.min(50, Math.round(w * scale * 2) / 2)));
+  const sliders = document.querySelectorAll('.aperture-slider');
+  sliders.forEach((s, i) => { s.value = activeWeights[i]; });
+  updateAllViews();
+}
+
+function toggleLogScale() {
+  useLogScale = !useLogScale;
+  const btn = document.getElementById('btnLogScale');
+  btn.textContent = `LOG SCALE: ${useLogScale ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('active', useLogScale);
+  renderCanvas();
+}
+
+function toggleHwm() {
+  showHwmPeaks = !showHwmPeaks;
+  const btn = document.getElementById('btnHwmLine');
+  btn.classList.toggle('active', showHwmPeaks);
+  renderCanvas();
+}
+
+// Master View Synchronizer
+let cachedBaseSim = null;
+let cachedActiveSim = null;
+
+function updateAllViews() {
+  const strat = STRATEGIES[currentStratKey];
+  const baseWeights = strat.holdings.map(h => h.baseWeight);
+
+  cachedBaseSim = computeSimulation(currentStratKey, baseWeights);
+  cachedActiveSim = computeSimulation(currentStratKey, activeWeights);
+
+  const isModified = cachedActiveSim.l1Diff > 0.05;
+  const badge = document.getElementById('simStatusBadge');
+  badge.textContent = isModified ? `SIMULATION ACTIVE (ΔW ${cachedActiveSim.l1Diff.toFixed(1)}%)` : 'BASELINE LOCKED';
+  badge.classList.toggle('modified', isModified);
+
+  // 1. Update Left Spine KPIs
+  document.getElementById('kpiNav').textContent = `${cachedActiveSim.finalNav.toFixed(3)}x`;
+  document.getElementById('kpiNavSub').textContent = `${cachedActiveSim.totalReturn >= 0 ? '+' : ''}${cachedActiveSim.totalReturn.toFixed(1)}% TOTAL RETURN`;
+
+  document.getElementById('kpiAlpha').textContent = `${cachedActiveSim.alphaAnn >= 0 ? '+' : ''}${cachedActiveSim.alphaAnn.toFixed(2)}%`;
+  const tStat = (cachedActiveSim.sharpe * 1.42).toFixed(2);
+  document.getElementById('kpiAlphaSub').textContent = `t-stat: ${tStat} (CAP: $${strat.capacityM}M)`;
+
+  document.getElementById('kpiSharpe').textContent = cachedActiveSim.sharpe.toFixed(2);
+  document.getElementById('kpiSharpeSub').textContent = `SORTINO: ${cachedActiveSim.sortino.toFixed(2)}`;
+
+  document.getElementById('kpiMdd').textContent = `${cachedActiveSim.maxDd.toFixed(2)}%`;
+  document.getElementById('kpiMddSub').textContent = `MAX UNDERWATER: ${cachedActiveSim.maxRecoveryDays} DAYS`;
+
+  document.getElementById('kpiCalmar').textContent = cachedActiveSim.calmar.toFixed(2);
+  document.getElementById('kpiTurnSub').textContent = `TURNOVER: ${cachedActiveSim.turnover.toFixed(1)}% / YR`;
+
+  // Light Meter EV

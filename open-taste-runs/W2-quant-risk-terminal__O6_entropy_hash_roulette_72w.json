@@ -1,0 +1,35 @@
+{
+  "runKey": "W2-quant-risk-terminal__O6_entropy_hash_roulette_72w",
+  "taskId": "W2-quant-risk-terminal",
+  "styleId": "O6_entropy_hash_roulette_72w",
+  "elapsedSec": 135.5,
+  "metrics": {
+    "htmlBytes": 45655,
+    "hasDarkBg": true,
+    "darkHexCount": 4,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 5,
+    "neonGlowShadowCount": 2,
+    "backdropBlurCount": 1,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 60
+  },
+  "palette": {
+    "primaryBg": "#141517",
+    "allHex": [
+      "#141517",
+      "#1a1c1f",
+      "#101113",
+      "#22252a",
+      "#2a2d32",
+      "#363940",
+      "#eae6df",
+      "#8c8881"
+    ],
+    "reasoning": ""
+  }
+}

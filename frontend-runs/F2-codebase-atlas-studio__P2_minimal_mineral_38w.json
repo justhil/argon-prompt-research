@@ -1,0 +1,41 @@
+{
+  "runKey": "F2-codebase-atlas-studio__P2_minimal_mineral_38w",
+  "taskId": "F2-codebase-atlas-studio",
+  "taskTitle": "本地代码库语义检索与架构图谱工作台",
+  "styleId": "P2_minimal_mineral_38w",
+  "styleLabel": "P2 · 42字单句色板与字体正负向锚点",
+  "styleCharCount": 42,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 147.75,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 403,
+    "completion_tokens": 16384,
+    "total_tokens": 16787,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 46701,
+    "hasDarkBg": false,
+    "darkHexCount": 2,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": true,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 0
+  }
+}

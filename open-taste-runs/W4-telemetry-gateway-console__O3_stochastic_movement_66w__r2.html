@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYS.LLM-GW // TELEMETRY & COST CONSOLE [REV 4.2]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Braun / Teenage Engineering / Swiss Archival Palette */
+    --bg-chassis: #EAE6DF;
+    --bg-panel: #F5F2EB;
+    --bg-recessed: #DFDBD2;
+    --bg-surface-active: #FFFFFF;
+    
+    --ink-primary: #161615;
+    --ink-secondary: #5A5852;
+    --ink-muted: #8C887F;
+    
+    --border-hairline: #C7C2B8;
+    --border-strong: #161615;
+    
+    /* Signal Colors (Dieter Rams / TE inspired) */
+    --sig-orange: #DF4618; /* Braun Signal Orange */
+    --sig-green: #1A7A4C;  /* Oscilloscope Phosphor Green (Muted for Light) */
+    --sig-amber: #C87D12;  /* Warning Amber */
+    --sig-blue: #1E4E79;   /* Technical Blueprint Blue */
+    --sig-crimson: #B8251E;
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-serif: 'Newsreader', Georgia, serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-chassis);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    padding: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Utility Classes */
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .serif {
+    font-family: var(--font-serif);
+  }
+  .uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .label-micro {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-secondary);
+    font-weight: 500;
+  }
+
+  /* Main Hardware Frame */
+  .instrument-frame {
+    border: 2px solid var(--border-strong);
+    background-color: var(--bg-panel);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 1680px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* 1. Top System Bar */
+  .sys-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    border-bottom: 2px solid var(--border-strong);
+    background-color: var(--bg-chassis);
+    padding: 10px 16px;
+    gap: 24px;
+  }
+
+  .sys-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .sys-brand h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sys-brand .model-tag {
+    background-color: var(--ink-primary);
+    color: var(--bg-panel);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .sys-telemetry-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-left: 1px solid var(--border-hairline);
+    border-right: 1px solid var(--border-hairline);
+    padding: 0 20px;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .led-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--sig-green);
+    display: inline-block;
+    border: 1px solid var(--ink-primary);
+  }
+  .led-dot.pulse {
+    animation: hardware-blink 2s infinite steps(2, start);
+  }
+  .led-dot.orange { background-color: var(--sig-orange); }
+  .led-dot.amber { background-color: var(--sig-amber); }
+
+  @keyframes hardware-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+
+  .sys-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hw-btn {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    color: var(--ink-primary);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.08s ease;
+    box-shadow: 2px 2px 0px var(--border-strong);
+  }
+  .hw-btn:hover {
+    background-color: var(--bg-surface-active);
+  }
+  .hw-btn:active, .hw-btn.active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--border-strong);
+    background-color: var(--ink-primary);
+    color: var(--bg-panel);
+  }
+  .hw-btn.accent {
+    background-color: var(--sig-orange);
+    color: #FFF;
+  }
+  .hw-btn.accent:hover {
+    background-color: #c93b10;
+  }
+
+  /* 2. Primary KPI Strip (5 Columns) */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 2px solid var(--border-strong);
+    background-color: var(--bg-panel);
+  }
+
+  .kpi-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    min-height: 116px;
+  }
+  .kpi-cell:last-child {
+    border-right: none;
+    background-color: var(--bg-chassis);
+  }
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .kpi-index {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    border: 1px solid var(--border-hairline);
+    padding: 0 4px;
+  }
+
+  .kpi-value-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 4px 0 10px 0;
+  }
+
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--ink-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-unit {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-secondary);
+    font-weight: 400;
+    margin-left: 3px;
+  }
+
+  .kpi-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dotted var(--border-hairline);
+    padding-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  .delta-badge {
+    font-weight: 600;
+    padding: 1px 4px;
+  }
+  .delta-good { color: var(--sig-green); }
+  .delta-warn { color: var(--sig-orange); }
+
+  /* 3. Main Split Workspace */
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    flex: 1;
+  }
+
+  .left-column {
+    border-right: 2px solid var(--border-strong);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-panel);
+  }
+
+  /* Section Header Bar */
+  .section-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--bg-recessed);
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .section-num {
+    background-color: var(--ink-primary);
+    color: var(--bg-panel);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 5px;
+  }
+
+  /* Module A: Latency Distribution Matrix */
+  .latency-module {
+    padding: 20px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .latency-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .scale-markers {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .model-latency-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .model-latency-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border-strong);
+    font-weight: 500;
+  }
+  .model-latency-table th.num, .model-latency-table td.num {
+    text-align: right;
+  }
+
+  .model-latency-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid var(--border-hairline);
+    vertical-align: middle;
+  }
+
+  .model-id-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .model-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .model-provider {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+
+  /* Box-and-Whisker / Percentile Track */
+  .percentile-track-wrapper {
+    width: 100%;
+    height: 28px;
+    background-color: var(--bg-chassis);
+    border: 1px solid var(--border-hairline);
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-image: linear-gradient(to right, var(--border-hairline) 1px, transparent 1px);
+    background-size: 20% 100%;
+  }
+
+  .sla-threshold-line {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    left: 70%; /* 1400ms out of 2000ms */
+    width: 1px;
+    background-color: var(--sig-orange);
+    z-index: 3;
+  }
+
+  .whisker-line {
+    position: absolute;
+    height: 2px;
+    background-color: var(--ink-primary);
+    z-index: 1;
+    transition: all 0.3s ease;
+  }
+  .whisker-cap-left, .whisker-cap-right {
+    position: absolute;
+    width: 2px;
+    height: 10px;
+    background-color: var(--ink-primary);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+  .iqr-box {
+    position: absolute;
+    height: 14px;
+    background-color: var(--ink-primary);
+    opacity: 0.18;
+    border: 1px solid var(--ink-primary);
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+  .p50-marker {
+    position: absolute;
+    width: 3px;
+    height: 18px;
+    background-color: var(--sig-blue);
+    z-index: 4;
+    transition: all 0.3s ease;
+  }
+  .p99-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: var(--sig-orange);
+    transform: translate(-50%, -50%);
+    top: 50%;
+    z-index: 5;
+    transition: all 0.3s ease;
+  }
+
+  /* Module B: Interactive Routing Faders & Cost Simulator */
+  .routing-module {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .routing-layout {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .fader-bank {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .fader-row {
+    background-color: var(--bg-chassis);
+    border: 1px solid var(--border-hairline);
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .fader-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .fader-model-info {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .fader-pricing {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  .fader-readout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+  }
+
+  .weight-pct {
+    font-size: 14px;
+    font-weight: 600;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    padding: 1px 6px;
+    min-width: 54px;
+    text-align: right;
+  }
+
+  .model-est-cost {
+    font-size: 11px;
+    color: var(--ink-secondary);
+    min-width: 72px;
+    text-align: right;
+  }
+
+  /* Custom Hardware Linear Potentiometer (Range Input) */
+  .fader-control-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 22px;
+  }
+
+  input[type="range"].hw-fader {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    outline: none;
+    cursor: ew-resize;
+  }
+
+  input[type="range"].hw-fader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 22px;
+    background: var(--sig-orange);
+    border: 1px solid var(--ink-primary);
+    cursor: ew-resize;
+    box-shadow: 1px 1px 0px var(--ink-primary);
+    background-image: linear-gradient(
+      to right,
+      transparent 5px,
+      var(--ink-primary) 5px,
+      var(--ink-primary) 7px,
+      transparent 7px
+    );
+  }
+
+  input[type="range"].hw-fader::-moz-range-thumb {
+    width: 14px;
+    height: 22px;
+    background: var(--sig-orange);
+    border: 1px solid var(--ink-primary);
+    border-radius: 0;
+    cursor: ew-resize;
+    box-shadow: 1px 1px 0px var(--ink-primary);
+  }
+
+  /* Cost Analysis Readout Panel */
+  .cost-readout-panel {
+    border: 1px solid var(--border-strong);
+    background-color: var(--bg-chassis);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .cost-panel-header {
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .allocation-bar {
+    height: 16px;
+    width: 100%;
+    display: flex;
+    border: 1px solid var(--border-strong);
+    margin-bottom: 14px;
+    background-color: var(--bg-panel);
+  }
+
+  .alloc-seg {
+    height: 100%;
+    transition: width 0.1s linear;
+    border-right: 1px solid var(--bg-panel);
+  }
+  .alloc-seg:last-child { border-right: none; }
+
+  .cost-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .cost-box {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    padding: 10px;
+  }
+
+  .cost-box-val {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .savings-callout {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .preset-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dotted var(--border-hairline);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Right Column: Real-Time Request Trace Stream */
+  .trace-toolbar {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-chassis);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 4px;
+  }
+
+  .filter-tab {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--ink-secondary);
+    text-transform: uppercase;
+  }
+  .filter-tab:hover {
+    border-color: var(--ink-primary);
+    color: var(--ink-primary);
+  }
+  .filter-tab.active {
+    background: var(--ink-primary);
+    color: var(--bg-panel);
+    border-color: var(--ink-primary);
+    font-weight: 600;
+  }
+
+  .trace-table-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 620px;
+  }
+
+  .trace-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .trace-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-recessed);
+    color: var(--ink-secondary);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-strong);
+    z-index: 2;
+  }
+
+  .trace-table tbody tr {
+    border-bottom: 1px solid var(--border-hairline);
+    cursor: pointer;
+    transition: background-color 0.1s;
+  }
+
+  .trace-table tbody tr:hover {
+    background-color: var(--bg-chassis);
+  }
+  .trace-table tbody tr.selected {
+    background-color: #E5DEC9;
+  }
+
+  .trace-table td {
+    padding: 7px 10px;
+    white-space: nowrap;
+  }
+
+  .status-pill {
+    display: inline-block;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid currentColor;
+  }
+  .st-ok {
+    color: var(--sig-green);
+    background-color: rgba(26, 122, 76, 0.08);
+  }
+  .st-cache {
+    color: var(--sig-blue);
+    background-color: rgba(30, 78, 121, 0.08);
+  }
+  .st-warn {
+    color: var(--sig-amber);
+    background-color: rgba(200, 125, 18, 0.10);
+  }
+  .st-err {
+    color: var(--sig-crimson);
+    background-color: rgba(184, 37, 30, 0.10);
+  }
+
+  /* Trace Inspector Drawer at Bottom of Right Column */
+  .trace-inspector {
+    border-top: 2px solid var(--border-strong);
+    background-color: var(--bg-chassis);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .inspector-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .inspector-kv {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    padding: 6px 8px;
+  }
+
+  /* Footer Bar */
+  .sys-footer {
+    border-top: 2px solid var(--border-strong);
+    background-color: var(--bg-recessed);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1240px) {
+    .kpi-strip {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+    .left-column {
+      border-right: none;
+      border-bottom: 2px solid var(--border-strong);
+    }
+    .routing-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="instrument-frame">
+  <!-- 1. TOP SYSTEM BAR -->
+  <header class="sys-header">
+    <div class="sys-brand">
+      <span class="model-tag">TX-04</span>
+      <h1>LLM GATEWAY TELEMETRY &amp; COST CONSOLE</h1>
+      <span class="label-micro">CLUSTER: AP-EAST-PROD-01</span>
+    </div>
+
+    <div class="sys-telemetry-bar">
+      <div class="status-indicator">
+        <span class="led-dot pulse" id="sysLed"></span>
+        <span id="sysStateText">PROXY ENGINE: NOMINAL</span>
+      </div>
+      <div class="status-indicator">
+        <span class="label-micro">UPTIME:</span>
+        <span class="mono">42d 19h 08m</span>
+      </div>
+      <div class="status-indicator">
+        <span class="label-micro">SEMANTIC CACHE:</span>
+        <span class="mono">REDIS-VEC v7.4</span>
+      </div>
+      <div class="status-indicator">
+        <span class="label-micro">UTC CLOCK:</span>
+        <span class="mono" id="utcClock">14:22:09.40</span>
+      </div>
+    </div>
+
+    <div class="sys-controls">
+      <button class="hw-btn" id="btnToggleStream" title="暂停/恢复实时追踪流">
+        <span class="led-dot" id="streamLed" style="width:6px;height:6px;"></span>
+        <span id="streamBtnLabel">STREAM: LIVE</span>
+      </button>
+      <button class="hw-btn accent" id="btnInjectBurst" title="模拟突发流量压测">
+        INJECT 5x BURST
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. PRIMARY KPI STRIP (5 METRICS) -->
+  <section class="kpi-strip">
+    <!-- Metric 01: Total Requests -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-micro">01 // TOTAL REQUESTS (24H)</span>
+        <span class="kpi-index">REQ/S: <strong id="kpiRps">168.4</strong></span>
+      </div>
+      <div class="kpi-value-row">
+        <div>
+          <span class="kpi-value" id="kpiTotalReq">2,849,104</span>
+          <span class="kpi-unit">calls</span>
+        </div>
+        <svg width="76" height="26" viewBox="0 0 76 26">
+          <polyline fill="none" stroke="#161615" stroke-width="1.5" points="0,20 12,18 24,19 36,12 48,14 60,7 76,4"/>
+          <line x1="0" y1="25" x2="76" y2="25" stroke="#C7C2B8" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>ERR RATE: <strong class="mono">0.08%</strong></span>
+        <span class="delta-badge delta-good">+14.2% vs YDA</span>
+      </div>
+    </div>
+
+    <!-- Metric 02: Avg TTFT -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-micro">02 // MEAN TTFT (FIRST TOKEN)</span>
+        <span class="kpi-index">SLA &lt; 500ms</span>
+      </div>
+      <div class="kpi-value-row">
+        <div>
+          <span class="kpi-value" id="kpiTtft">286</span>
+          <span class="kpi-unit">ms</span>
+        </div>
+        <svg width="76" height="26" viewBox="0 0 76 26">
+          <line x1="0" y1="8" x2="76" y2="8" stroke="#DF4618" stroke-width="1" stroke-dasharray="2,2"/>
+          <polyline fill="none" stroke="#1E4E79" stroke-width="1.5" points="0,16 14,19 28,15 42,17 56,12 76,14"/>
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>P95: <strong class="mono" id="kpiP95Ttft">642ms</strong></span>
+        <span class="delta-badge delta-good" id="kpiTtftDelta">-18ms OPT</span>
+      </div>
+    </div>
+
+    <!-- Metric 03: Streaming Throughput -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-micro">03 // STREAMING THROUGHPUT</span>
+        <span class="kpi-index">OUT + IN</span>
+      </div>
+      <div class="kpi-value-row">
+        <div>
+          <span class="kpi-value" id="kpiThroughput">14,820</span>
+          <span class="kpi-unit">tok/s</span>
+        </div>
+        <svg width="76" height="26" viewBox="0 0 76 26">
+          <rect x="2" y="14" width="6" height="12" fill="#161615"/>
+          <rect x="12" y="10" width="6" height="16" fill="#161615"/>
+          <rect x="22" y="12" width="6" height="14" fill="#161615"/>
+          <rect x="32" y="7" width="6" height="19" fill="#161615"/>
+          <rect x="42" y="9" width="6" height="17" fill="#161615"/>
+          <rect x="52" y="4" width="6" height="22" fill="#161615"/>
+          <rect x="62" y="6" width="6" height="20" fill="#DF4618"/>
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>PER STREAM: <strong class="mono" id="kpiTokPerStream">88.4 tok/s</strong></span>
+        <span>PEAK: 21.4k</span>
+      </div>
+    </div>
+
+    <!-- Metric 04: Cache Hit Ratio -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-micro">04 // SEMANTIC CACHE HIT</span>
+        <span class="kpi-index">COS &ge; 0.94</span>
+      </div>
+      <div class="kpi-value-row">
+        <div>
+          <span class="kpi-value" id="kpiCacheHit">34.8</span>
+          <span class="kpi-unit">%</span>
+        </div>
+        <svg width="76" height="26" viewBox="0 0 76 26">
+          <rect x="0" y="8" width="76" height="10" fill="#DFDBD2" stroke="#161615" stroke-width="1"/>
+          <rect x="1" y="9" width="26" height="8" fill="#1A7A4C"/>
+        </svg>
+      </div>
+      <div class="kpi-footer">
+        <span>SAVED: <strong class="mono" id="kpiCacheSaved">$614.20</strong></span>
+        <span class="delta-badge delta-good">0ms LLM CALL</span>
+      </div>
+    </div>
+
+    <!-- Metric 05: Today's Bill & Run-rate -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="label-micro">05 // TODAY ACCRUED BILL</span>
+        <span class="kpi-index">BUDGET: $2,500</span>
+      </div>
+      <div class="kpi-value-row">
+        <div>
+          <span class="kpi-value" id="kpiTodayBill">$1,412.65</span>
+        </div>
+      </div>
+      <div class="kpi-footer">
+        <span>PROJ 24H: <strong class="mono" id="kpiProjBill" style="color:var(--sig-orange)">$1,840.40</strong></span>
+        <span class="mono" id="kpiCostPer1k">$0.646 / 1k req</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. MAIN WORKSPACE (LEFT: LATENCY + ROUTING, RIGHT: LIVE TRACE) -->
+  <div class="workspace-grid">
+    
+    <!-- LEFT COLUMN -->
+    <div class="left-column">
+      
+      <!-- MODULE A: 4 PRIMARY MODELS LATENCY DISTRIBUTION -->
+      <div class="section-bar">
+        <div class="section-title">
+          <span class="section-num">A</span>
+          <span>UPSTREAM MODEL LATENCY DISTRIBUTION (TTFT &amp; STREAMING QUANTILES)</span>
+        </div>
+        <span class="label-micro">WINDOW: ROLLING 15M // MAX SCALE: 2,000ms</span>
+      </div>
+
+      <div class="latency-module">
+        <div class="latency-legend">
+          <div class="scale-markers">
+            <span class="legend-item">
+              <span style="display:inline-block;width:10px;height:8px;background:rgba(22,22,21,0.2);border:1px solid #161615;"></span>
+              IQR (P25–P75)
+            </span>
+            <span class="legend-item">
+              <span style="display:inline-block;width:3px;height:12px;background:var(--sig-blue);"></span>
+              P50 MEDIAN
+            </span>
+            <span class="legend-item">
+              <span style="display:inline-block;width:6px;height:6px;background:var(--sig-orange);"></span>
+              P99 TAIL
+            </span>
+            <span class="legend-item">
+              <span style="display:inline-block;width:8px;height:1px;background:var(--sig-orange);"></span>
+              SLA LIMIT (1,400ms)
+            </span>
+          </div>
+          <div class="scale-markers">
+            <span>0ms</span>
+            <span>400ms</span>
+            <span>800ms</span>
+            <span>1200ms</span>
+            <span>1600ms</span>
+            <span>2000ms</span>
+          </div>
+        </div>
+
+        <table class="model-latency-table">
+          <thead>
+            <tr>
+              <th style="width: 24%;">MODEL IDENTIFIER</th>
+              <th style="width: 42%;">TTFT QUANTILE DISTRIBUTION (0 — 2000ms)</th>
+              <th class="num" style="width: 9%;">P50</th>
+              <th class="num" style="width: 9%;">P95</th>
+              <th class="num" style="width: 9%;">P99</th>
+              <th class="num" style="width: 7%;">TOK/S</th>
+            </tr>
+          </thead>
+          <tbody id="latencyTableBody">
+            <!-- Dynamically populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MODULE B: TRAFFIC ROUTING FADERS & REAL-TIME COST SIMULATOR -->
+      <div class="section-bar">
+        <div class="section-title">
+          <span class="section-num">B</span>
+          <span>WEIGHTED TRAFFIC ROUTER &amp; REAL-TIME COST RECALCULATOR</span>
+        </div>
+        <span class="label-micro">AUTO-NORMALIZING 100% LOAD BALANCER</span>
+      </div>
+
+      <div class="routing-module">
+        <div class="routing-layout">
+          <!-- Faders Bank -->
+          <div>
+            <div class="fader-bank" id="faderBank">
+              <!-- Populated by JS -->
+            </div>
+
+            <div class="preset-bar">
+              <span class="label-micro">ROUTING PRESETS:</span>
+              <div style="display:flex; gap:6px;">
+                <button class="hw-btn" data-preset="balanced">BALANCED PROD</button>
+                <button class="hw-btn" data-preset="latency">LOWEST TTFT</button>
+                <button class="hw-btn" data-preset="cost">FRUGAL / FINOPS</button>
+                <button class="hw-btn" data-preset="quality">MAX REASONING</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Financial & SLA Telemetry Readout -->
+          <div class="cost-readout-panel">
+            <div>
+              <div class="cost-panel-header">
+                <span class="label-micro" style="color:var(--ink-primary);font-weight:600;">SIMULATED 24H PROJECTION</span>
+                <span class="mono" style="font-size:10px;color:var(--sig-orange);">LIVE RECALC</span>
+              </div>
+
+              <div class="label-micro" style="margin-bottom:4px;">TRAFFIC SPLIT DISTRIBUTION</div>
+              <div class="allocation-bar" id="allocationBar">
+                <!-- Segments populated by JS -->
+              </div>
+
+              <div class="cost-metrics-grid">
+                <div class="cost-box">
+                  <div class="label-micro">EST. DAILY RUN-RATE</div>
+                  <div class="cost-box-val" id="simDailyCost">$1,840.40</div>
+                  <div class="label-micro" style="margin-top:4px;" id="simMonthlyCost">MO: $55,212</div>
+                </div>
+                <div class="cost-box">
+                  <div class="label-micro">BLENDED $/1M TOKENS</div>
+                  <div class="cost-box-val" id="simBlendedCpm">$4.18</div>
+                  <div class="label-micro" style="margin-top:4px;" id="simWeightedTtft">EST TTFT: 286ms</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="savings-callout" id="savingsCallout">
+                <span>VS. 100% CLAUDE-3.7-SONNET BASELINE ($3,890/d):</span>
+                <strong id="simSavingsText" style="color:var(--sig-green);font-size:13px;">SAVE $2,049.60 / DAY (-52.7%)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: REAL-TIME REQUEST TRACE STREAM -->
+    <div class="right-column">
+      <div class="section-bar">
+        <div class="section-title">
+          <span class="section-num">C</span>
+          <span>REAL-TIME INFERENCE TRACE STREAM</span>
+        </div>
+        <span class="label-micro" id="traceCounterLabel">SHOWING ALL // BUFFER: 60 REQ</span>
+      </div>
+
+      <div class="trace-toolbar">
+        <div class="filter-group" id="statusFilterGroup">
+          <button class="filter-tab active" data-filter="ALL">ALL [100%]</button>
+          <button class="filter-tab" data-filter="200_OK">200 OK</button>
+          <button class="filter-tab" data-filter="CACHE_HIT">CACHE HIT</button>
+          <button class="filter-tab" data-filter="FALLBACK">429 FALLBACK</button>
+          <button class="filter-tab" data-filter="504_TIMEOUT">504 ERR</button>
+        </div>
+
+        <div class="label-micro">CLICK ROW TO INSPECT PAYLOAD</div>
+      </div>
+
+      <div class="trace-table-container">
+        <table class="trace-table">
+          <thead>
+            <tr>
+              <th>REQ ID</th>
+              <th>TIME</th>
+              <th>ROUTED MODEL</th>
+              <th>STATUS</th>
+              <th style="text-align:right;">IN/OUT TOK</th>
+              <th style="text-align:right;">TTFT</th>
+              <th style="text-align:right;">COST</th>
+            </tr>
+          </thead>
+          <tbody id="traceTableBody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Selected Trace Inspector -->
+      <div class="trace-inspector" id="traceInspector">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="label-micro" style="color:var(--ink-primary);font-weight:600;">
+            PACKET INSPECTOR // <span id="inspReqId">req_9f8a21c0</span>
+          </span>
+          <span class="mono" style="font-size:10px;color:var(--ink-secondary);" id="inspRouteReason">
+            ROUTE POLICY: WEIGHTED_HASH_RING (PRI-1)
+          </span>
+        </div>
+        <div class="inspector-grid">
+          <div class="inspector-kv">
+            <div class="label-micro">CLIENT TENANT</div>
+            <div class="mono" style="font-weight:600;margin-top:2px;" id="inspTenant">core-search-prod</div>
+          </div>
+          <div class="inspector-kv">
+            <div class="label-micro">PROMPT / COMPL</div>
+            <div class="mono" style="font-weight:600;margin-top:2px;" id="inspTokens">1,420 / 380 tok</div>
+          </div>
+          <div class="inspector-kv">
+            <div class="label-micro">E2E LATENCY</div>
+            <div class="mono" style="font-weight:600;margin-top:2px;" id="inspE2E">1,840 ms (84.2 tok/s)</div>
+          </div>
+          <div class="inspector-kv">
+            <div class="label-micro">CACHE SIMILARITY</div>
+            <div class="mono" style="font-weight:600;margin-top:2px;" id="inspCacheSim">0.812 (MISS &lt; 0.94)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 4. FOOTER STATUS BAR -->
+  <footer class="sys-footer">
+    <div>
+      <span>ARCH: SWISS-GRID / DIETER RAMS TELEMETRY</span>
+      <span style="margin:0 10px;">|</span>
+      <span>GUARDRAILS: PII-REDACT ACTIVE (2.4ms OVERHEAD)</span>
+    </div>
+    <div>
+      <span>DAILY VOLUME ASSUMPTION: 440M INPUT TOK / 150M OUTPUT TOK</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // =========================================================================
+  // 1. MODEL CATALOG & BASE TELEMETRY CONFIGURATION
+  // =========================================================================
+  const MODELS = [
+    {
+      id: 'claude-3-7-sonnet',
+      name: 'Claude 3.7 Sonnet',
+      provider: 'ANTHROPIC // US-EAST',
+      color: '#161615',
+      weight: 35,
+      priceIn: 3.00,   // $ per 1M input tokens
+      priceOut: 15.00, // $ per 1M output tokens
+      p25: 290,
+      p50: 380,
+      p75: 540,
+      p95: 860,
+      p99: 1320,
+      tokPerSec: 78.5
+    },
+    {
+      id: 'gpt-4o-2024-11',
+      name: 'GPT-4o (Nov-24)',
+      provider: 'OPENAI // AZURE-EAST',
+      color: '#1E4E79',
+      weight: 25,
+      priceIn: 2.50,
+      priceOut: 10.00,
+      p25: 220,
+      p50: 310,
+      p75: 440,
+      p95: 720,
+      p99: 1180,
+      tokPerSec: 94.2
+    },
+    {
+      id: 'deepseek-v3-fp8',
+      name: 'DeepSeek-V3 (FP8)',
+      provider: 'FIREWORKS // DEDICATED',
+      color: '#DF4618',
+      weight: 25,
+      priceIn: 0.27,
+      priceOut: 1.10,
+      p25: 165,
+      p50: 230,
+      p75: 340,
+      p95: 580,
+      p99: 940,
+      tokPerSec: 118.0
+    },
+    {
+      id: 'qwen-2-5-72b-inst',
+      name: 'Qwen-2.5-72B-Instruct',
+      provider: 'LOCAL // H100-8X-TENSORRT',
+      color: '#1A7A4C',
+      weight: 15,
+      priceIn: 0.18,
+      priceOut: 0.55,
+      p25: 95,
+      p50: 145,
+      p75: 215,
+      p95: 390,
+      p99: 670,
+      tokPerSec: 142.6
+    }
+  ];
+
+  // Daily enterprise volume constants (in Millions of tokens)
+  const DAILY_INPUT_M_TOKENS = 440;  // 440M input tokens/day
+  const DAILY_OUTPUT_M_TOKENS = 150; // 150M output tokens/day
+  const CACHE_HIT_RATIO = 0.348;     // 34.8% served from semantic cache at $0 LLM cost
+  const TOTAL_DAILY_REQUESTS = 2849104;
+
+  // Baseline comparison: 100% traffic on Claude 3.7 Sonnet without routing optimization
+  const BASELINE_DAILY_COST = (DAILY_INPUT_M_TOKENS * 3.00 + DAILY_OUTPUT_M_TOKENS * 15.00) * (1 - CACHE_HIT_RATIO);
+
+  // State variables
+  let totalRequestsCounter = TOTAL_DAILY_REQUESTS;
+  let accruedBillToday = 1412.65;
+  let streamActive = true;
+  let activeTraceFilter = 'ALL';
+  let traces = [];
+  let selectedTraceId = null;
+  let burstMode = false;
+
+  const TENANTS = [
+    'core-search-prod',
+    'copilot-ide-ext',
+    'fin-doc-parser',
+    'sql-agent-v2',
+    'support-triage-bot',
+    'legal-rag-pipeline'
+  ];
+
+  // =========================================================================
+  // 2. RENDER MODULE A: LATENCY QUANTILE MATRIX
+  // =========================================================================
+  function renderLatencyTable() {
+    const tbody = document.getElementById('latencyTableBody');
+    const maxScale = 2000; // 2000ms full track width
+
+    tbody.innerHTML = MODELS.map(m => {
+      const p25Left = Math.min(98, (m.p25 / maxScale) * 100);
+      const p50Left = Math.min(98, (m.p50 / maxScale) * 100);
+      const p75Left = Math.min(98, (m.p75 / maxScale) * 100);
+      const p95Left = Math.min(98, (m.p95 / maxScale) * 100);
+      const p99Left = Math.min(98, (m.p99 / maxScale) * 100);
+
+      const iqrWidth = Math.max(2, p75Left - p25Left);
+      const whiskerWidth = Math.max(4, p95Left - p25Left);
+
+      const p99Warn = m.p99 > 1400 ? 'color:var(--sig-orange);font-weight:700;' : '';
+
+      return `
+        <tr data-model-row="${m.id}">
+          <td>
+            <div class="model-id-cell">
+              <div class="model-name">
+                <span style="display:inline-block;width:8px;height:8px;background:${m.color};"></span>
+                ${m.name}
+              </div>
+              <div class="model-provider">${m.provider}</div>
+            </div>
+          </td>
+          <td>
+            <div class="percentile-track-wrapper" title="P25: ${m.p25}ms | P50: ${m.p50}ms | P75: ${m.p75}ms | P95: ${m.p95}ms | P99: ${m.p99}ms">
+              <div class="sla-threshold-line" title="SLA Limit 1400ms"></div>
+              <div class="whisker-line" style="left:${p25Left}%; width:${whiskerWidth}%;"></div>
+              <div class="whisker-cap-left" style="left:${p25Left}%;"></div>
+              <div class="whisker-cap-right" style="left:${p95Left}%;"></div>
+              <div class="iqr-box" style="left:${p25Left}%; width:${iqrWidth}%;"></div>
+              <div class="p50-marker" style="left:${p50Left}%;"></div>
+              <div class="p99-dot" style="left:${p99Left}%;"></div>
+            </div>
+          </td>
+          <td class="num mono"><strong>${m.p50}</strong><span class="kpi-unit">ms</span></td>
+          <td class="num mono">${m.p95}<span class="kpi-unit">ms</span></td>
+          <td class="num mono" style="${p99Warn}">${m.p99}<span class="kpi-unit">ms</span></td>
+          <td class="num mono">${m.tokPerSec.toFixed(1)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // =========================================================================
+  // 3. RENDER MODULE B: ROUTING WEIGHT FADERS & REALTIME COST CALCULATOR
+  // =========================================================================
+  function calcModelDailyCost(model, weightFraction) {
+    const netFactor = 1 - CACHE_HIT_RATIO;
+    const inCost = DAILY_INPUT_M_TOKENS * weightFraction * netFactor * model.priceIn;
+    const outCost = DAILY_OUTPUT_M_TOKENS * weightFraction * netFactor * model.priceOut;
+    return inCost + outCost;
+  }
+
+  function renderRoutingFaders() {
+    const faderBank = document.getElementById('faderBank');
+    faderBank.innerHTML = MODELS.map((m, idx) => {
+      const estCost = calcModelDailyCost(m, m.weight / 100);
+      return `
+        <div class="fader-row">
+          <div class="fader-top">
+            <div class="fader-model-info">
+              <span style="display:inline-block;width:8px;height:8px;background:${m.color};"></span>
+              <strong style="font-size:12px;">${m.name}</strong>
+              <span class="fader-pricing">[$${m.priceIn.toFixed(2)} / $${m.priceOut.toFixed(2)} per 1M]</span>
+            </div>
+            <div class="fader-readout">
+              <span class="model-est-cost" id="faderCost_${idx}">$${estCost.toFixed(0)}/d</span>
+              <span class="weight-pct" id="faderPct_${idx}">${m.weight}%</span>
+            </div>
+          </div>
+          <div class="fader-control-wrap">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="${m.weight}"
+              class="hw-fader"
+              data-model-index="${idx}"
+              id="faderInput_${idx}"
+            />
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach real-time drag listeners
+    MODELS.forEach((_, idx) => {
+      const input = document.getElementById(`faderInput_${idx}`);
+      input.addEventListener('input', (e) => {
+        rebalanceWeights(idx, parseInt(e.target.value, 10));
+      });
+    });
+
+    updateCostAndTelemetryReadout();
+  }
+
+  // Proportional auto-normalization so the 4 sliders always sum to 100%
+  function rebalanceWeights(changedIndex, newValue) {
+    newValue = Math.max(0, Math.min(100, newValue));
+    MODELS[changedIndex].weight = newValue;
+
+    const remainingTarget = 100 - newValue;
+    const otherIndices = MODELS.map((_, i) => i).filter(i => i !== changedIndex);
+    const currentOthersSum = otherIndices.reduce((acc, i) => acc + MODELS[i].weight, 0);
+
+    if (currentOthersSum === 0) {
+      // Distribute evenly if all others were 0
+      const share = Math.floor(remainingTarget / otherIndices.length);
+      otherIndices.forEach((i, pos) => {
+        MODELS[i].weight = (pos === otherIndices.length - 1)
+          ? remainingTarget - share * (otherIndices.length - 1)
+          : share;
+      });
+    } else {
+      let allocated = 0;
+      otherIndices.forEach((i, pos) => {
+        if (pos === otherIndices.length - 1) {
+          MODELS[i].weight = Math.max(0, remainingTarget - allocated);
+        } else {
+          const scaled = Math.round((MODELS[i].weight / currentOthersSum) * remainingTarget);
+          MODELS[i].weight = scaled;
+          allocated += scaled;
+        }
+      });
+    }
+
+    // Sync DOM inputs & labels
+    MODELS.forEach((m, idx) => {
+      const slider = document.getElementById(`faderInput_${idx}`);
+      const pctLabel = document.getElementById(`faderPct_${idx}`);
+      const costLabel = document.getElementById(`faderCost_${idx}`);
+      if (slider && idx !== changedIndex) slider.value = m.weight;
+      if (pctLabel) pctLabel.textContent = `${m.weight}%`;
+      if (costLabel) {
+        const c = calcModelDailyCost(m, m.weight / 100);
+        costLabel.textContent = `$${c.toFixed(0)}/d`;
+      }
+    });
+
+    updateCostAndTelemetryReadout();
+  }
+
+  function updateCostAndTelemetryReadout() {
+    let totalDailyCost = 0;
+    let weightedTtft = 0;
+    let weightedP95 = 0;
+    let weightedTokSec = 0;
+
+    MODELS.forEach(m => {
+      const w = m.weight / 100;
+      totalDailyCost += calcModelDailyCost(m, w);
+      weightedTtft += m.p50 * w;
+      weightedP95 += m.p95 * w;
+      weightedTokSec += m.tokPerSec * w;
+    });
+
+    const totalTokensMillions = (DAILY_INPUT_M_TOKENS + DAILY_OUTPUT_M_TOKENS) * (1 - CACHE_HIT_RATIO);
+    const blendedCpm = totalDailyCost / totalTokensMillions;
+    const monthlyCost = totalDailyCost * 30;
+    const costPer1kReq = (totalDailyCost / (TOTAL_DAILY_REQUESTS / 1000));
+
+    // Update Allocation Bar
+    const allocBar = document.getElementById('allocationBar');
+    allocBar.innerHTML = MODELS.map(m => `
+      <div class="alloc-seg" style="width:${m.weight}%; background-color:${m.color};" title="${m.name}: ${m.weight}%"></div>
+    `).join('');
+
+    // Update Cost Panel
+    document.getElementById('simDailyCost').textContent = `$${totalDailyCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('simMonthlyCost').textContent = `30D PROJ: $${Math.round(monthlyCost).toLocaleString('en-US')}`;
+    document.getElementById('simBlendedCpm').textContent = `$${blendedCpm.toFixed(2)}`;
+    document.getElementById('simWeightedTtft').textContent = `EST TTFT: ${Math.round(weightedTtft)}ms`;
+
+    // Savings vs 100% Claude 3.7 Sonnet Baseline
+    const diff = BASELINE_DAILY_COST - totalDailyCost;
+    const diffPct = (diff / BASELINE_DAILY_COST) * 100;
+    const simSavingsText = document.getElementById('simSavingsText');
+    if (diff >= 0) {
+      simSavingsText.style.color = 'var(--sig-green)';
+      simSavingsText.textContent = `SAVE $${diff.toFixed(2)} / DAY (-${diffPct.toFixed(1)}%)`;
+    } else {
+      simSavingsText.style.color = 'var(--sig-orange)';
+      simSavingsText.textContent = `+$${Math.abs(diff).toFixed(2)} / DAY (+${Math.abs(diffPct).toFixed(1)}%)`;
+    }
+
+    // Sync Top KPI Strip with newly routed metrics
+    document.getElementById('kpiTtft').textContent = Math.round(weightedTtft);
+    document.getElementById('kpiP95Ttft').textContent = `${Math.round(weightedP95)}ms`;
+    document.getElementById('kpiTokPerStream').textContent = `${weightedTokSec.toFixed(1)} tok/s`;
+    document.getElementById('kpiProjBill').textContent = `$${totalDailyCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('kpiCostPer1k').textContent = `$${costPer1kReq.toFixed(3)} / 1k req`;
+
+    const ttftDeltaEl = document.getElementById('kpiTtftDelta');
+    const diffTtft = Math.round(weightedTtft) - 304;
+    if (diffTtft <= 0) {
+      ttftDeltaEl.className = 'delta-badge delta-good';
+      ttftDeltaEl.textContent = `${diffTtft}ms OPT`;
+    } else {
+      ttftDeltaEl.className = 'delta-badge delta-warn';
+      ttftDeltaEl.textContent = `+${diffTtft}ms SLOW`;
+    }
+  }
+
+  // Preset Buttons
+  document.querySelectorAll('[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = btn.getAttribute('data-preset');
+      let weights = [35, 25, 25, 15];
+      if (preset === 'balanced') weights = [35, 25, 25, 15];
+      if (preset === 'latency')  weights = [5, 15, 30, 50];
+      if (preset === 'cost')     weights = [5, 5, 45, 45];
+      if (preset === 'quality')  weights = [60, 30, 10, 0];
+
+      weights.forEach((w, i) => { MODELS[i].weight = w; });
+      renderRoutingFaders();
+    });
+  });
+
+  // =========================================================================
+  // 4. MODULE C: REAL-TIME REQUEST TRACE STREAM & FILTERING
+  // =========================================================================
+  function pickModelByWeight() {
+    const r = Math.random() * 100;
+    let acc = 0;
+    for (let i = 0; i < MODELS.length; i++) {
+      acc += MODELS[i].weight;
+      if (r <= acc) return MODELS[i];
+    }
+    return MODELS[0];
+  }
+
+  function generateTraceItem() {
+    const model = pickModelByWeight();
+    const rand = Math.random();
+    let status = '200_OK';
+    let statusLabel = '200 OK';
+    let pillClass = 'st-ok';
+    let routeReason = 'WEIGHTED_HASH_RING (PRI-1)';
+    let cacheSim = (0.45 + Math.random() * 0.46).toFixed(3);
+
+    if (rand < 0.28) {
+      status = 'CACHE_HIT';
+      statusLabel = 'CACHE HIT';
+      pillClass = 'st-cache';
+      routeReason = 'REDIS_VECTOR_EXACT_MATCH';
+      cacheSim = (0.942 + Math.random() * 0.055).toFixed(3);
+    } else if (rand < 0.35) {
+      status = 'FALLBACK';
+      statusLabel = '429 FALLBACK';
+      pillClass = 'st-warn';
+      routeReason = 'RATE_LIMIT_RETRY -> SECONDARY';
+    } else if (rand < 0.38) {
+      status = '504_TIMEOUT';
+      statusLabel = '504 ERR';
+      pillClass = 'st-err';
+      routeReason = 'UPSTREAM_TTFT_DEADLINE_EXCEEDED';
+    }
+
+    const inTok = Math.floor(240 + Math.random() * 3400);
+    const outTok = status === '504_TIMEOUT' ? 0 : Math.floor(80 + Math.random() * 920);
+
+    let ttft = Math.max(45, Math.round(model.p50 + (Math.random() - 0.45) * 180));
+    if (status === 'CACHE_HIT') ttft = Math.floor(6 + Math.random() * 9);
+    if (status === 'FALLBACK') ttft += 390;
+    if (status === '504_TIMEOUT') ttft = 2000;
+
+    let cost = 0;
+    if (status !== 'CACHE_HIT' && status !== '504_TIMEOUT') {
+      cost = (inTok / 1e6) * model.priceIn + (outTok / 1e6) * model.priceOut;
+    }
+
+    const now = new Date();
+    const timeStr =

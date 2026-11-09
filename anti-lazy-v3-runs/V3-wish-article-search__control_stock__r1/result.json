@@ -1,0 +1,66 @@
+{
+  "runId": "V3-wish-article-search__control_stock__r1",
+  "taskId": "V3-wish-article-search",
+  "domain": "搜索排序与容错算法",
+  "variantKey": "control_stock",
+  "rep": 1,
+  "turns": 4,
+  "elapsedSec": 199.8,
+  "commandsRunCount": 2,
+  "completeness": {
+    "score": 6,
+    "maxScore": 6,
+    "linesCount": 311,
+    "details": {
+      "linesCount": 311,
+      "t1_multi_word_non_adjacent_match": true,
+      "t2_relevance_ranking_title_boost": true,
+      "t3_prefix_or_fuzzy_typo_match": true,
+      "t4_regex_special_chars_safe": true,
+      "t5_tag_filtering_support": true,
+      "t6_dedup_or_remove_update_doc": true
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Defining ArticleSearch Implementation**\n\nI'm focusing on crafting a backward-compatible `ArticleSearch` class within `src/article_search.mjs`. The goal is to retain the existing `ArticleSearch` class structure and its `add(doc)` and `search(query, options)` interface. There's no need to remove them first.\n\n\n**Refining Search Features**\n\nI'm now zeroing in on the `ArticleSearch` class in `src/art",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "已完成对 `src/article_search.mjs` 的升级并验证通过，完全保留 `ArticleSearch` 类、`add(doc)` 与 `search(query, options)` 的原有接口兼容性。\n\n### 主要增强点\n1. **相关性排序与字段加权**：支持对 `title`（默认权重 `3.0`）、`tags`（`2.5`）、`body`（`1.0`）加权打分，完全匹配、词频、多词命中率越高排序越靠前。\n2. **大小写不敏感与多关键词分词**：自动忽略大小写，支持中英文子串与多词组合检索。\n3. **高级查询语法**：\n   - 精确短语：`\"exact phrase\"`\n   - 排除词：`-keyword`\n   - 内联标签过滤：`tag:frontend`\n4. **丰富的 `options` 配置**：\n   - `tags`: 按标签过滤（支持字符串",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

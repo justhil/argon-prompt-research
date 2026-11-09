@@ -1,0 +1,35 @@
+{
+  "runKey": "W4-telemetry-gateway-console__O5_anti_beige_material_49w",
+  "taskId": "W4-telemetry-gateway-console",
+  "styleId": "O5_anti_beige_material_49w",
+  "elapsedSec": 157.2,
+  "metrics": {
+    "htmlBytes": 45343,
+    "hasDarkBg": false,
+    "darkHexCount": 14,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 7,
+    "neonGlowShadowCount": 2,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 20
+  },
+  "palette": {
+    "primaryBg": "#fff",
+    "allHex": [
+      "#dce0e3",
+      "#eaeef1",
+      "#f4f6f8",
+      "#111514",
+      "#1e2725",
+      "#161c1b",
+      "#14181b",
+      "#48525a"
+    ],
+    "reasoning": ""
+  }
+}

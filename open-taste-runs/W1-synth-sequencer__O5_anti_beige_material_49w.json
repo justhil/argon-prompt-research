@@ -1,0 +1,35 @@
+{
+  "runKey": "W1-synth-sequencer__O5_anti_beige_material_49w",
+  "taskId": "W1-synth-sequencer",
+  "styleId": "O5_anti_beige_material_49w",
+  "elapsedSec": 155.3,
+  "metrics": {
+    "htmlBytes": 42960,
+    "hasDarkBg": true,
+    "darkHexCount": 6,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 7,
+    "neonGlowShadowCount": 3,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 60
+  },
+  "palette": {
+    "primaryBg": "#2B2D2A",
+    "allHex": [
+      "#c5c7c4",
+      "#9fa29e",
+      "#d6d8d5",
+      "#a8aba7",
+      "#ebeceb",
+      "#181917",
+      "#10110f",
+      "#1a1b19"
+    ],
+    "reasoning": ""
+  }
+}

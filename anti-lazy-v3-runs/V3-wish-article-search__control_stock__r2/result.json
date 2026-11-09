@@ -1,0 +1,66 @@
+{
+  "runId": "V3-wish-article-search__control_stock__r2",
+  "taskId": "V3-wish-article-search",
+  "domain": "搜索排序与容错算法",
+  "variantKey": "control_stock",
+  "rep": 2,
+  "turns": 4,
+  "elapsedSec": 184.7,
+  "commandsRunCount": 2,
+  "completeness": {
+    "score": 6,
+    "maxScore": 6,
+    "linesCount": 283,
+    "details": {
+      "linesCount": 283,
+      "t1_multi_word_non_adjacent_match": true,
+      "t2_relevance_ranking_title_boost": true,
+      "t3_prefix_or_fuzzy_typo_match": true,
+      "t4_regex_special_chars_safe": true,
+      "t5_tag_filtering_support": true,
+      "t6_dedup_or_remove_update_doc": true
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**My Approach to Crafting a Robust Article Search**\n\nAlright, let's dive in. The instructions are clear – no need to list the directory first; we're going straight for the code. My initial thought is to check `src/article_search.mjs`, existing tests (if any), and possibly `package.json`, or test files to get a lay of the land. The directive to \"直接修改并验证\" is key; let's read the existing file or writ",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "Okay, here's my take on those thoughts, tailored for an expert audience, presented in the first person:\n\n**Verification Checkpoint: ArticleSearch Functionality**\n\nAlright, time to ensure we're on solid ground with this `ArticleSearch` component. Given what I've been seeing with its interaction with the broader architecture, a comprehensive verification run is paramount. I'm going to initiate a cru",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "Okay, here's my take on those thoughts, tailored for an expert audience:\n\n**Streamlining Node Verification: A Practical Approach**\n\nRight, let's cut through the Gordian knot of multiline shell quoting for a moment. I'm thinking, let's just stick to the simplest, most direct approach here for node verification: a single-line command. We've all been there – wrestling with escaping characters and nes",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "已完成 `src/article_search.mjs` 的升级并验证通过，完全保留 `ArticleSearch` 类及 `add(doc)`、`search(query, options)` 接口兼容。\n\n### 主要增强点\n\n1. **多字段加权与相关性排序（Relevance Ranking）**\n   - 同时检索 `title`、`tags`、`body`（默认权重 `title: 3.0 > tags: 2.5 > body: 1.0`）。\n   - 综合计算词频（对数饱和 TF）、精确/前缀匹配加权、完整短语匹配加权及多词覆盖率，按得分降序返回结果。\n2. **大小写不敏感与高级查询语法**\n   - 默认大小写不敏感（可通过 `caseSensitive: true` 切换）。\n   - 支持多关键词分词检索、双引号精确短语（`\"exact phrase\"`）、排除词（`",
+      "reasoningPreview": "Okay, here's my take on summarizing the improvements to `src/article_search.mjs`, from an expert's perspective, reflecting my internal thought process:\n\n**Reflecting on the Article Search Module Enhancements**\n\nAlright, everything's been thoroughly validated, and it looks like we've got a clean bill of health. Time to condense the key improvements we've made to `src/article_search.mjs` into a coge",
+      "toolCalls": []
+    }
+  ]
+}

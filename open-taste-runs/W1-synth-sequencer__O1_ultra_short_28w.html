@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KRAFTER-16 // 16-Step Modular Synthesizer & Drum Sequencer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --chassis-bg: #E6E2D8;
+    --panel-bg: #DCD7CC;
+    --panel-dark: #22211F;
+    --ink: #1C1B19;
+    --ink-muted: #6E6A63;
+    --border-hard: #1C1B19;
+    --border-subtle: #BDB7AB;
+    
+    --accent-orange: #DF4B27;
+    --accent-amber: #E59B23;
+    --accent-teal: #1D7874;
+    --accent-crimson: #B8292F;
+    
+    --screen-bg: #161917;
+    --screen-phosphor: #D96B27;
+    --screen-grid: #262B28;
+
+    --step-off: #CFCAC0;
+    --step-beat: #C2BDB2;
+    --led-off: #4A4640;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body {
+    background-color: #2B2927;
+    background-image: 
+      radial-gradient(#3A3734 1px, transparent 1px),
+      linear-gradient(to bottom, #262422, #1D1B1A);
+    background-size: 16px 16px, 100% 100%;
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+
+  /* Hardware Chassis */
+  .rack-unit {
+    width: 100%;
+    max-width: 1240px;
+    background-color: var(--chassis-bg);
+    border: 3px solid var(--border-hard);
+    box-shadow: 
+      12px 16px 0px #121110,
+      inset 0 2px 0 #F4F1EA,
+      inset 0 -3px 0 #C4BKT2;
+    position: relative;
+    padding: 20px 28px 28px 28px;
+  }
+
+  /* Rack Ears & Screws */
+  .screw {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--border-hard);
+    background: #B5B0A6;
+    position: absolute;
+    box-shadow: inset 1px 1px 0 #fff;
+  }
+  .screw::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 2px;
+    width: 6px;
+    height: 2px;
+    background: var(--border-hard);
+    transform: rotate(35deg);
+  }
+  .screw.tl { top: 10px; left: 10px; }
+  .screw.tr { top: 10px; right: 10px; transform: rotate(70deg); }
+  .screw.bl { bottom: 10px; left: 10px; transform: rotate(-25deg); }
+  .screw.br { bottom: 10px; right: 10px; transform: rotate(15deg); }
+
+  /* Header Bar */
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 3px solid var(--border-hard);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .brand-group {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .brand-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--chassis-bg);
+    padding: 2px 10px;
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .spec-badge {
+    font-size: 11px;
+    border: 1.5px solid var(--border-hard);
+    padding: 3px 8px;
+    font-weight: 600;
+    background: var(--panel-bg);
+    box-shadow: 2px 2px 0 var(--border-hard);
+  }
+
+  /* Upper Modules Deck */
+  .upper-deck {
+    display: grid;
+    grid-template-columns: 270px 210px 1fr 220px;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .module {
+    background: var(--panel-bg);
+    border: 2px solid var(--border-hard);
+    padding: 14px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .module-header {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-bottom: 1.5px solid var(--border-hard);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .module-header span.idx {
+    background: var(--border-hard);
+    color: var(--chassis-bg);
+    padding: 1px 5px;
+    font-size: 9px;
+  }
+
+  /* Module 01: Master & Transport */
+  .transport-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .hw-btn {
+    appearance: none;
+    border: 2px solid var(--border-hard);
+    background: #E8E4DC;
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 10px 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--border-hard);
+    transition: transform 0.05s, box-shadow 0.05s, background-color 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-transform: uppercase;
+  }
+
+  .hw-btn:active, .hw-btn.active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--border-hard);
+  }
+
+  .hw-btn.btn-play.active {
+    background: var(--accent-orange);
+    color: #FFF;
+  }
+
+  .hw-btn.btn-stop:active {
+    background: var(--ink);
+    color: var(--chassis-bg);
+  }
+
+  .status-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--led-off);
+    border: 1px solid var(--border-hard);
+    display: inline-block;
+  }
+  .hw-btn.btn-play.active .status-led {
+    background: #FFE600;
+    box-shadow: 0 0 6px #FFE600;
+  }
+
+  .bpm-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--screen-bg);
+    border: 2px solid var(--border-hard);
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    color: var(--screen-phosphor);
+  }
+
+  .bpm-label {
+    font-size: 10px;
+    color: #7C857E;
+    letter-spacing: 0.08em;
+  }
+
+  .bpm-readout {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .slider-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  input[type="range"].hw-fader {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--ink);
+    border: 1px solid var(--border-hard);
+    outline: none;
+  }
+
+  input[type="range"].hw-fader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 22px;
+    background: var(--accent-orange);
+    border: 2px solid var(--border-hard);
+    cursor: ew-resize;
+    box-shadow: 1px 1px 0 var(--border-hard);
+  }
+
+  .utility-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .hw-btn-sm {
+    font-size: 10px;
+    padding: 6px;
+    box-shadow: 0 2px 0 var(--border-hard);
+  }
+  .hw-btn-sm:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 var(--border-hard);
+  }
+
+  /* Module 02: Waveform Selector */
+  .wave-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    height: 100%;
+  }
+
+  .wave-btn {
+    border: 2px solid var(--border-hard);
+    background: #E8E4DC;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 6px;
+    gap: 6px;
+    box-shadow: 0 3px 0 var(--border-hard);
+    transition: all 0.06s;
+  }
+
+  .wave-btn svg {
+    width: 36px;
+    height: 20px;
+    stroke: var(--ink);
+    stroke-width: 2.2;
+    fill: none;
+  }
+
+  .wave-btn span {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .wave-btn.active {
+    background: var(--ink);
+    color: var(--chassis-bg);
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--border-hard);
+  }
+
+  .wave-btn.active svg {
+    stroke: var(--accent-amber);
+  }
+
+  /* Module 03: Dials / Filter & Envelope */
+  .dials-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    align-items: center;
+    height: 100%;
+    padding: 4px 0;
+  }
+
+  .dial-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dial {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #282624;
+    border: 3px solid var(--border-hard);
+    position: relative;
+    cursor: ns-resize;
+    box-shadow: 
+      0 4px 0 #ACA69B,
+      inset 0 2px 3px rgba(255,255,255,0.15);
+  }
+
+  .dial::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    border: 1px dashed #55524D;
+  }
+
+  .dial-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    pointer-events: none;
+  }
+
+  .dial-indicator::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 14px;
+    background: var(--accent-orange);
+    border-radius: 1px;
+  }
+
+  .dial-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .dial-val {
+    font-size: 10px;
+    color: var(--ink-muted);
+    background: #CFCAC0;
+    padding: 1px 6px;
+    border: 1px solid var(--border-hard);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Module 04: Amber CRT Scope */
+  .scope-screen {
+    background: var(--screen-bg);
+    border: 3px solid var(--border-hard);
+    height: 100%;
+    min-height: 130px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 18px #000;
+  }
+
+  .scope-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(rgba(255,255,255,0.03) 50%, transparent 50%),
+      linear-gradient(90deg, rgba(217, 107, 39, 0.06) 1px, transparent 1px),
+      linear-gradient(rgba(217, 107, 39, 0.06) 1px, transparent 1px);
+    background-size: 100% 4px, 20px 100%, 100% 20px;
+    pointer-events: none;
+  }
+
+  #scopeCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .scope-overlay {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--screen-phosphor);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  /* Lower Sequencer Matrix */
+  .sequencer-bay {
+    background: var(--panel-bg);
+    border: 2px solid var(--border-hard);
+    padding: 18px;
+  }
+
+  .seq-header-row {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 14px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+
+  .seq-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-numbers {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 6px;
+  }
+
+  .step-num {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    padding: 3px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.05s;
+  }
+
+  .step-num.beat-marker {
+    color: var(--ink);
+    border-bottom-color: var(--border-hard);
+  }
+
+  .step-num.playhead-active {
+    background: var(--accent-orange);
+    color: #FFF;
+    border-bottom-color: var(--border-hard);
+  }
+
+  /* Matrix Tracks */
+  .tracks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+  }
+
+  .track-row {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .track-meta {
+    background: #E6E2D8;
+    border: 2px solid var(--border-hard);
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 52px;
+    box-shadow: 2px 2px 0 var(--border-hard);
+  }
+
+  .track-name-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .track-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .track-color-tag {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    border: 1px solid var(--border-hard);
+  }
+
+  .track-sub {
+    font-size: 9px;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+
+  .mute-btn {
+    border: 1.5px solid var(--border-hard);
+    background: var(--panel-bg);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 7px;
+    cursor: pointer;
+    box-shadow: 1px 1px 0 var(--border-hard);
+  }
+
+  .mute-btn.muted {
+    background: var(--accent-crimson);
+    color: #FFF;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 6px;
+    height: 52px;
+  }
+
+  /* Tactile Step Pad */
+  .step-pad {
+    border: 2px solid var(--border-hard);
+    background: var(--step-off);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+     flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 2px;
+    box-shadow: 0 3px 0 var(--border-hard);
+    transition: transform 0.05s, box-shadow 0.05s, background-color 0.08s;
+  }
+
+  /* Group of 4 visual rhythm */
+  .step-pad.group-alt {
+    background: var(--step-beat);
+  }
+
+  .step-pad:hover {
+    filter: brightness(1.04);
+  }
+
+  .step-pad:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--border-hard);
+  }
+
+  .pad-led {
+    width: 14px;
+    height: 5px;
+    background: var(--led-off);
+    border: 1px solid var(--border-hard);
+    transition: background-color 0.05s;
+  }
+
+  .pad-note {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    letter-spacing: -0.03em;
+  }
+
+  /* Active Step States per Track */
+  .step-pad.active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--border-hard);
+    background: #F4F1EA;
+  }
+
+  .track-row[data-track="0"] .step-pad.active { border-color: var(--border-hard); background: #F5E6E8; }
+  .track-row[data-track="0"] .step-pad.active .pad-led { background: var(--accent-crimson); box-shadow: 0 0 5px var(--accent-crimson); }
+
+  .track-row[data-track="1"] .step-pad.active { background: #F8EAE5; }
+  .track-row[data-track="1"] .step-pad.active .pad-led { background: var(--accent-orange); box-shadow: 0 0 5px var(--accent-orange); }
+
+  .track-row[data-track="2"] .step-pad.active { background: #FAF0DF; }
+  .track-row[data-track="2"] .step-pad.active .pad-led { background: var(--accent-amber); box-shadow: 0 0 5px var(--accent-amber); }
+
+  .track-row[data-track="3"] .step-pad.active { background: #E3F0EF; }
+  .track-row[data-track="3"] .step-pad.active .pad-led { background: var(--accent-teal); box-shadow: 0 0 5px var(--accent-teal); }
+  .track-row[data-track="3"] .step-pad.active .pad-note { color: var(--ink); }
+
+  /* Playhead Scanning Highlight */
+  .step-pad.playing {
+    outline: 2px solid var(--ink);
+    background: #FFF9EB !important;
+  }
+
+  .step-pad.playing.active {
+    transform: translateY(3px);
+    box-shadow: none;
+  }
+
+  /* Footer Bar */
+  .footer-notes {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--ink-muted);
+    padding: 0 4px;
+  }
+
+  .kbd-hint span {
+    border: 1px solid var(--ink-muted);
+    padding: 1px 5px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--panel-bg);
+  }
+
+  @media (max-width: 1024px) {
+    .upper-deck {
+      grid-template-columns: 1fr 1fr;
+    }
+    .seq-header-row, .track-row {
+      grid-template-columns: 130px 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<main class="rack-unit">
+  <div class="screw tl"></div>
+  <div class="screw tr"></div>
+  <div class="screw bl"></div>
+  <div class="screw br"></div>
+
+  <!-- HEADER -->
+  <header class="header-bar">
+    <div class="brand-group">
+      <h1 class="brand-title">KRAFTER-16</h1>
+      <span class="brand-sub">Poly-Rhythmic Drum & Acid Matrix Workcenter</span>
+    </div>
+    <div class="spec-badge">SERIAL NO. 00491-DE // WEB-AUDIO DSP</div>
+  </header>
+
+  <!-- UPPER MODULES -->
+  <section class="upper-deck">
+    
+    <!-- MODULE 01: TRANSPORT & TEMPO -->
+    <div class="module">
+      <div class="module-header">
+        <span>Transport & Clock</span>
+        <span class="idx">M-01</span>
+      </div>
+      
+      <div class="transport-controls">
+        <button id="playBtn" class="hw-btn btn-play">
+          <span class="status-led"></span> PLAY
+        </button>
+        <button id="stopBtn" class="hw-btn btn-stop">
+          ■ STOP
+        </button>
+      </div>
+
+      <div class="bpm-box">
+        <span class="bpm-label">MASTER CLOCK</span>
+        <span id="bpmDisplay" class="bpm-readout">126.0</span>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>TEMPO ADJUST</span>
+          <span>60 - 180 BPM</span>
+        </div>
+        <input type="range" id="bpmSlider" class="hw-fader" min="60" max="180" value="126" step="1">
+      </div>
+
+      <div class="utility-row">
+        <button id="randBtn" class="hw-btn hw-btn-sm">⚄ RANDOMIZE</button>
+        <button id="clearBtn" class="hw-btn hw-btn-sm">✕ CLEAR ALL</button>
+      </div>
+    </div>
+
+    <!-- MODULE 02: OSCILLATOR WAVEFORM -->
+    <div class="module">
+      <div class="module-header">
+        <span>Acid VCO Wave</span>
+        <span class="idx">M-02</span>
+      </div>
+      <div class="wave-grid" id="waveSelector">
+        <button class="wave-btn" data-wave="sine">
+          <svg viewBox="0 0 40 20"><path d="M2 10 Q 11 0, 20 10 T 38 10"/></svg>
+          <span>Sine</span>
+        </button>
+        <button class="wave-btn active" data-wave="sawtooth">
+          <svg viewBox="0 0 40 20"><path d="M2 16 L 20 4 L 20 16 L 38 4"/></svg>
+          <span>Saw</span>
+        </button>
+        <button class="wave-btn" data-wave="square">
+          <svg viewBox="0 0 40 20"><path d="M2 15 L 2 5 L 20 5 L 20 15 L 38 15 L 38 5"/></svg>
+          <span>Square</span>
+        </button>
+        <button class="wave-btn" data-wave="noise">
+          <svg viewBox="0 0 40 20"><path d="M2 10 L6 3 L10 17 L14 6 L18 14 L22 2 L26 18 L30 7 L34 13 L38 9"/></svg>
+          <span>Noise</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODULE 03: VCF & VCA ENVELOPE -->
+    <div class="module">
+      <div class="module-header">
+        <span>Resonant Filter & Contour</span>
+        <span class="idx">M-03</span>
+      </div>
+      <div class="dials-grid">
+        <div class="dial-wrapper">
+          <div class="dial" data-param="cutoff" data-min="120" data-max="6500" data-val="1650">
+            <div class="dial-indicator"></div>
+          </div>
+          <span class="dial-label">Cutoff</span>
+          <span class="dial-val" id="val-cutoff">1650Hz</span>
+        </div>
+
+        <div class="dial-wrapper">
+          <div class="dial" data-param="resonance" data-min="1" data-max="22" data-val="9.5">
+            <div class="dial-indicator"></div>
+          </div>
+          <span class="dial-label">Resonance</span>
+          <span class="dial-val" id="val-resonance">9.5 Q</span>
+        </div>
+
+        <div class="dial-wrapper">
+          <div class="dial" data-param="attack" data-min="0.003" data-max="0.18" data-val="0.012">
+            <div class="dial-indicator"></div>
+          </div>
+          <span class="dial-label">Attack</span>
+          <span class="dial-val" id="val-attack">12 ms</span>
+        </div>
+
+        <div class="dial-wrapper">
+          <div class="dial" data-param="decay" data-min="0.06" data-max="0.65" data-val="0.24">
+            <div class="dial-indicator"></div>
+          </div>
+          <span class="dial-label">Decay</span>
+          <span class="dial-val" id="val-decay">240 ms</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 04: REALTIME OSCILLOSCOPE -->
+    <div class="module" style="padding: 10px;">
+      <div class="scope-screen">
+        <div class="scope-overlay">
+          <span>CRT-OUT // AC COUPLED</span>
+          <span id="stepReadout">STEP: 01/16</span>
+        </div>
+        <canvas id="scopeCanvas"></canvas>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- LOWER SEQUENCER MATRIX -->
+  <section class="sequencer-bay">
+    <div class="seq-header-row">
+      <div class="seq-title">
+        <span>■ 16-Step Matrix</span>
+      </div>
+      <div class="step-numbers" id="stepNumbers">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+
+    <div class="tracks-container" id="tracksContainer">
+      <!-- Generated by JS -->
+    </div>
+  </section>
+
+  <footer class="footer-notes">
+    <div class="kbd-hint">CONTROLS: <span>SPACE</span> PLAY/STOP &nbsp;|&nbsp; <span>DRAG KNOBS</span> VERTICAL ADJUST &nbsp;|&nbsp; <span>SHIFT+CLICK</span> ACID NOTE CYCLE</div>
+    <div>OUTPUT: STEREO MASTER BUS // 24-BIT INTERNAL FLOAT</div>
+  </footer>
+</main>
+
+<script>
+(() => {
+  /* ==========================================
+     STATE & PRESET CONFIGURATION
+     ========================================== */
+  const STEPS = 16;
+  const ACID_SCALE = [
+    { note: 'C2', freq: 65.41 },
+    { note: 'D#2', freq: 77.78 },
+    { note: 'F2', freq: 87.31 },
+    { note: 'G2', freq: 98.00 },
+    { note: 'A#2', freq: 116.54 },
+    { note: 'C3', freq: 130.81 },
+    { note: 'D#3', freq: 155.56 }
+  ];
+
+  const state = {
+    isPlaying: false,
+    bpm: 126,
+    currentStep: 0,
+    waveform: 'sawtooth',
+    params: {
+      cutoff: 1650,
+      resonance: 9.5,
+      attack: 0.012,
+      decay: 0.24
+    },
+    tracks: [
+      {
+        id: 'kick',
+        name: 'BD-909 KICK',
+        sub: 'ANALOG SUB PULSE',
+        color: '#B8292F',
+        muted: false,
+        steps: [1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 0, 0,  1, 0, 1, 0]
+      },
+      {
+        id: 'snare',
+        name: 'SD-808 SNARE',
+        sub: 'SNAP & WHITE NOISE',
+        color: '#DF4B27',
+        muted: false,
+        steps: [0, 0, 0, 0,  1, 0, 0, 1,  0, 0, 0, 0,  1, 0, 0, 0]
+      },
+      {
+        id: 'hihat',
+        name: 'CH-606 HIHAT',
+        sub: 'METALLIC HIGH-PASS',
+        color: '#E59B23',
+        muted: false,
+        steps: [0, 0, 1, 0,  0, 0, 1, 1,  0, 0, 1, 0,  0, 0, 1, 1]
+      },
+      {
+        id: 'bass',
+        name: 'TB-303 ACID',
+        sub: 'RESONANT MONO SYNTH',
+        color: '#1D7874',
+        muted: false,
+        steps: [1, 1, 0, 1,  0, 1, 1, 0,  1, 0, 1, 1,  0, 1, 0, 1],
+        notes: [0, 0, 2, 5,  1, 3, 4, 2,  0, 5, 3, 6,  1, 4, 2, 5] // Index into ACID_SCALE
+      }
+    ]
+  };
+
+  /* ==========================================
+     WEB AUDIO API SYNTHESIS ENGINE
+     ========================================== */
+  let audioCtx = null;
+  let analyser = null;
+  let masterGain = null;
+  let noiseBuffer = null;
+
+  function initAudio() {
+    if (audioCtx) return;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.8;
+
+    // Soft Clipper / Limiter via WaveShaper
+    const shaper = audioCtx.createWaveShaper();
+    const curve = new Float32Array(65536);
+    for (let i = 0; i < 65536; i++) {
+      const x = (i - 32768) / 32768;
+      curve[i] = Math.tanh(x * 1.4);
+    }
+    shaper.curve = curve;
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 1024;
+
+    masterGain.connect(shaper);
+    shaper.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    // Pre-generate 1-second White Noise Buffer
+    noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < audioCtx.sampleRate; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+  }
+
+  // 1. Kick Drum Synthesis
+  function triggerKick(time) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(145, time);
+    osc.frequency.exponentialRampToValueAtTime(42, time + 0.085);
+    osc.frequency.exponentialRampToValueAtTime(28, time + 0.32);
+
+    gain.gain.setValueAtTime(1.0, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.34);
+
+    // Transient Click
+    const clickOsc = audioCtx.createOscillator();
+    const clickGain = audioCtx.createGain();
+    clickOsc.type = 'triangle';
+    clickOsc.frequency.setValueAtTime(750, time);
+    clickOsc.frequency.exponentialRampToValueAtTime(80, time + 0.015);
+    clickGain.gain.setValueAtTime(0.4, time);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.018);
+
+    clickOsc.connect(clickGain);
+    clickGain.connect(masterGain);
+    clickOsc.start(time);
+    clickOsc.stop(time + 0.02);
+
+    osc.connect(gain);
+    gain.connect(masterGain);
+    osc.start(time);
+    osc.stop(time + 0.36);
+  }
+
+  // 2. Snare Drum Synthesis
+  function triggerSnare(time) {
+    // Noise Component
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(650, time);
+
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.65, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, time + 0.19);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+    noise.start(time);
+    noise.stop(time + 0.2);
+
+    // Body Tone Component
+    const osc = audioCtx.createOscillator();
+    const oscGain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(210, time);
+    osc.frequency.exponentialRampToValueAtTime(110, time + 0.08);
+
+    oscGain.gain.setValueAtTime(0.55, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.11);
+
+    osc.connect(oscGain);
+    oscGain.connect(masterGain);
+    osc.start(time);
+    osc.stop(time + 0.12);
+  }
+
+  // 3. Hi-Hat Synthesis
+  function triggerHiHat(time) {
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const bandpass = audioCtx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.setValueAtTime(9200, time);
+    bandpass.Q.setValueAtTime(1.8, time);
+
+    const highpass = audioCtx.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.setValueAtTime(6800, time);
+
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.42, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.065);
+
+    noise.connect(bandpass);
+    bandpass.connect(highpass);
+    highpass.connect(gain);
+    gain.connect(masterGain);
+
+    noise.start(time);
+    noise.stop(time + 0.07);
+  }
+
+  // 4. Acid Bass Synthesis (Controlled by Waveform & Filter Knobs)
+  function triggerAcidBass(time, freq) {
+    const { cutoff, resonance, attack, decay } = state.params;
+    const totalDur = attack + decay + 0.04;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.Q.setValueAtTime(resonance, time);
+
+    // Acid Filter Envelope Sweep
+    const baseCutoff = Math.max(80, cutoff * 0.25);
+    const peakCutoff = Math.min(12000, cutoff * 2.1);
+    filter.frequency.setValueAtTime(baseCutoff, time);
+    filter.frequency.exponentialRampToValueAtTime(peakCutoff, time + attack);
+    filter.frequency.exponentialRampToValueAtTime(baseCutoff, time + attack + decay);
+
+    const vca = audioCtx.createGain();
+    vca.gain.setValueAtTime(0.001, time);
+    vca.gain.linearRampToValueAtTime(0.55, time + attack);
+    vca.gain.exponentialRampToValueAtTime(0.001, time + attack + decay);
+
+    let source;
+    if (state.waveform === 'noise') {
+      source = audioCtx.createBufferSource();
+      source.buffer = noiseBuffer;
+      // Add resonant pitch body alongside noise
+      const subOsc = audioCtx.createOscillator();
+      subOsc.type = 'sawtooth';
+      subOsc.frequency.setValueAtTime(freq, time);
+      subOsc.connect(filter);
+      subOsc.start(time);
+      subOsc.stop(time + totalDur);
+    } else {
+      source = audioCtx.createOscillator();
+      source.type = state.waveform;
+      source.frequency.setValueAtTime(freq, time);
+    }
+
+    source.connect(filter);
+    filter.connect(vca);
+    vca.connect(masterGain);
+
+    source.start(time);
+    source.stop(time + totalDur);
+  }
+
+  /* ==========================================
+     PRECISION LOOKAHEAD SCHEDULER
+     ========================================== */
+  let nextNoteTime = 0.0;
+  let timerID = null;
+  const lookahead = 25.0; // ms
+  const scheduleAheadTime = 0.1; // sec
+  const visualQueue = [];
+
+  function nextStep() {
+    const secondsPerBeat = 60.0 / state.bpm;
+    const secondsPer16th = 0.25 * secondsPerBeat;
+    nextNoteTime += secondsPer16th;
+    state.currentStep = (state.currentStep + 1) % STEPS;
+  }
+
+  function scheduleStep(stepIndex, time) {
+    visualQueue.push({ step: stepIndex, time: time });
+
+    // Trigger active tracks
+    if (!state.tracks[0].muted && state.tracks[0].steps[stepIndex]) {
+      triggerKick(time);
+    }
+    if (!state.tracks[1].muted && state.tracks[1].steps[stepIndex]) {
+      triggerSnare(time);
+    }
+    if (!state.tracks[2].muted && state.tracks[2].steps[stepIndex]) {
+      triggerHiHat(time);
+    }
+    if (!state.tracks[3].muted && state.tracks[3].steps[stepIndex]) {
+      const noteIdx = state.tracks[3].notes[stepIndex];
+      const freq = ACID_SCALE[noteIdx].freq;
+      triggerAcidBass(time, freq);
+    }
+  }
+
+  function scheduler() {
+    while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
+      scheduleStep(state.currentStep, nextNoteTime);
+      nextStep();
+    }
+    timerID = setTimeout(scheduler, lookahead);
+  }
+
+  function startSequencer() {
+    initAudio();
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    if (state.isPlaying) return;
+
+    state.isPlaying = true;
+    state.currentStep = 0;
+    nextNoteTime = audioCtx.currentTime + 0.04;
+    scheduler();
+
+    document.getElementById('playBtn').classList.add('active');
+  }
+
+  function stopSequencer() {
+    state.isPlaying = false;
+    clearTimeout(timerID);
+    visualQueue.length = 0;
+    document.getElementById('playBtn').classList.remove('active');
+    clearPlayheadUI();
+    document.getElementById('stepReadout').textContent = `STEP: --/16`;
+  }
+
+  /* ==========================================
+     UI GENERATION & INTERACTION
+     ========================================== */
+  const stepNumbersEl = document.getElementById('stepNumbers');
+  const tracksContainerEl = document.getElementById('tracksContainer');
+
+  function buildSequencerDOM() {
+    // 1. Build Step Number Headers
+    stepNumbersEl.innerHTML = '';
+    for (let s = 0; s < STEPS; s++) {
+      const numDiv = document.createElement('div');
+      numDiv.className = `step-num ${s % 4 === 0 ? 'beat-marker' : ''}`;
+      numDiv.textContent = String(s + 1).padStart(2, '0');
+      numDiv.dataset.stepHeader = s;
+      stepNumbersEl.appendChild(numDiv);
+    }
+
+    // 2. Build 4 Track Rows
+    tracksContainerEl.innerHTML = '';
+    state.tracks.forEach((track, tIdx) => {
+      const row = document.createElement('div');
+      row.className = 'track-row';
+      row.dataset.track = tIdx;
+
+      // Track Meta Box
+      const meta = document.createElement('div');
+      meta.className = 'track-meta';
+      meta.innerHTML = `
+        <div class="track-name-group">
+          <div class="track-name">
+            <span class="track-color-tag" style="background:${track.color}"></span>
+            ${track.name}
+          </div>
+          <div class="track-sub">${track.sub}</div>
+        </div>
+        <button class="mute-btn ${track.muted ? 'muted' : ''}" data-mute="${tIdx}">M</button>
+      `;
+
+      // 16 Step Pads
+      const grid = document.createElement('div');
+      grid.className = 'steps-grid';
+
+      for (let s = 0; s < STEPS; s++) {
+        const isGroupAlt = Math.floor(s / 4) % 2 === 1;
+        const isActive = track.steps[s] === 1;
+        const pad = document.createElement('button');
+        pad.className = `step-pad ${isGroupAlt ? 'group-alt' : ''} ${isActive ? 'active' : ''}`;
+        pad.dataset.track = tIdx;
+        pad.dataset.step = s;
+
+        let bottomLabel = '';
+        if (track.id === 'bass') {
+          const noteObj = ACID_SCALE[track.notes[s]];
+          bottomLabel = `<span class="pad-note">${noteObj.note}</span>`;
+        } else {
+          bottomLabel = `<span class="pad-note">${s + 1}</span>`;
+        }
+
+        pad.innerHTML = `
+          <div class="pad-led"></div>
+          ${bottomLabel}
+        `;
+
+        pad.addEventListener('click', (e) => {
+          initAudio();
+          // Shift+Click on Acid track cycles note pitch
+          if (tIdx === 3 && e.shiftKey) {
+            track.notes[s] = (track.notes[s] + 1) % ACID_SCALE.length;
+            pad.querySelector('.pad-note').textContent = ACID_SCALE[track.notes[s]].note;
+            if (!track.steps[s]) {
+              track.steps[s] = 1;
+              pad.classList.add('active');
+            }
+            triggerAcidBass(audioCtx.currentTime, ACID_SCALE[track.notes[s]].freq);
+            return;
+          }
+
+          // Toggle step on/off
+          track.steps[s] = track.steps[s] ? 0 : 1;
+          pad.classList.toggle('active', track.steps[s] === 1);
+
+          // Audition sound when clicked while stopped
+          if (track.steps[s] === 1 && !state.isPlaying) {
+            const now = audioCtx.currentTime;
+            if (tIdx === 0) triggerKick(now);
+            if (tIdx === 1) triggerSnare(now);
+            if (tIdx === 2) triggerHiHat(now);
+            if (tIdx === 3) triggerAcidBass(now, ACID_SCALE[track.notes[s]].freq);
+          }
+        });
+
+        grid.appendChild(pad);
+      }
+
+      row.appendChild(meta);
+      row.appendChild(grid);
+      tracksContainerEl.appendChild(row);
+    });
+
+    // Attach Mute Listeners
+    document.querySelectorAll('.mute-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.mute, 10);
+        state.tracks[idx].muted = !state.tracks[idx].muted;
+        btn.classList.toggle('muted', state.tracks[idx].muted);
+      });
+    });
+  }
+
+  function clearPlayheadUI() {
+    document.querySelectorAll('.step-pad.playing').forEach(el => el.classList.remove('playing'));
+    document.querySelectorAll('.step-num.playhead-active').forEach(el => el.classList.remove('playhead-active'));
+  }
+
+  function highlightStepUI(stepIndex) {
+    clearPlayheadUI();
+    const header = document.querySelector(`.step-num[data-step-header="${stepIndex}"]`);
+    if (header) header.classList.add('playhead-active');
+
+    document.querySelectorAll(`.step-pad[data-step="${stepIndex}"]`).forEach(pad => {
+      pad.classList.add('playing');
+    });
+
+    document.getElementById('stepReadout').textContent = `STEP: ${String(stepIndex + 1).padStart(2, '0')}/16`;
+  }
+
+  /* ==========================================
+     ROTARY DIALS INTERACTION
+     ========================================== */
+  function setupDials() {
+    const dials = document.querySelectorAll('.dial');
+
+    dials.forEach(dial => {
+      const param = dial.dataset.param;
+      const min = parseFloat(dial.dataset.min);
+      const max = parseFloat(dial.dataset.max);
+      let val = parseFloat(dial.dataset.val);
+
+      const indicator = dial.querySelector('.dial-indicator');
+      const valDisplay = document.getElementById(`val-${param}`);
+
+      function updateDialVisual(v) {
+        const norm = (v - min) / (max - min);
+        const angle = -135 + norm * 270;
+        indicator.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+
+        if (param === 'cutoff') valDisplay.textContent = `${Math.round(v)}Hz`;
+        if (param === 'resonance') valDisplay.textContent = `${v.toFixed(1)} Q`;
+        if (param === 'attack') valDisplay.textContent = `${Math.round(v * 1000)} ms`;
+        if (param === 'decay') valDisplay.textContent = `${Math.round(v * 1000)} ms`;
+      }
+
+      updateDialVisual(val);
+
+      let startY = 0;
+      let startVal = val;
+
+      const onMouseMove = (e) => {
+        const dy = startY - e.clientY;
+        const range = max - min;
+        const delta = (dy / 130) * range;
+        val = Math.min(max, Math.max(min, startVal + delta));
+        state.params[param] = val;
+        updateDialVisual(val);
+      };
+
+      const onMouseUp = () => {
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+
+      dial.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        startY = e.clientY;
+        startVal = state.params[param];
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      });
+    });
+  }
+
+  /* ==========================================
+     OSCILLOSCOPE & VISUAL RENDER LOOP
+     ========================================== */
+  const canvas = document.getElementById('scopeCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  let lastDrawnStep = -1;
+
+  function renderLoop() {
+    // 1. Sync Playhead with AudioContext clock
+    if (state.isPlaying && audioCtx) {
+      const currentTime = audioCtx.currentTime;
+      while (visualQueue.length && visualQueue[0].time <= currentTime) {
+        const currentNote = visualQueue.shift();
+        if (currentNote.step !== lastDrawnStep) {
+          highlightStepUI(currentNote.step);
+          lastDrawnStep = currentNote.step;
+        }
+      }
+    }
+
+    // 2. Render Oscilloscope
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.fillStyle = '#161917';
+    ctx.fillRect(0, 0, w, h);
+
+    // Center Reference Line
+    ctx.strokeStyle = '#262D29';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, h / 2);
+    ctx.lineTo(w, h / 2);
+    ctx.stroke();
+
+    if (analyser && state.isPlaying) {
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyser.getByteTimeDomainData(dataArray);
+
+      ctx.lineWidth = 2.2 * window.devicePixelRatio;
+      ctx.strokeStyle = '#DF6B27';
+      ctx.beginPath();
+
+      const sliceWidth = w / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * h) / 2;
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+        x += sliceWidth;
+      }
+      ctx.stroke();
+    } else {
+      // Idle flatline trace with subtle analog jitter
+      ctx.lineWidth = 2 * window.devicePixelRatio;
+      ctx.strokeStyle = '#7A421D';
+      ctx.beginPath();
+      for (let x = 0; x < w; x += 6) {
+        const y = h / 2 + (Math.random() - 0.5) * 2;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(renderLoop);
+  }
+
+  /* ==========================================
+     TOP-DECK EVENT LISTENERS
+     ========================================== */
+  document.getElementById('playBtn').addEventListener('click', () => {
+    if (state.isPlaying) {
+      stopSequencer();
+    } else {
+      startSequencer();
+    }
+  });
+
+  document.getElementById('stopBtn').addEventListener('click', stopSequencer);
+
+  const bpmSlider = document.getElementById('bpmSlider');
+  const bpmDisplay = document.getElementById('bpmDisplay');
+  bpmSlider.addEventListener('input', (e) => {
+    state.bpm = parseInt(e.target.value, 10);
+    bpmDisplay.textContent = state.bpm.toFixed(1);
+  });
+
+  // Waveform buttons
+  document.querySelectorAll('.wave-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.wave-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.waveform = btn.dataset.wave;
+    });
+  });
+
+  // Randomize Pattern
+  document.getElementById('randBtn').addEventListener('click', () => {
+    state.tracks.forEach((track, idx) => {
+      for (let s = 0; s < STEPS; s++) {
+        if (idx === 0) {
+          // Kick: favor downbeats
+          track.steps[s] = (s % 4 === 0) ? (Math.random() > 0.15 ? 1 : 0) : (Math.random() > 0.82 ? 1 : 0);
+        } else if (idx === 1) {
+          // Snare: favor 5 & 13
+          track.steps[s] = (s % 8 === 4) ? 1 : (Math.random() > 0.84 ? 1 : 0);
+        } else if (idx === 2) {
+          // HiHat: dense offbeats
+          track.steps[s] = Math.random() > 0.45 ? 1 : 0;
+        } else if (idx === 3) {
+          // Acid Bass
+          track.steps[s] = Math.random() > 0.42 ? 1 : 0;
+          track.notes[s] = Math.floor(Math.random() * ACID_SCALE.length);
+        }
+      }
+    });
+    buildSequencerDOM();
+  });
+
+  // Clear Pattern
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    state.tracks.forEach(track => {
+      track.steps.fill(0);
+    });
+    buildSequencerDOM();
+  });
+
+  // Spacebar Play/Stop
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+      e.preventDefault();
+      if (state.isPlaying) stopSequencer();
+      else startSequencer();
+    }
+  });
+
+  /* ==========================================
+     BOOT WORKSTATION
+     ========================================== */
+  buildSequencerDOM();
+  setupDials();
+  requestAnimationFrame(renderLoop);
+})();
+</script>
+</body>
+</html>

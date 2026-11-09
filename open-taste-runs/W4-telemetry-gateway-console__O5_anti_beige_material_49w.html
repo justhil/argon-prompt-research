@@ -1,0 +1,1587 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYS.LLM-GW // 大模型推理网关遥测与成本分析台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 灵感源自 Keysight 射频频谱分析仪与工业逻辑分析机箱：冷铝合金 + 琥珀阴极射线 + 磷酸绿 */
+    --chassis-bg: #DCE0E3;
+    --panel-bg: #EAEEF1;
+    --panel-elevated: #F4F6F8;
+    --crt-bg: #111514;
+    --crt-grid: #1E2725;
+    --crt-subgrid: #161C1B;
+    --ink-primary: #14181B;
+    --ink-secondary: #48525A;
+    --ink-muted: #78848E;
+    --border-heavy: #9BA5AE;
+    --border-light: #C6CFD6;
+    --border-hairline: #D4DCE2;
+    
+    /* 信号色相：摒弃霓虹紫青，采用工业仪表标准信号色 */
+    --sig-amber: #FF5500;       /* 高危/主强调：国际工业橙 */
+    --sig-amber-glow: rgba(255, 85, 0, 0.25);
+    --sig-phosphor: #00E575;    /* CRT 磷酸绿 */
+    --sig-yellow: #FFB800;      /* 示波器通道2：基准黄 */
+    --sig-cyan-inst: #00B4D8;   /* 示波器通道3：探头蓝 */
+    --sig-crimson: #E62E2E;     /* 硬件告警红 */
+    --sig-ok: #0F9D58;          /* 工业指示灯绿 */
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Space Grotesk', sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+  }
+
+  body {
+    background-color: var(--chassis-bg);
+    background-image: 
+      radial-gradient(#B8C2CA 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.03) 100%);
+    background-size: 16px 16px, 100% 100%;
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 14px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* 工业机箱外框与螺丝装饰 */
+  .chassis-frame {
+    border: 2px solid var(--ink-primary);
+    background: var(--panel-bg);
+    box-shadow: 
+      0 10px 30px rgba(15, 20, 25, 0.12),
+      inset 0 1px 0 #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+  }
+
+  /* 顶部铭牌与状态栏 */
+  .top-nameplate {
+    background: var(--ink-primary);
+    color: var(--panel-elevated);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--sig-amber);
+    font-family: var(--font-mono);
+  }
+
+  .brand-cluster {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hw-badge {
+    background: var(--sig-amber);
+    color: #fff;
+    font-weight: 700;
+    padding: 2px 7px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hw-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    display: inline-block;
+  }
+
+  .system-title {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #FFFFFF;
+  }
+
+  .system-sub {
+    color: var(--border-heavy);
+    font-size: 11px;
+    border-left: 1px solid #394249;
+    padding-left: 12px;
+  }
+
+  .telemetry-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 11px;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #1E2428;
+    padding: 4px 10px;
+    border: 1px solid #343E46;
+  }
+
+  .led-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sig-phosphor);
+    box-shadow: 0 0 8px var(--sig-phosphor);
+    animation: pulse-led 1.8s infinite ease-in-out;
+  }
+
+  @keyframes pulse-led {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .btn-instrument {
+    background: #252C32;
+    color: #E2E8EC;
+    border: 1px solid #48545E;
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-instrument:hover {
+    background: #333C44;
+    border-color: var(--panel-elevated);
+  }
+
+  .btn-instrument.active {
+    background: var(--sig-amber);
+    color: #fff;
+    border-color: var(--sig-amber);
+  }
+
+  /* 顶部 5 大核心指标矩阵 */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 2px solid var(--ink-primary);
+    background: var(--panel-elevated);
+  }
+
+  .kpi-cell {
+    padding: 14px 18px;
+    border-right: 1px solid var(--border-heavy);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-cell:last-child {
+    border-right: none;
+    background: #E4E9ED;
+  }
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .kpi-code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    background: var(--chassis-bg);
+    padding: 1px 5px;
+    border: 1px solid var(--border-light);
+  }
+
+  .kpi-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    my: 4px;
+  }
+
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ink-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-unit {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-secondary);
+    margin-left: 3px;
+  }
+
+  .kpi-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-light);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .delta-badge {
+    font-weight: 600;
+    padding: 1px 4px;
+  }
+  .delta-up { color: var(--sig-ok); }
+  .delta-warn { color: var(--sig-amber); }
+
+  .sparkline-svg {
+    width: 72px;
+    height: 22px;
+    overflow: visible;
+  }
+
+  /* 主控台三栏/双层工程网格 */
+  .console-workspace {
+    display: grid;
+    grid-template-columns: 440px 1fr;
+    border-bottom: 2px solid var(--ink-primary);
+  }
+
+  .module-pane {
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid var(--ink-primary);
+    background: var(--panel-bg);
+  }
+
+  .module-pane:last-child {
+    border-right: none;
+  }
+
+  .module-header {
+    background: #DFE5E9;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border-heavy);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .module-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-index {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--ink-primary);
+    color: #fff;
+    padding: 1px 6px;
+  }
+
+  .module-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ink-primary);
+  }
+
+  .module-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 左侧：硬件推子风格路由权重与实时成本推演 */
+  .fader-bank {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .preset-bar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .preset-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    font-weight: 600;
+  }
+
+  .preset-group {
+    display: flex;
+    gap: 4px;
+  }
+
+  .btn-preset {
+    background: var(--panel-elevated);
+    border: 1px solid var(--border-heavy);
+    padding: 3px 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    cursor: pointer;
+    box-shadow: 0 1px 0 #fff;
+  }
+
+  .btn-preset:hover {
+    background: #fff;
+    border-color: var(--ink-primary);
+  }
+
+  .btn-preset:active {
+    transform: translateY(1px);
+  }
+
+  .fader-channel {
+    background: var(--panel-elevated);
+    border: 1px solid var(--border-heavy);
+    padding: 10px 12px;
+    position: relative;
+    box-shadow: inset 0 1px 0 #FFFFFF;
+  }
+
+  .channel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .model-id {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .ch-color-bar {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,0.3);
+  }
+
+  .model- vendor {
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-weight: 400;
+  }
+
+  .channel-readout {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-family: var(--font-mono);
+  }
+
+  .price-tag {
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  .weight-pct {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink-primary);
+    min-width: 48px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 工业级定制 Range 滑块 */
+  .fader-track-wrap {
+    position: relative;
+    height: 26px;
+    display: flex;
+    align-items: center;
+  }
+
+  .fader-ticks {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--border-heavy) 0,
+      var(--border-heavy) 1px,
+      transparent 1px,
+      transparent 10%
+    );
+    height: 6px;
+    top: 10px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  input[type="range"].hw-fader {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #CBD3D9;
+    border: 1px solid #8C98A2;
+    outline: none;
+    position: relative;
+    z-index: 2;
+    cursor: ew-resize;
+  }
+
+  input[type="range"].hw-fader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 22px;
+    background: linear-gradient(180deg, #404850 0%, #191D21 100%);
+    border: 1px solid #000;
+    box-shadow: 
+      0 2px 4px rgba(0,0,0,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.25);
+    cursor: grab;
+    position: relative;
+  }
+
+  input[type="range"].hw-fader::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    background: var(--sig-amber);
+    border-color: #993300;
+  }
+
+  .channel-sub {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    margin-top: 4px;
+  }
+
+  /* 成本推演汇总沙盘 */
+  .cost-projection-box {
+    background: var(--crt-bg);
+    color: #E2ECE9;
+    padding: 12px 14px;
+    border: 1px solid #000;
+    font-family: var(--font-mono);
+    margin-top: auto;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
+  }
+
+  .proj-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #88A099;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--crt-grid);
+  }
+
+  .proj-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding-top: 10px;
+  }
+
+  .proj-item-label {
+    font-size: 10px;
+    color: #7D948E;
+    margin-bottom: 3px;
+  }
+
+  .proj-item-val {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--sig-phosphor);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .proj-item-val.amber {
+    color: var(--sig-yellow);
+  }
+
+  /* 右侧：CRT 示波器风格 4 主力模型延迟分布对比 */
+  .oscilloscope-pane {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--panel-bg);
+  }
+
+  .crt-monitor {
+    background-color: var(--crt-bg);
+    background-image: 
+      linear-gradient(var(--crt-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--crt-grid) 1px, transparent 1px),
+      linear-gradient(var(--crt-subgrid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--crt-subgrid) 1px, transparent 1px);
+    background-size: 80px 60px, 80px 60px, 16px 12px, 16px 12px;
+    border: 2px solid #2A3236;
+    box-shadow: 
+      inset 0 0 36px rgba(0,0,0,0.85),
+      0 1px 0 #fff;
+    padding: 14px 16px;
+    color: #D0DFDC;
+    font-family: var(--font-mono);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+    position: relative;
+  }
+
+  .crt-top-overlay {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #849E97;
+    border-bottom: 1px solid #23302D;
+    padding-bottom: 8px;
+  }
+
+  .crt-legend {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  . SLA-marker-key {
+    width: 10px;
+    height: 2px;
+    background: var(--sig-amber);
+    display: inline-block;
+  }
+
+  /* 延迟分位箱线与核密度轨道 */
+  .latency-tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: auto 0;
+  }
+
+  .lat-row {
+    display: grid;
+    grid-template-columns: 165px 1fr 195px;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .lat-model-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .lat-model-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lat-model-sub {
+    font-size: 10px;
+    color: #748E87;
+  }
+
+  .lat-canvas-wrap {
+    height: 36px;
+    position: relative;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid #222E2B;
+    display: flex;
+    align-items: center;
+  }
+
+  /* SLA 警戒线 (800ms) */
+  .sla-threshold-line {
+    position: absolute;
+    left: 66.66%; /* 800ms / 1200ms */
+    top: -6px;
+    bottom: -6px;
+    width: 1px;
+    border-left: 1px dashed var(--sig-amber);
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .lat-stats-table {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    font-size: 11px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    background: rgba(255,255,255,0.03);
+    padding: 5px 8px;
+    border: 1px solid #222E2B;
+  }
+
+  .stat-col-label {
+    font-size: 9px;
+    color: #6B827C;
+    display: block;
+  }
+
+  .crt-scale-axis {
+    display: grid;
+    grid-template-columns: 165px 1fr 195px;
+    gap: 14px;
+    font-size: 10px;
+    color: #6B827C;
+    padding-top: 4px;
+    border-top: 1px solid #22302C;
+  }
+
+  .scale-ticks {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  /* 底部：实时请求追踪流（Telemetry Trace Stream） */
+  .trace-section {
+    display: flex;
+    flex-direction: column;
+    background: var(--panel-elevated);
+    flex: 1;
+  }
+
+  .filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-heavy);
+    padding: 3px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--ink-primary);
+    color: var(--ink-primary);
+  }
+
+  .filter-btn.active {
+    background: var(--ink-primary);
+    color: #fff;
+    border-color: var(--ink-primary);
+  }
+
+  .filter-count {
+    font-size: 10px;
+    opacity: 0.75;
+  }
+
+  .trace-table-container {
+    overflow-x: auto;
+    max-height: 290px;
+    overflow-y: auto;
+  }
+
+  table.trace-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  table.trace-grid thead th {
+    position: sticky;
+    top: 0;
+    background: #D5DDE2;
+    color: var(--ink-primary);
+    text-align: left;
+    padding: 7px 12px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border-heavy);
+    z-index: 5;
+  }
+
+  table.trace-grid tbody tr {
+    border-bottom: 1px solid var(--border-hairline);
+    transition: background-color 0.15s ease;
+  }
+
+  table.trace-grid tbody tr:nth-child(even) {
+    background: #EFF3F5;
+  }
+
+  table.trace-grid tbody tr:hover {
+    background: #E2E9EE;
+  }
+
+  table.trace-grid tbody tr.flash-row {
+    animation: row-flash 0.7s ease-out;
+  }
+
+  @keyframes row-flash {
+    0% { background-color: rgba(255, 85, 0, 0.22); }
+    100% { background-color: transparent; }
+  }
+
+  table.trace-grid td {
+    padding: 6.5px 12px;
+    white-space: nowrap;
+    color: var(--ink-primary);
+  }
+
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 1px 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+
+  .st-200 {
+    background: rgba(15, 157, 88, 0.12);
+    color: #096B3A;
+    border-color: rgba(15, 157, 88, 0.3);
+  }
+
+  .st-cache {
+    background: rgba(0, 180, 216, 0.14);
+    color: #00667E;
+    border-color: rgba(0, 180, 216, 0.35);
+  }
+
+  .st-429 {
+    background: rgba(255, 85, 0, 0.14);
+    color: #B83D00;
+    border-color: rgba(255, 85, 0, 0.35);
+  }
+
+  .st-fallback {
+    background: rgba(255, 184, 0, 0.18);
+    color: #8A5A00;
+    border-color: rgba(255, 184, 0, 0.45);
+  }
+
+  /* 迷你瀑布条：直观呈现 TTFT 与 Streaming 耗时占比 */
+  .waterfall-cell {
+    width: 150px;
+  }
+
+  .waterfall-bar-wrap {
+    width: 130px;
+    height: 10px;
+    background: #DCE2E6;
+    border: 1px solid #B8C2CA;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .wf-ttft {
+    background: var(--sig-amber);
+    height: 100%;
+  }
+
+  .wf-stream {
+    background: var(--ink-primary);
+    height: 100%;
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 1200px) {
+    .kpi-strip {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .console-workspace {
+      grid-template-columns: 1fr;
+    }
+    .module-pane {
+      border-right: none;
+      border-bottom: 2px solid var(--ink-primary);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="chassis-frame">
+  <!-- 顶部硬件铭牌与全局控制 -->
+  <header class="top-nameplate">
+    <div class="brand-cluster">
+      <span class="hw-badge">UNIT-04 // ACTIVE</span>
+      <span class="system-title">AETHER-GW 9000 // LLM INFERENCE TELEMETRY & COST CONSOLE</span>
+      <span class="system-sub">CLUSTER: US-EAST-NVL72 // VER 4.18.2-RT</span>
+    </div>
+    <div class="telemetry-bar">
+      <div class="status-pill">
+        <span class="led-dot" id="liveLed"></span>
+        <span id="gatewayStateText">BUS SYNC: 100Hz STREAMING</span>
+      </div>
+      <span id="clockReadout">UTC 00:00:00.000</span>
+      <button class="btn-instrument" id="toggleStreamBtn" onclick="toggleTelemetryStream()">PAUSE CAPTURE</button>
+    </div>
+  </header>
+
+  <!-- 1. 顶部核心汇总指标矩阵 -->
+  <section class="kpi-strip">
+    <!-- 总请求数 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-label">Total Ingress Requests</span>
+        <span class="kpi-code">CH.01 // REQ</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiTotalReq">1,482,910</span>
+          <span class="kpi-unit">reqs</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkReq" viewBox="0 0 72 22"></svg>
+      </div>
+      <div class="kpi-footer">
+        <span>RPS: <strong id="kpiRps">284.6</strong>/s</span>
+        <span class="delta-badge delta-up">+14.2% vs 24h</span>
+      </div>
+    </div>
+
+    <!-- 平均 TTFT 首字延迟 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-label">Mean TTFT Latency</span>
+        <span class="kpi-code">CH.02 // TTFT</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiTtft">186</span>
+          <span class="kpi-unit">ms</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkTtft" viewBox="0 0 72 22"></svg>
+      </div>
+      <div class="kpi-footer">
+        <span>P99: <strong id="kpiTtftP99">492</strong>ms</span>
+        <span class="delta-badge delta-up" id="kpiTtftStatus">SLA &lt; 800ms OK</span>
+      </div>
+    </div>
+
+    <!-- 流式吞吐 tok/s -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-label">Streaming Throughput</span>
+        <span class="kpi-code">CH.03 // TOK/S</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiThroughput">48,920</span>
+          <span class="kpi-unit">tok/s</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkTok" viewBox="0 0 72 22"></svg>
+      </div>
+      <div class="kpi-footer">
+        <span>DECODE: <strong id="kpiPerReqTok">78.4</strong> t/s/req</span>
+        <span class="delta-badge delta-up">KV-FP8 ENABLED</span>
+      </div>
+    </div>
+
+    <!-- 语义与前缀缓存命中率 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-label">Prefix & Semantic Cache</span>
+        <span class="kpi-code">CH.04 // HIT%</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiCacheHit">38.4</span>
+          <span class="kpi-unit">%</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkCache" viewBox="0 0 72 22"></svg>
+      </div>
+      <div class="kpi-footer">
+        <span>SAVED: <strong id="kpiSavedCost">$1,142.80</strong></span>
+        <span class="delta-badge delta-up">+4.1% HIT GAIN</span>
+      </div>
+    </div>
+
+    <!-- 今日累计账单与实时燃烧率 -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-label">Today Accrued Spend</span>
+        <span class="kpi-code">CH.05 // COST</span>
+      </div>
+      <div class="kpi-main">
+        <div>
+          <span class="kpi-value" id="kpiTodayBill">$3,842.65</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkCost" viewBox="0 0 72 22"></svg>
+      </div>
+      <div class="kpi-footer">
+        <span>BURN: <strong id="kpiHourlyBurn" style="color:var(--sig-amber)">$168.40</strong>/hr</span>
+        <span class="delta-badge delta-warn" id="kpiCostPer1k">$2.59 / 1k req</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 中部工作台：左侧路由权重滑块与成本重算 + 右侧 4 模型延迟分布示波器 -->
+  <div class="console-workspace">
+    <!-- 左栏：动态流量分流推子与实时成本计算器 -->
+    <div class="module-pane">
+      <div class="module-header">
+        <div class="module-title-group">
+          <span class="section-index">SEC.A</span>
+          <h2 class="module-title">Traffic Routing Faders & Cost Simulator</h2>
+        </div>
+        <div class="module-meta">AUTO-NORMALIZE: 100%</div>
+      </div>
+
+      <div class="fader-bank">
+        <div class="preset-bar">
+          <span class="preset-label">ROUTING TOPOLOGY PRESETS:</span>
+          <div class="preset-group">
+            <button class="btn-preset" onclick="applyRoutingPreset([35, 30, 25, 10])">BALANCED</button>
+            <button class="btn-preset" onclick="applyRoutingPreset([10, 15, 55, 20])">LOW-LATENCY</button>
+            <button class="btn-preset" onclick="applyRoutingPreset([5, 10, 25, 60])">COST-SAVER</button>
+          </div>
+        </div>
+
+        <!-- 4个主力模型滑块容器（由 JS 渲染与联动） -->
+        <div id="faderChannelsContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+        <!-- 底部 CRT 成本实时演算屏 -->
+        <div class="cost-projection-box">
+          <div class="proj-header">
+            <span>REAL-TIME ROUTING COST ARBITRAGE ENGINE</span>
+            <span>EST. @ 2.4M REQ/DAY</span>
+          </div>
+          <div class="proj-grid">
+            <div>
+              <div class="proj-item-label">BLENDED $/1M TOK</div>
+              <div class="proj-item-val" id="simBlendedPrice">$4.12</div>
+            </div>
+            <div>
+              <div class="proj-item-label">PROJECTED 24H BILL</div>
+              <div class="proj-item-val amber" id="simDailyBill">$4,038.10</div>
+            </div>
+            <div>
+              <div class="proj-item-label">VS BASELINE DELTA</div>
+              <div class="proj-item-val" id="simSavingsDelta">-$184.20/d</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右栏：4 主力模型延迟分布对比（CRT 逻辑示波器视图） -->
+    <div class="module-pane">
+      <div class="module-header">
+        <div class="module-title-group">
+          <span class="section-index">SEC.B</span>
+          <h2 class="module-title">Model Latency Distribution & Percentile Analyzer</h2>
+        </div>
+        <div class="module-meta">
+          <span>WINDOW: 5M ROLLING</span>
+          <span>|</span>
+          <span>SCALE: 0 — 1200ms</span>
+        </div>
+      </div>
+
+      <div class="oscilloscope-pane">
+        <div class="crt-monitor">
+          <div class="crt-top-overlay">
+            <div>MODE: KDE DENSITY WAVEFORM + IQR BOXPLOT (P50 / P90 / P99)</div>
+            <div class="crt-legend">
+              <span class="legend-item">
+                <span style="width:8px;height:8px;background:var(--sig-phosphor);display:inline-block;"></span>P50 MEDIAN
+              </span>
+              <span class="legend-item">
+                <span style="width:12px;height:4px;border:1px solid #fff;background:rgba(255,255,255,0.2);display:inline-block;"></span>P25-P90 BAND
+              </span>
+              <span class="legend-item">
+                <span class="SLA-marker-key"></span>SLA GATE (800ms)
+              </span>
+            </div>
+          </div>
+
+          <!-- 4 模型延迟轨道 -->
+          <div class="latency-tracks" id="latencyTracksContainer"></div>
+
+          <!-- 底部毫秒刻度尺 -->
+          <div class="crt-scale-axis">
+            <div>MODEL IDENTIFIER</div>
+            <div class="scale-ticks">
+              <span>0ms</span>
+              <span>200ms</span>
+              <span>400ms</span>
+              <span>600ms</span>
+              <span style="color:var(--sig-amber);font-weight:700;">800ms (SLA)</span>
+              <span>1000ms</span>
+              <span>1200ms</span>
+            </div>
+            <div style="text-align:right;">PERCENTILE TELEMETRY (MS)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 底部：实时请求追踪流（支持按状态筛选） -->
+  <section class="trace-section">
+    <div class="module-header">
+      <div class="module-title-group">
+        <span class="section-index">SEC.C</span>
+        <h2 class="module-title">Live Inference Request Telemetry Stream</h2>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-secondary);margin-left:8px;">
+          [WATERFALL: <span style="color:var(--sig-amber)">■ TTFT</span> / <span style="color:var(--ink-primary)">■ STREAM DECODE</span>]
+        </span>
+      </div>
+      <div class="filter-controls" id="traceFilterBar">
+        <button class="filter-btn active" data-filter="ALL" onclick="setTraceFilter('ALL')">
+          ALL STREAM <span class="filter-count" id="cnt-ALL">(0)</span>
+        </button>
+        <button class="filter-btn" data-filter="200_OK" onclick="setTraceFilter('200_OK')">
+          200 OK <span class="filter-count" id="cnt-200_OK">(0)</span>
+        </button>
+        <button class="filter-btn" data-filter="CACHE_HIT" onclick="setTraceFilter('CACHE_HIT')">
+          CACHE HIT <span class="filter-count" id="cnt-CACHE_HIT">(0)</span>
+        </button>
+        <button class="filter-btn" data-filter="429_RATE" onclick="setTraceFilter('429_RATE')">
+          429 LIMIT <span class="filter-count" id="cnt-429_RATE">(0)</span>
+        </button>
+        <button class="filter-btn" data-filter="FALLBACK" onclick="setTraceFilter('FALLBACK')">
+          FALLBACK <span class="filter-count" id="cnt-FALLBACK">(0)</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="trace-table-container">
+      <table class="trace-grid">
+        <thead>
+          <tr>
+            <th>REQ_ID</th>
+            <th>TIMESTAMP (UTC)</th>
+            <th>ROUTE / UPSTREAM</th>
+            <th>CALLER TENANT</th>
+            <th>TOKENS (IN → OUT)</th>
+            <th>TTFT / TOTAL</th>
+            <th class="waterfall-cell">TIMING WATERFALL</th>
+            <th>SPEED</th>
+            <th>COST (USD)</th>
+            <th>GATEWAY STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="traceTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  /********************************************************************
+   * 1. 核心模型配置与基准参数 (4 大主力模型)
+   ********************************************************************/
+  const MODELS = [
+    {
+      id: 'claude-3-7-sonnet',
+      name: 'Claude 3.7 Sonnet',
+      provider: 'Anthropic // AWS-Bedrock',
+      color: '#FF5500',      // 工业橙
+      weight: 35,
+      inputPrice: 3.00,      // $ / 1M tokens
+      outputPrice: 15.00,    // $ / 1M tokens
+      blendedPer1M: 6.60,    // 综合每百万 token 均价
+      baseP50: 215,
+      baseP90: 410,
+      baseP99: 690,
+      tokPerSec: 68
+    },
+    {
+      id: 'gpt-4o-2024-11',
+      name: 'GPT-4o (1120)',
+      provider: 'OpenAI // Azure-EastUS2',
+      color: '#00E575',      // 磷酸绿
+      weight: 30,
+      inputPrice: 2.50,
+      outputPrice: 10.00,
+      blendedPer1M: 4.75,
+      baseP50: 192,
+      baseP90: 365,
+      baseP99: 610,
+      tokPerSec: 82
+    },
+    {
+      id: 'deepseek-v3-fp8',
+      name: 'DeepSeek-V3 (FP8)',
+      provider: 'Self-Hosted // H200-TensorRT',
+      color: '#FFB800',      // 示波器基准黄
+      weight: 25,
+      inputPrice: 0.27,
+      outputPrice: 1.10,
+      blendedPer1M: 0.52,
+      baseP50: 138,
+      baseP90: 255,
+      baseP99: 430,
+      tokPerSec: 112
+    },
+    {
+      id: 'qwen-2.5-72b-inst',
+      name: 'Qwen-2.5-72B-Inst',
+      provider: 'vLLMCluster // NVLink-Node04',
+      color: '#00B4D8',      // 探头青蓝
+      weight: 10,
+      inputPrice: 0.35,
+      outputPrice: 0.90,
+      blendedPer1M: 0.51,
+      baseP50: 118,
+      baseP90: 220,
+      baseP99: 375,
+      tokPerSec: 128
+    }
+  ];
+
+  // 全局遥测状态
+  let state = {
+    streaming: true,
+    totalRequests: 1482910,
+    todaySpend: 3842.65,
+    savedCacheCost: 1142.80,
+    cacheHitRate: 38.4,
+    currentFilter: 'ALL',
+    traces: [],
+    sparkData: {
+      req: [260, 275, 268, 280, 290, 285, 278, 295, 288, 284],
+      ttft: [195, 188, 192, 184, 179, 185, 190, 182, 187, 186],
+      tok: [44200, 46800, 45900, 47500, 49100, 48200, 47900, 49400, 48600, 48920],
+      cache: [36.2, 36.8, 37.1, 37.5, 37.9, 38.0, 38.2, 38.1, 38.3, 38.4],
+      cost: [158, 162, 160, 165, 171, 169, 166, 170, 167, 168]
+    }
+  };
+
+  const TENANTS = [
+    'fin-copilot-prod',
+    'code-agent-core',
+    'rag-legal-search',
+    'cust-support-v4',
+    'bi-sql-synthesizer',
+    'doc-extractor-batch'
+  ];
+
+  /********************************************************************
+   * 2. 初始化与渲染路由权重滑块 (拖动实时重算成本与延迟)
+   ********************************************************************/
+  function renderFaderBank() {
+    const container = document.getElementById('faderChannelsContainer');
+    container.innerHTML = '';
+
+    MODELS.forEach((m, idx) => {
+      const ch = document.createElement('div');
+      ch.className = 'fader-channel';
+      ch.innerHTML = `
+        <div class="channel-top">
+          <div class="model-id">
+            <span class="ch-color-bar" style="background:${m.color}"></span>
+            <span>${m.name}</span>
+          </div>
+          <div class="channel-readout">
+            <span class="price-tag">$${m.inputPrice.toFixed(2)} / $${m.outputPrice.toFixed(2)} (1M)</span>
+            <span class="weight-pct" id="weightVal-${idx}">${m.weight}%</span>
+          </div>
+        </div>
+        <div class="fader-track-wrap">
+          <div class="fader-ticks"></div>
+          <input type="range" class="hw-fader" id="fader-${idx}" min="0" max="100" step="1" value="${m.weight}"
+            oninput="handleFaderChange(${idx}, this.value)">
+        </div>
+        <div class="channel-sub">
+          <span>UPSTREAM: ${m.provider}</span>
+          <span>EST. SHARE: <strong id="estRps-${idx}">0</strong> req/s</span>
+        </div>
+      `;
+      container.appendChild(ch);
+    });
+  }
+
+  // 联动归一化滑块权重并实时重算全局成本与延迟指标
+  function handleFaderChange(changedIdx, newValue) {
+    newValue = parseInt(newValue, 10);
+    MODELS[changedIdx].weight = newValue;
+
+    const otherIndices = MODELS.map((_, i) => i).filter(i => i !== changedIdx);
+    const remainingTarget = 100 - newValue;
+    const currentOthersSum = otherIndices.reduce((acc, i) => acc + MODELS[i].weight, 0);
+
+    if (currentOthersSum === 0) {
+      const split = Math.floor(remainingTarget / otherIndices.length);
+      otherIndices.forEach((i, pos) => {
+        MODELS[i].weight = pos === otherIndices.length - 1
+          ? remainingTarget - split * (otherIndices.length - 1)
+          : split;
+      });
+    } else {
+      let allocated = 0;
+      otherIndices.forEach((i, pos) => {
+        if (pos === otherIndices.length - 1) {
+          MODELS[i].weight = Math.max(0, remainingTarget - allocated);
+        } else {
+          const share = Math.round((MODELS[i].weight / currentOthersSum) * remainingTarget);
+          MODELS[i].weight = share;
+          allocated += share;
+        }
+      });
+    }
+
+    syncFaderUIAndRecalculate();
+  }
+
+  function applyRoutingPreset(weights) {
+    weights.forEach((w, i) => { MODELS[i].weight = w; });
+    syncFaderUIAndRecalculate();
+  }
+
+  function syncFaderUIAndRecalculate() {
+    const baseRps = 284.6;
+    let weightedPer1M = 0;
+    let weightedTtft = 0;
+    let weightedP99 = 0;
+    let weightedTokPerSec = 0;
+
+    MODELS.forEach((m, idx) => {
+      const faderEl = document.getElementById(`fader-${idx}`);
+      const valEl = document.getElementById(`weightVal-${idx}`);
+      const rpsEl = document.getElementById(`estRps-${idx}`);
+      if (faderEl) faderEl.value = m.weight;
+      if (valEl) valEl.textContent = `${m.weight}%`;
+      if (rpsEl) rpsEl.textContent = ((baseRps * m.weight) / 100).toFixed(1);
+
+      const ratio = m.weight / 100;
+      weightedPer1M += m.blendedPer1M * ratio;
+      weightedTtft += m.baseP50 * ratio;
+      weightedP99 += m.baseP99 * ratio;
+      weightedTokPerSec += m.tokPerSec * ratio;
+    });
+
+    // 缓存折扣因子
+    const cacheDiscount = 1 - (state.cacheHitRate / 100) * 0.65;
+    const effectiveBlended = weightedPer1M * cacheDiscount;
+
+    // 每日 2.4M 请求，平均每次请求 980 tokens
+    const projectedDailyCost = (2.4 * 980 * effectiveBlended);
+    const baselineDailyCost = 4222.30; // 初始基准对比
+    const delta = projectedDailyCost - baselineDailyCost;
+
+    const hourlyBurn = projectedDailyCost / 24;
+    const costPer1k = projectedDailyCost / 2400;
+
+    // 更新左栏底部成本模拟器
+    document.getElementById('simBlendedPrice').textContent = `$${effectiveBlended.toFixed(2)}`;
+    document.getElementById('simDailyBill').textContent = `$${projectedDailyCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+    const deltaEl = document.getElementById('simSavingsDelta');
+    if (delta <= 0) {
+      deltaEl.textContent = `-$${Math.abs(delta).toFixed(2)}/d`;
+      deltaEl.style.color = 'var(--sig-phosphor)';
+    } else {
+      deltaEl.textContent = `+$${delta.toFixed(2)}/d`;
+      deltaEl.style.color = 'var(--sig-amber)';
+    }
+
+    // 同步更新顶部 KPI 面板中的关联指标
+    document.getElementById('kpiTtft').textContent = Math.round(weightedTtft);
+    document.getElementById('kpiTtftP99').textContent = Math.round(weightedP99);
+    document.getElementById('kpiPerReqTok').textContent = weightedTokPerSec.toFixed(1);
+    document.getElementById('kpiThroughput').textContent = Math.round(weightedTokPerSec * baseRps * 0.62).toLocaleString('en-US');
+    document.getElementById('kpiHourlyBurn').textContent = `$${hourlyBurn.toFixed(2)}`;
+    document.getElementById('kpiCostPer1k').textContent = `$${costPer1k.toFixed(2)} / 1k req`;
+
+    // 更新延迟分布图（高负载权重会轻微推高队列延迟）
+    renderLatencyOscilloscope();
+  }
+
+  /********************************************************************
+   * 3. 右侧 4 模型延迟分布示波器 (SVG 核密度波形 + 分位箱线)
+   ********************************************************************/
+  function renderLatencyOscilloscope() {
+    const container = document.getElementById('latencyTracksContainer');
+    container.innerHTML = '';
+    const maxScaleMs = 1200;
+
+    MODELS.forEach((m) => {
+      // 负载压力系数：当路由权重高于 50% 时，尾部延迟有所抬升
+      const loadFactor = 1 + Math.max(0, (m.weight - 35) * 0.0045);
+      const jitter = () => (Math.random() - 0.5) * 8;
+
+      const p50 = Math.max(60, Math.round(m.baseP50 * loadFactor + jitter()));
+      const p90 = Math.max(p50 + 45, Math.round(m.baseP90 * loadFactor + jitter() * 1.5));
+      const p99 = Math.max(p90 + 60, Math.round(m.baseP99 * loadFactor + jitter() * 2.5));
+      const p25 = Math.round(p50 * 0.76);
+
+      // 映射到 0-100% 宽度 (1200ms 满量程)
+      const x25 = Math.min(96, (p25 / maxScaleMs) * 100);
+      const x50 = Math.min(97, (p50 / maxScaleMs) * 100);
+      const x90 = Math.min(98, (p90 / maxScaleMs) * 100);
+      const x99 = Math.min(99, (p99 / maxScaleMs) * 100);
+
+      // 构造逼真的核密度右偏分布 SVG Path
+      const startX = Math.max(2, x25 - 8);
+      const peakX = x50;
+      const tailX = Math.min(99.5, x99 + 5);
+
+      const svgWave = `
+        <svg width="100%" height="36" viewBox="0 0 400 36" preserveAspectRatio="none">
+          <!-- 核密度半透明波形填充 -->
+          <path d="M ${startX * 4},35 
+                   C ${(startX + (peakX - startX)*0.4)*4},35 ${(peakX - 4)*4},4 ${peakX*4},4 
+                   C ${(peakX + 6)*4},4 ${x90*4},24 ${x99*4},32 
+                   L ${tailX*4},35 Z" 
+                fill="${m.color}" fill-opacity="0.22" stroke="${m.color}" stroke-width="1.3" />
+          
+          <!-- P25 至 P99 须线 -->
+          <line x1="${x25 * 4}" y1="18" x2="${x99 * 4}" y2="18" stroke="#E2ECE9" stroke-width="1" stroke-dasharray="2,2" />
+
+          <!-- P25 至 P90 箱体 -->
+          <rect x="${x25 * 4}" y="11" width="${Math.max(4, (x90 - x25) * 4)}" height="14" 
+                fill="${m.color}" fill-opacity="0.28" stroke="${m.color}" stroke-width="1.2" />
+
+          <!-- P50 中位数高亮指示针 -->
+          <line x1="${x50 * 4}" y1="4" x2="${x50 * 4}" y2="32" stroke="#FFFFFF" stroke-width="2.2" />
+
+          <!-- P99 尾部极值刻度 -->
+          <line x1="${x99 * 4}" y1="11" x2="${x99 * 4}" y2="25" stroke="${m.color}" stroke-width="2" />
+        </svg>
+      `;
+
+      const row = document.createElement('div');
+      row.className = 'lat-row';
+      row.innerHTML = `
+        <div class="lat-model-meta">
+          <div class="lat-model-name">
+            <span style="width:8px;height:8px;background:${m.color};display:inline-block;"></span>
+            <span>${m.name}</span>
+          </div>
+          <div class="lat-model-sub">WEIGHT: ${m.weight}% // ${m.tokPerSec} tok/s</div>
+        </div>
+        <div class="lat-canvas-wrap">
+          <div class="sla-threshold-line" title="SLA Gate: 800ms"></div>
+          ${svgWave}
+        </div>
+        <div class="lat-stats-table">
+          <div>
+            <span class="stat-col-label">P50 MED</span>
+            <strong style="color:#fff">${p50}ms</strong>
+          </div>
+          <div>
+            <span class="stat-col-label">P90 TAIL</span>
+            <strong style="color:${m.color}">${p90}ms</strong>
+          </div>
+          <div>
+            <span class="stat-col-label">P99 MAX</span>
+            <strong style="color:${p99 > 800 ? 'var(--sig-amber)' : '#B8C7C3'}">${p99}ms</strong>
+          </div>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  /********************************************************************
+   * 4. 顶部 KPI 迷你趋势火花线 (Sparklines)
+   ********************************************************************/
+  function drawSparkline(svgId, dataArray, strokeColor) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    const min = Math.min(...dataArray);
+    const max = Math.max(...dataArray);
+    const range = max - min || 1;
+    const width = 72;
+    const height = 20;
+
+    const points = dataArray.map((val, i) => {
+      const x = (i / (dataArray.length - 1)) * width;
+      const y = height - ((val - min) / range) * (height - 4) - 2;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+
+    const lastPt = points.split(' ').pop().split(',');
+
+    svg.innerHTML = `
+      <polyline fill="none" stroke="${strokeColor}" stroke-width="1.6" points="${points}" />
+      <circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="2.3" fill="${strokeColor}" />
+    `;
+  }
+
+  function renderAllSparklines() {
+    drawSparkline('sparkReq', state.sparkData.req, '#14181B');
+    drawSparkline('sparkTtft', state.sparkData.ttft, '#FF5500');
+    drawSparkline('sparkTok', state.sparkData.tok, '#0F9D58');
+    drawSparkline('sparkCache', state.sparkData.cache, '#00B4D8');
+    drawSparkline('sparkCost', state.sparkData.cost, '#FF5500');
+  }
+
+  /********************************************************************
+   * 5. 底部实时请求追踪流生成器与状态过滤
+   ********************************************************************/
+  function pickModelByWeight() {
+    const r = Math.random() * 100;
+    let acc = 0;
+    for (const m of MODELS) {
+      acc += m.weight;
+      if (r <= acc) return m;
+    }
+    return MODELS[0];
+  }
+
+  function generateTraceEvent() {
+    const model = pickModelByWeight();
+    const tenant = TENANTS[Math.floor(Math.random() * TENANTS.length)];
+    const reqHex = Math.floor(0x100000 + Math.random() * 0xEFFFFF).toString(16).toUpperCase();
+
+    // 依据概率生成状态：200 OK (62%), CACHE_HIT (24%), FALLBACK (8%), 429_RATE (6%)
+    const roll = Math.random();
+    let statusType = '200_OK';
+    let statusLabel = '200 STREAM';
+    let statusClass = 'st-200';
+
+    if (roll > 0.94) {
+      statusType = '429_RATE';
+      statusLabel = '429 THROTTLED';
+      statusClass = 'st-429';
+    } else if (roll > 0.86) {
+      statusType = 'FALLBACK';
+      statusLabel = '200 FALLBACK';
+      statusClass = 'st-fallback';
+    } else if (roll > 0.62) {
+      statusType = 'CACHE_HIT';
+      statusLabel = '200 CACHE HIT';
+      statusClass = 'st-cache';
+    }
+
+    const inputTokens = Math.floor(240 + Math.random() * 2400);
+    const outputTokens = statusType === '429_RATE' ? 0 : Math.floor(60 + Math.random() * 680);
+
+    let ttftMs = Math.round(model.baseP50 * (0.75 + Math.random() * 0.65));
+    let streamMs = Math.round((outputTokens / model.tokPerSec) * 1000);
+
+    if (statusType === 'CACHE_HIT') {
+      ttftMs = Math.floor(18 + Math.random() * 26); // 缓存命中极低首字延迟
+      streamMs = Math.round(streamMs * 0.65);
+    } else if (statusType === '429_RATE') {
+      ttftMs = Math.floor(12 + Math.random() * 15);
+      streamMs = 0;
+    } else if (statusType === 'FALLBACK') {
+      ttftMs += 260; // 主路由超时切备用节点损耗
+    }
+
+    const totalMs = ttftMs + streamMs;
+    const speedTokS = streamMs > 0 ? ((outputTokens / streamMs) * 1000).toFixed(1) : '0.0';
+
+    // 计算单次请求成本
+    let reqCost = (inputTokens * model.inputPrice + outputTokens * model.outputPrice) / 1_000_000;
+    if (statusType === 'CACHE_HIT') reqCost *= 0.15;
+    if (statusType === '429_RATE') reqCost = 0;
+
+    const now = new Date();
+    const ts = now.toISOString().split('T')[1].slice(0, 12);
+
+    return {
+      id: `req_${reqHex}`,
+      ts,
+      modelName: model.name,
+      modelColor: model.color,
+      tenant,
+      inputTokens,
+      outputTokens,
+      ttftMs,
+      totalMs,
+      speedTokS,
+      cost: reqCost,
+      statusType,
+      statusLabel,
+      statusClass
+    };
+  }
+
+  function pushNewTrace(trace, isInitial = false) {
+    state.traces.unshift(trace);
+    if (state.traces.length > 80) {
+      state.traces.pop();
+    }
+    update

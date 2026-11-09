@@ -1,0 +1,508 @@
+[
+  {
+    "runKey": "F1-llm-telemetry-console__P0_default_zero_style",
+    "taskId": "F1-llm-telemetry-console",
+    "taskTitle": "大模型推理网关监控与成本分析台",
+    "styleId": "P0_default_zero_style",
+    "styleLabel": "P0 · 零风格引导 (Argon 默认审美)",
+    "styleCharCount": 0,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 87.81,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 347,
+      "completion_tokens": 10100,
+      "total_tokens": 10447,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 28473,
+      "hasDarkBg": true,
+      "darkHexCount": 8,
+      "neonColorHits": 4,
+      "neonColorSamples": [
+        "#06b6d4",
+        "#8b5cf6"
+      ],
+      "linearGradientCount": 2,
+      "neonGlowShadowCount": 1,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 68
+    }
+  },
+  {
+    "runKey": "F1-llm-telemetry-console__P1_negative_ban_only",
+    "taskId": "F1-llm-telemetry-console",
+    "taskTitle": "大模型推理网关监控与成本分析台",
+    "styleId": "P1_negative_ban_only",
+    "styleLabel": "P1 · 18字纯反向禁令 (\"别用暗黑风，用浅色\")",
+    "styleCharCount": 18,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 134.29,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 369,
+      "completion_tokens": 15242,
+      "total_tokens": 15611,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 44810,
+      "hasDarkBg": true,
+      "darkHexCount": 8,
+      "neonColorHits": 3,
+      "neonColorSamples": [
+        "#7c3aed"
+      ],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 1,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 54
+    }
+  },
+  {
+    "runKey": "F1-llm-telemetry-console__P2_minimal_mineral_38w",
+    "taskId": "F1-llm-telemetry-console",
+    "taskTitle": "大模型推理网关监控与成本分析台",
+    "styleId": "P2_minimal_mineral_38w",
+    "styleLabel": "P2 · 42字单句色板与字体正负向锚点",
+    "styleCharCount": 42,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 105.36,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 435,
+      "completion_tokens": 13049,
+      "total_tokens": 13484,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 37830,
+      "hasDarkBg": false,
+      "darkHexCount": 2,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    }
+  },
+  {
+    "runKey": "F1-llm-telemetry-console__P3_editorial_craft_68w",
+    "taskId": "F1-llm-telemetry-console",
+    "taskTitle": "大模型推理网关监控与成本分析台",
+    "styleId": "P3_editorial_craft_68w",
+    "styleLabel": "P3 · 68字出版物纸面 + 网格与舞台编排锚点",
+    "styleCharCount": 68,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 101.94,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 451,
+      "completion_tokens": 11272,
+      "total_tokens": 11723,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 33018,
+      "hasDarkBg": false,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 2,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    }
+  },
+  {
+    "runKey": "F2-codebase-atlas-studio__P0_default_zero_style",
+    "taskId": "F2-codebase-atlas-studio",
+    "taskTitle": "本地代码库语义检索与架构图谱工作台",
+    "styleId": "P0_default_zero_style",
+    "styleLabel": "P0 · 零风格引导 (Argon 默认审美)",
+    "styleCharCount": 0,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 142.58,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 315,
+      "completion_tokens": 16384,
+      "total_tokens": 16699,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 46940,
+      "hasDarkBg": true,
+      "darkHexCount": 5,
+      "neonColorHits": 3,
+      "neonColorSamples": [
+        "#3b82f6",
+        "#8b5cf6"
+      ],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 3,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 64
+    }
+  },
+  {
+    "runKey": "F2-codebase-atlas-studio__P1_negative_ban_only",
+    "taskId": "F2-codebase-atlas-studio",
+    "taskTitle": "本地代码库语义检索与架构图谱工作台",
+    "styleId": "P1_negative_ban_only",
+    "styleLabel": "P1 · 18字纯反向禁令 (\"别用暗黑风，用浅色\")",
+    "styleCharCount": 18,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 126.11,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 337,
+      "completion_tokens": 16384,
+      "total_tokens": 16721,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 51510,
+      "hasDarkBg": false,
+      "darkHexCount": 5,
+      "neonColorHits": 2,
+      "neonColorSamples": [
+        "#7c3aed",
+        "#3b82f6"
+      ],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 2,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 0
+    }
+  },
+  {
+    "runKey": "F2-codebase-atlas-studio__P2_minimal_mineral_38w",
+    "taskId": "F2-codebase-atlas-studio",
+    "taskTitle": "本地代码库语义检索与架构图谱工作台",
+    "styleId": "P2_minimal_mineral_38w",
+    "styleLabel": "P2 · 42字单句色板与字体正负向锚点",
+    "styleCharCount": 42,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 147.75,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 403,
+      "completion_tokens": 16384,
+      "total_tokens": 16787,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 46701,
+      "hasDarkBg": false,
+      "darkHexCount": 2,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 0
+    }
+  },
+  {
+    "runKey": "F2-codebase-atlas-studio__P3_editorial_craft_68w",
+    "taskId": "F2-codebase-atlas-studio",
+    "taskTitle": "本地代码库语义检索与架构图谱工作台",
+    "styleId": "P3_editorial_craft_68w",
+    "styleLabel": "P3 · 68字出版物纸面 + 网格与舞台编排锚点",
+    "styleCharCount": 68,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 145.77,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 419,
+      "completion_tokens": 16384,
+      "total_tokens": 16803,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 47735,
+      "hasDarkBg": false,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 4,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    }
+  },
+  {
+    "runKey": "F3-long-context-bench-report__P0_default_zero_style",
+    "taskId": "F3-long-context-bench-report",
+    "taskTitle": "长上下文注意力与幻觉评测报告页",
+    "styleId": "P0_default_zero_style",
+    "styleLabel": "P0 · 零风格引导 (Argon 默认审美)",
+    "styleCharCount": 0,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 144.78,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 327,
+      "completion_tokens": 16384,
+      "total_tokens": 16711,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 46786,
+      "hasDarkBg": true,
+      "darkHexCount": 13,
+      "neonColorHits": 11,
+      "neonColorSamples": [
+        "#38bdf8",
+        "#6366f1"
+      ],
+      "linearGradientCount": 4,
+      "neonGlowShadowCount": 1,
+      "backdropBlurCount": 2,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 85
+    }
+  },
+  {
+    "runKey": "F3-long-context-bench-report__P1_negative_ban_only",
+    "taskId": "F3-long-context-bench-report",
+    "taskTitle": "长上下文注意力与幻觉评测报告页",
+    "styleId": "P1_negative_ban_only",
+    "styleLabel": "P1 · 18字纯反向禁令 (\"别用暗黑风，用浅色\")",
+    "styleCharCount": 18,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 181.03,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 349,
+      "completion_tokens": 16384,
+      "total_tokens": 16733,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 47922,
+      "hasDarkBg": true,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 19
+    }
+  },
+  {
+    "runKey": "F3-long-context-bench-report__P3_editorial_craft_68w",
+    "taskId": "F3-long-context-bench-report",
+    "taskTitle": "长上下文注意力与幻觉评测报告页",
+    "styleId": "P3_editorial_craft_68w",
+    "styleLabel": "P3 · 68字出版物纸面 + 网格与舞台编排锚点",
+    "styleCharCount": 68,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 130.27,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 431,
+      "completion_tokens": 16384,
+      "total_tokens": 16815,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 47940,
+      "hasDarkBg": false,
+      "darkHexCount": 3,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 3,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    }
+  },
+  {
+    "runKey": "F3-long-context-bench-report__P2_minimal_mineral_38w",
+    "taskId": "F3-long-context-bench-report",
+    "taskTitle": "长上下文注意力与幻觉评测报告页",
+    "styleId": "P2_minimal_mineral_38w",
+    "styleLabel": "P2 · 42字单句色板与字体正负向锚点",
+    "styleCharCount": 42,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 143.56,
+    "reasoningPreview": "",
+    "usage": {
+      "prompt_tokens": 415,
+      "completion_tokens": 16384,
+      "total_tokens": 16799,
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "audio_tokens": 0,
+        "reasoning_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "metrics": {
+      "htmlBytes": 48271,
+      "hasDarkBg": false,
+      "darkHexCount": 5,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": true,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 0
+    }
+  }
+]

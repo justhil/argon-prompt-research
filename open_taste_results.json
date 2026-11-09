@@ -1,0 +1,802 @@
+[
+  {
+    "runKey": "W1-synth-sequencer__O1_ultra_short_28w",
+    "taskId": "W1-synth-sequencer",
+    "taskTitle": "模块化步进音序器与合成器控制面板 (Tactile Audio Synth & Sequencer)",
+    "styleId": "O1_ultra_short_28w",
+    "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 137.62,
+    "metrics": {
+      "htmlBytes": 41753,
+      "hasDarkBg": false,
+      "darkHexCount": 2,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 4,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 10
+    },
+    "palette": {
+      "primaryBg": "#2B2927",
+      "allHex": [
+        "#e6e2d8",
+        "#dcd7cc",
+        "#22211f",
+        "#1c1b19",
+        "#6e6a63",
+        "#bdb7ab",
+        "#df4b27",
+        "#e59b23"
+      ],
+      "rootCss": "--chassis-bg: #E6E2D8; --panel-bg: #DCD7CC; --panel-dark: #22211F; --ink: #1C1B19; --ink-muted: #6E6A63; --border-hard: #1C1B19; --border-subtle: #BDB7AB; --accent-orange: #DF4B27; --accent-amber: #E59B23; --accent-teal: #1D7874; --accent-crimson: #B8292F; --screen-bg: #161917; --screen-phosphor: #D96B27; --screen-grid: #262B28; --step-of",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W1-synth-sequencer__O2_domain_art_director_54w",
+    "taskId": "W1-synth-sequencer",
+    "taskTitle": "模块化步进音序器与合成器控制面板 (Tactile Audio Synth & Sequencer)",
+    "styleId": "O2_domain_art_director_54w",
+    "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 149.59,
+    "metrics": {
+      "htmlBytes": 46693,
+      "hasDarkBg": true,
+      "darkHexCount": 12,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 3,
+      "neonGlowShadowCount": 2,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 57
+    },
+    "palette": {
+      "primaryBg": "#2A2927",
+      "allHex": [
+        "#d8d4cc",
+        "#c4c0b7",
+        "#8c887f",
+        "#1e1e1c",
+        "#141413",
+        "#181817",
+        "#5c5954",
+        "#eae6df"
+      ],
+      "rootCss": "--chassis-bg: #D8D4CC; --chassis-dark: #C4C0B7; --chassis-border: #8C887F; --panel-dark: #1E1E1C; --panel-darker: #141413; --ink: #181817; --ink-muted: #5C5954; --paper-step: #EAE6DF; --paper-step-alt: #DFDBD2; --accent-orange: #E04F26; --accent-amber: #F2A918; --led-green: #22C55E; --led-off: #3A3935; --shadow-hard: 2px 2px 0px var(--ink",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W1-synth-sequencer__O3_stochastic_movement_66w",
+    "taskId": "W1-synth-sequencer",
+    "taskTitle": "模块化步进音序器与合成器控制面板 (Tactile Audio Synth & Sequencer)",
+    "styleId": "O3_stochastic_movement_66w",
+    "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 114.93,
+    "metrics": {
+      "htmlBytes": 39867,
+      "hasDarkBg": false,
+      "darkHexCount": 3,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    },
+    "palette": {
+      "primaryBg": "#CCC9C0",
+      "allHex": [
+        "#e6e4df",
+        "#f2f0ec",
+        "#d8d5ce",
+        "#141615",
+        "#e8eae6",
+        "#484e4b",
+        "#1a1918",
+        "#6e6b65"
+      ],
+      "rootCss": "--chassis: #E6E4DF; --panel: #F2F0EC; --panel-dark: #D8D5CE; --lcd-bg: #141615; --lcd-fg: #E8EAE6; --lcd-dim: #484E4B; --ink: #1A1918; --ink-muted: #6E6B65; --border-hard: #1A1918; --border-soft: #C7C4BC; --accent-orange: #FF4F00; --accent-yellow: #E5A900; --accent-blue: #005A9C; --accent-green: #1E7E48; --font-sans: 'Helvetica Neue', -ap",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W1-synth-sequencer__O4_quadrant_roulette_62w",
+    "taskId": "W1-synth-sequencer",
+    "taskTitle": "模块化步进音序器与合成器控制面板 (Tactile Audio Synth & Sequencer)",
+    "styleId": "O4_quadrant_roulette_62w",
+    "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 163.73,
+    "metrics": {
+      "htmlBytes": 43477,
+      "hasDarkBg": false,
+      "darkHexCount": 10,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 3,
+      "neonGlowShadowCount": 1,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 17
+    },
+    "palette": {
+      "primaryBg": "#CBD0D4",
+      "allHex": [
+        "#cbd0d4",
+        "#e7e7e2",
+        "#ddddd7",
+        "#cecec7",
+        "#141516",
+        "#686a6c",
+        "#b5b5ae",
+        "#ff4800"
+      ],
+      "rootCss": "/* 阳极氧化铝与瑞士工业白灰配色体系 */ --bg-room: #CBD0D4; --chassis-main: #E7E7E2; --chassis-panel: #DDDDD7; --chassis-well: #CECEC7; --ink-dark: #141516; --ink-muted: #686A6C; --border-hairline: #B5B5AE; --border-dark: #141516; /* 工业信号色 */ --sig-orange: #FF4800; --sig-orange-glow: rgba(255, 72, 0, 0.35); --sig-amber: #F59E0B; --sig-green: #00A859; --si",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W2-quant-risk-terminal__O1_ultra_short_28w",
+    "taskId": "W2-quant-risk-terminal",
+    "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+    "styleId": "O1_ultra_short_28w",
+    "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 150.2,
+    "metrics": {
+      "htmlBytes": 44658,
+      "hasDarkBg": true,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 30
+    },
+    "palette": {
+      "primaryBg": "#F4F1EA",
+      "allHex": [
+        "#f4f1ea",
+        "#faf8f5",
+        "#eae5dc",
+        "#181816",
+        "#161615",
+        "#5a5852",
+        "#8c8980",
+        "#c8c3b8"
+      ],
+      "rootCss": "/* 瑞士私人银行与精密仪器定制色板：亚麻账簿纸、炭黑油墨、森林绿、朱砂红、黄铜金 */ --bg-paper: #F4F1EA; --bg-panel: #FAF8F5; --bg-subtle: #EAE5DC; --bg-invert: #181816; --ink-primary: #161615; --ink-secondary: #5A5852; --ink-muted: #8C8980; --border-heavy: #161615; --border-mid: #C8C3B8; --border-hairline: #DEDAD0; --signal-pos: #18583A; /* 森林绿：收益/正向 */ --signal-pos-bg: #E4EF",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W2-quant-risk-terminal__O2_domain_art_director_54w",
+    "taskId": "W2-quant-risk-terminal",
+    "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+    "styleId": "O2_domain_art_director_54w",
+    "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 149.05,
+    "metrics": {
+      "htmlBytes": 44591,
+      "hasDarkBg": true,
+      "darkHexCount": 4,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 35
+    },
+    "palette": {
+      "primaryBg": "#F3F1EC",
+      "allHex": [
+        "#f3f1ec",
+        "#f9f8f5",
+        "#eae6df",
+        "#141413",
+        "#5a5852",
+        "#8c8980",
+        "#d5d0c5",
+        "#1d4ed8"
+      ],
+      "rootCss": "/* 瑞士研究期刊与精密终端美学：暖灰羊皮纸底色 + 炭黑墨水 + 克制的机构级点缀色 */ --bg-paper: #F3F1EC; --bg-cell: #F9F8F5; --bg-subtle: #EAE6DF; --bg-ink: #141413; --ink-primary: #141413; --ink-secondary: #5A5852; --ink-muted: #8C8980; --border-hairline: #D5D0C5; --border-heavy: #141413; /* 信号色：高纯度但沉稳的工业色标 */ --sig-alpha: #1D4ED8; /* 钴蓝：主策略净值 */ --sig-bench: #78716C; /* 暖岩",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W2-quant-risk-terminal__O3_stochastic_movement_66w",
+    "taskId": "W2-quant-risk-terminal",
+    "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+    "styleId": "O3_stochastic_movement_66w",
+    "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 162.88,
+    "metrics": {
+      "htmlBytes": 46096,
+      "hasDarkBg": false,
+      "darkHexCount": 2,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    },
+    "palette": {
+      "primaryBg": "#ECEAE4",
+      "allHex": [
+        "#eceae4",
+        "#f6f5f0",
+        "#e4e1d8",
+        "#ffffff",
+        "#141413",
+        "#575652",
+        "#8c8a84",
+        "#c7c4ba"
+      ],
+      "rootCss": "--bg-canvas: #ECEAE4; --bg-panel: #F6F5F0; --bg-sub: #E4E1D8; --bg-active: #FFFFFF; --ink-high: #141413; --ink-mid: #575652; --ink-low: #8C8A84; --border-hairline: #C7C4BA; --border-strong: #141413; --signal-orange: #D9381E; /* 博朗/TE标志性信号红橙 - 策略主线 */ --cobalt-blue: #1D4ED8; /* 基准指数线 */ --forest-green: #15603E; /* 正向收益/低波暴露 */ --ochre-warn",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W2-quant-risk-terminal__O4_quadrant_roulette_62w",
+    "taskId": "W2-quant-risk-terminal",
+    "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+    "styleId": "O4_quadrant_roulette_62w",
+    "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 161.2,
+    "metrics": {
+      "htmlBytes": 45475,
+      "hasDarkBg": false,
+      "darkHexCount": 3,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    },
+    "palette": {
+      "primaryBg": "#F2F1EC",
+      "allHex": [
+        "#f2f1ec",
+        "#eae8e1",
+        "#f8f7f4",
+        "#121314",
+        "#5a5d60",
+        "#929598",
+        "#cfcbc2",
+        "#dfdcd4"
+      ],
+      "rootCss": "/* 瑞士建筑冷白与阳极氧化铝工业色板 */ --bg-paper: #F2F1EC; --bg-panel: #EAE8E1; --bg-elevated: #F8F7F4; --ink-black: #121314; --ink-muted: #5A5D60; --ink-faint: #929598; --rule-hard: #121314; --rule-soft: #CFCBC2; --rule- hair: #DFDCD4; /* 工业信号色：朱砂红、钴蓝、氧化绿、琥珀黄 */ --sig-vermilion: #D9381E; --sig-vermilion-bg: rgba(217, 56, 30, 0.1); --sig-cobalt: #0047AB",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W3-zettelkasten-reading-room__O1_ultra_short_28w",
+    "taskId": "W3-zettelkasten-reading-room",
+    "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+    "styleId": "O1_ultra_short_28w",
+    "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 145.79,
+    "metrics": {
+      "htmlBytes": 49643,
+      "hasDarkBg": false,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 4,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 15
+    },
+    "palette": {
+      "primaryBg": "#EFECE6",
+      "allHex": [
+        "#efece6",
+        "#f9f6f0",
+        "#f3efe8",
+        "#fcfbf9",
+        "#e7e2d8",
+        "#1c1b18",
+        "#5a554c",
+        "#8c857b"
+      ],
+      "rootCss": "/* 典藏古籍与档案室定制色板 (Archival Warm Parchment & Iron Gall Ink) */ --bg-archival: #EFECE6; /* 亚麻档案底色 */ --bg-paper: #F9F6F0; /* 象牙手稿纸 */ --bg-card: #F3EFE8; /* 索引卡底色 */ --bg-card-active: #FCFBF9; /* 激活卡片底色 */ --bg-hover: #E7E2D8; /* 悬停微暗 */ --ink-primary: #1C1B18; /* 铁胆墨黑 */ --ink-secondary: #5A554C; /* 炭灰正文辅助 */ --ink-muted: #8C857B; /* 铅笔淡灰 *",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W3-zettelkasten-reading-room__O2_domain_art_director_54w",
+    "taskId": "W3-zettelkasten-reading-room",
+    "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+    "styleId": "O2_domain_art_director_54w",
+    "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 163.78,
+    "metrics": {
+      "htmlBytes": 49518,
+      "hasDarkBg": false,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 3,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 12
+    },
+    "palette": {
+      "primaryBg": "#F3EFE6",
+      "allHex": [
+        "#f3efe6",
+        "#faf7f0",
+        "#ebe5d8",
+        "#e2dac9",
+        "#1c1a17",
+        "#544e46",
+        "#8c8478",
+        "#c4bcae"
+      ],
+      "rootCss": "/* 典藏羊皮纸与学术活字色调体系 (Archival Parchment & Scholarly Press) */ --bg-canvas: #F3EFE6; --bg-sheet: #FAF7F0; --bg-panel: #EBE5D8; --bg-active: #E2DAC9; --ink-primary: #1C1A17; --ink-secondary: #544E46; --ink-muted: #8C8478; --ink-faint: #C4BCAE; --rule-hairline: #D6CEBF; --rule-heavy: #2A2622; /* 矿物印泥点缀色 */ --accent-vermilion: #B83A24; /* 朱砂：核心",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W3-zettelkasten-reading-room__O3_stochastic_movement_66w",
+    "taskId": "W3-zettelkasten-reading-room",
+    "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+    "styleId": "O3_stochastic_movement_66w",
+    "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 154.15,
+    "metrics": {
+      "htmlBytes": 49726,
+      "hasDarkBg": false,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 0,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    },
+    "palette": {
+      "primaryBg": "#F3F1EC",
+      "allHex": [
+        "#f3f1ec",
+        "#faf8f5",
+        "#ebe8e0",
+        "#e4e0d6",
+        "#efece4",
+        "#181715",
+        "#52504c",
+        "#85827c"
+      ],
+      "rootCss": "/* 瑞士档案网格 + 北欧暖调纸面 + 博朗实体仪器色板 */ --bg-canvas: #F3F1EC; --bg-paper: #FAF8F5; --bg-panel: #EBE8E0; --bg-hover: #E4E0D6; --bg-active: #EFECE4; --ink-primary: #181715; --ink-secondary: #52504C; --ink-muted: #85827C; --ink-faint: #B5B1A8; --border-hairline: #D5D1C8; --border-strong: #181715; /* 实体仪器功能色彩 */ --accent-vermilion: #D13B27; /* 永久笔记 ",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W3-zettelkasten-reading-room__O4_quadrant_roulette_62w",
+    "taskId": "W3-zettelkasten-reading-room",
+    "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+    "styleId": "O4_quadrant_roulette_62w",
+    "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 196.88,
+    "metrics": {
+      "htmlBytes": 50063,
+      "hasDarkBg": false,
+      "darkHexCount": 3,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 3,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 12
+    },
+    "palette": {
+      "primaryBg": "#F4F1EA",
+      "allHex": [
+        "#f4f1ea",
+        "#faf8f5",
+        "#eae5dc",
+        "#121211",
+        "#3d3b38",
+        "#78746e",
+        "#d2cdc3",
+        "#d9381e"
+      ],
+      "rootCss": "/* 高对比先锋报刊网格 & 瑞士档案美学 (High-Contrast Avant-Garde Editorial Grid) */ --bg-paper: #F4F1EA; --bg-paper-elevated: #FAF8F5; --bg-paper-sunken: #EAE5DC; --ink-black: #121211; --ink-charcoal: #3D3B38; --ink-muted: #78746E; --border-heavy: #121211; --border-hairline: #D2CDC3; /* 信号与批注色 */ --signal-vermilion: #D9381E; /* 朱砂信号色 */ --signal-cobalt: ",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O1_ultra_short_28w",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O1_ultra_short_28w",
+    "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 110.82,
+    "metrics": {
+      "htmlBytes": 47648,
+      "hasDarkBg": true,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 2,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 1,
+      "hasWarmPaper": true,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 21
+    },
+    "palette": {
+      "primaryBg": "#F3F1EC",
+      "allHex": [
+        "#f3f1ec",
+        "#faf9f5",
+        "#eae6df",
+        "#161615",
+        "#5a5852",
+        "#8c8980",
+        "#d5d0c5",
+        "#e2dec9"
+      ],
+      "rootCss": "/* 瑞士工业图纸与精密仪器色板 (Warm Archival Paper & Graphite Ink) */ --bg-canvas: #F3F1EC; --bg-surface: #FAF9F5; --bg-tinted: #EAE6DF; --bg-inverse: #161615; --ink-primary: #161615; --ink-secondary: #5A5852; --ink-muted: #8C8980; --border-strong: #161615; --border-subtle: #D5D0C5; --border-hairline: #E2DEC9; /* 工业信号色 (非荧光) */ --sig-orange: #D94E28; ",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O2_domain_art_director_54w",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O2_domain_art_director_54w",
+    "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 129.91,
+    "metrics": {
+      "htmlBytes": 45901,
+      "hasDarkBg": true,
+      "darkHexCount": 3,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 34
+    },
+    "palette": {
+      "primaryBg": "#F3F1EC",
+      "allHex": [
+        "#f3f1ec",
+        "#faf8f5",
+        "#eae6df",
+        "#141413",
+        "#5a5751",
+        "#8c887f",
+        "#d5d0c5",
+        "#d83a1a"
+      ],
+      "rootCss": "/* 纸本工程日志与精密仪器美学 - 暖灰亚麻底色与深碳黑墨水 */ --bg-canvas: #F3F1EC; --bg-panel: #FAF8F5; --bg-subtle: #EAE6DF; --bg-inverse: #141413; --ink-primary: #141413; --ink-secondary: #5A5751; --ink-muted: #8C887F; --ink-on-dark: #F3F1EC; --border-hairline: #D5D0C5; --border-heavy: #141413; /* 克制的工程信号色 */ --signal-vermilion: #D83A1A; /* 告警/重点强调 */ --signal-f",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O3_stochastic_movement_66w",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O3_stochastic_movement_66w",
+    "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 112.71,
+    "metrics": {
+      "htmlBytes": 46459,
+      "hasDarkBg": true,
+      "darkHexCount": 14,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 4,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 45
+    },
+    "palette": {
+      "primaryBg": "#E6E4DF",
+      "allHex": [
+        "#e6e4df",
+        "#f3f1ec",
+        "#faf9f6",
+        "#dcd9d0",
+        "#181817",
+        "#141413",
+        "#5a5852",
+        "#8c8980"
+      ],
+      "rootCss": "/* Braun / Teenage Engineering / Swiss Grid Palette */ --bg-chassis: #E6E4DF; --bg-panel: #F3F1EC; --bg-surface: #FAF9F6; --bg-well: #DCD9D0; --bg-inverse: #181817; --ink-primary: #141413; --ink-secondary: #5A5852; --ink-muted: #8C8980; --ink-on-dark: #F3F1EC; --border-strong: #141413; --border-hairline: #C7C4BB; --border-subtle: #DFDDD6;",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O4_quadrant_roulette_62w",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O4_quadrant_roulette_62w",
+    "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+    "rep": 1,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 149.69,
+    "metrics": {
+      "htmlBytes": 46157,
+      "hasDarkBg": true,
+      "darkHexCount": 12,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 3,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 42
+    },
+    "palette": {
+      "primaryBg": "#D8D8D2",
+      "allHex": [
+        "#d8d8d2",
+        "#eaeae4",
+        "#dfdfd8",
+        "#f4f4f0",
+        "#161715",
+        "#141413",
+        "#52524e",
+        "#85857f"
+      ],
+      "rootCss": "/* 阳极氧化铝银灰 + 瑞士工业仪器骨骼色板 */ --bg-chassis: #D8D8D2; --bg-panel: #EAEAE4; --bg-inset: #DFDFD8; --bg-elevated: #F4F4F0; --bg-terminal: #161715; --ink-primary: #141413; --ink-secondary: #52524E; --ink-muted: #85857F; --ink-invert: #F4F4F0; --border-heavy: #141413; --border-hairline: #B8B8B0; --border-light: #F7F7F2; --signal-orange: #FF4F00; -",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O1_ultra_short_28w__r2",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O1_ultra_short_28w",
+    "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+    "rep": 2,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 137.85,
+    "metrics": {
+      "htmlBytes": 46083,
+      "hasDarkBg": false,
+      "darkHexCount": 3,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 0
+    },
+    "palette": {
+      "primaryBg": "#F3F0EA",
+      "allHex": [
+        "#f3f0ea",
+        "#faf8f5",
+        "#eae5dc",
+        "#ffffff",
+        "#141413",
+        "#575551",
+        "#8c8982",
+        "#c4c0b7"
+      ],
+      "rootCss": "/* 瑞士工业图纸与精密仪器色板 (Swiss Archival & Precision Instrument) */ --bg-canvas: #F3F0EA; --bg-panel: #FAF8F5; --bg-subtle: #EAE5DC; --bg-elevated: #FFFFFF; --ink-primary: #141413; --ink-secondary: #575551; --ink-muted: #8C8982; --ink-faint: #C4C0B7; --border-heavy: #141413; --border-hairline: #D4CFC6; --border-subtle: #E4DFD5; /* 工业仪器功能色 */ --ac",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O2_domain_art_director_54w__r2",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O2_domain_art_director_54w",
+    "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+    "rep": 2,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 155.4,
+    "metrics": {
+      "htmlBytes": 46726,
+      "hasDarkBg": true,
+      "darkHexCount": 3,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": false,
+      "hasSerifFont": true,
+      "slopScore": 39
+    },
+    "palette": {
+      "primaryBg": "#F3F0E6",
+      "allHex": [
+        "#f3f0e6",
+        "#faf8f2",
+        "#eae6d9",
+        "#161815",
+        "#141613",
+        "#575a53",
+        "#8c8f84",
+        "#cec9b8"
+      ],
+      "rootCss": "/* 瑞士工业图纸与精密仪器暖纸配色 (Warm Engineering Vellum & Carbon Ink) */ --bg-canvas: #F3F0E6; --bg-panel: #FAF8F2; --bg-subtle: #EAE6D9; --bg-dark: #161815; --ink-primary: #141613; --ink-secondary: #575A53; --ink-muted: #8C8F84; --ink-invert: #F3F0E6; --border-heavy: #141613; --border-hairline: #CEC9B8; --border-dotted: #B5B09E; /* 克制的信号色：工业朱砂、林地松绿、",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O3_stochastic_movement_66w__r2",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O3_stochastic_movement_66w",
+    "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+    "rep": 2,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 139.81,
+    "metrics": {
+      "htmlBytes": 47385,
+      "hasDarkBg": false,
+      "darkHexCount": 0,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 2,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 3
+    },
+    "palette": {
+      "primaryBg": "#EAE6DF",
+      "allHex": [
+        "#eae6df",
+        "#f5f2eb",
+        "#dfdbd2",
+        "#ffffff",
+        "#161615",
+        "#5a5852",
+        "#8c887f",
+        "#c7c2b8"
+      ],
+      "rootCss": "/* Braun / Teenage Engineering / Swiss Archival Palette */ --bg-chassis: #EAE6DF; --bg-panel: #F5F2EB; --bg-recessed: #DFDBD2; --bg-surface-active: #FFFFFF; --ink-primary: #161615; --ink-secondary: #5A5852; --ink-muted: #8C887F; --border-hairline: #C7C2B8; --border-strong: #161615; /* Signal Colors (Dieter Rams / TE inspired) */ --sig-ora",
+      "themeNote": ""
+    }
+  },
+  {
+    "runKey": "W4-telemetry-gateway-console__O4_quadrant_roulette_62w__r2",
+    "taskId": "W4-telemetry-gateway-console",
+    "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+    "styleId": "O4_quadrant_roulette_62w",
+    "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+    "rep": 2,
+    "modelUsed": "gemini-4-argon",
+    "elapsedSec": 160.7,
+    "metrics": {
+      "htmlBytes": 47361,
+      "hasDarkBg": true,
+      "darkHexCount": 9,
+      "neonColorHits": 0,
+      "neonColorSamples": [],
+      "linearGradientCount": 1,
+      "neonGlowShadowCount": 0,
+      "backdropBlurCount": 0,
+      "aiEmojiCount": 0,
+      "hasWarmPaper": false,
+      "hasTabularNums": true,
+      "hasSerifFont": true,
+      "slopScore": 34
+    },
+    "palette": {
+      "primaryBg": "#F3F2EE",
+      "allHex": [
+        "#f3f2ee",
+        "#141413",
+        "#ff4400",
+        "#faf9f6",
+        "#e8e6df",
+        "#5c5b57",
+        "#8c8b85",
+        "#d4d2c8"
+      ],
+      "rootCss": "--bg-paper: #F3F2EE; --bg-panel: #FAF9F6; --bg-subtle: #E8E6DF; --bg-ink: #141413; --ink-primary: #141413; --ink-secondary: #5C5B57; --ink-muted: #8C8B85; --border-heavy: #141413; --border-hairline: #D4D2C8; --signal-orange: #FF4400; --signal-green: #008A4B; --signal-amber: #D97706; --signal-blue: #1D4ED8; --font-sans: 'Inter', -apple-sys",
+      "themeNote": ""
+    }
+  }
+]

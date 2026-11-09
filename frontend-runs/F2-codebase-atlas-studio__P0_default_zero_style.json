@@ -1,0 +1,44 @@
+{
+  "runKey": "F2-codebase-atlas-studio__P0_default_zero_style",
+  "taskId": "F2-codebase-atlas-studio",
+  "taskTitle": "本地代码库语义检索与架构图谱工作台",
+  "styleId": "P0_default_zero_style",
+  "styleLabel": "P0 · 零风格引导 (Argon 默认审美)",
+  "styleCharCount": 0,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 142.58,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 315,
+    "completion_tokens": 16384,
+    "total_tokens": 16699,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 46940,
+    "hasDarkBg": true,
+    "darkHexCount": 5,
+    "neonColorHits": 3,
+    "neonColorSamples": [
+      "#3b82f6",
+      "#8b5cf6"
+    ],
+    "linearGradientCount": 1,
+    "neonGlowShadowCount": 3,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 64
+  }
+}

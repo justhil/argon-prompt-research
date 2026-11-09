@@ -1,0 +1,40 @@
+{
+  "runKey": "W3-zettelkasten-reading-room__O2_domain_art_director_54w",
+  "taskId": "W3-zettelkasten-reading-room",
+  "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+  "styleId": "O2_domain_art_director_54w",
+  "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 163.78,
+  "metrics": {
+    "htmlBytes": 49518,
+    "hasDarkBg": false,
+    "darkHexCount": 0,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 3,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 12
+  },
+  "palette": {
+    "primaryBg": "#F3EFE6",
+    "allHex": [
+      "#f3efe6",
+      "#faf7f0",
+      "#ebe5d8",
+      "#e2dac9",
+      "#1c1a17",
+      "#544e46",
+      "#8c8478",
+      "#c4bcae"
+    ],
+    "rootCss": "/* 典藏羊皮纸与学术活字色调体系 (Archival Parchment & Scholarly Press) */ --bg-canvas: #F3EFE6; --bg-sheet: #FAF7F0; --bg-panel: #EBE5D8; --bg-active: #E2DAC9; --ink-primary: #1C1A17; --ink-secondary: #544E46; --ink-muted: #8C8478; --ink-faint: #C4BCAE; --rule-hairline: #D6CEBF; --rule-heavy: #2A2622; /* 矿物印泥点缀色 */ --accent-vermilion: #B83A24; /* 朱砂：核心",
+    "themeNote": ""
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "t1-settlement-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/smoke.test.mjs"
+  }
+}

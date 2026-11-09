@@ -1,0 +1,77 @@
+{
+  "runId": "V3-wish-article-search__tier4_surgical_only__r1",
+  "taskId": "V3-wish-article-search",
+  "domain": "搜索排序与容错算法",
+  "variantKey": "tier4_surgical_only",
+  "rep": 1,
+  "turns": 5,
+  "elapsedSec": 114,
+  "commandsRunCount": 2,
+  "completeness": {
+    "score": 5,
+    "maxScore": 6,
+    "linesCount": 158,
+    "details": {
+      "linesCount": 158,
+      "t1_multi_word_non_adjacent_match": true,
+      "t2_relevance_ranking_title_boost": true,
+      "t3_prefix_or_fuzzy_typo_match": false,
+      "t4_regex_special_chars_safe": true,
+      "t5_tag_filtering_support": true,
+      "t6_dedup_or_remove_update_doc": true
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "已对 `src/article_search.mjs` 进行升级增强，同时保持 `ArticleSearch` 类及 `add(doc)`、`search(query, options)` 接口完全向后兼容。\n\n### 主要改进点：\n1. **数据规范化与去重更新**：`add(doc)` 对缺失字段（`title`、`body`、`tags`）进行安全归一化，若传入相同 `id` 的文档会自动更新已有记录。\n2. **大小写不敏感与多词分词搜索**：默认忽略大小写（可通过 `options.caseSensitive = true` 开启大小写敏感），支持按空格及标点切分多关键词匹配，并搜索 `title`、`body` 和 `tags`。\n3. **相关度打分与排序（Relevance Ranking）**：\n   - 支持字段权重（默认 `title: 3`、`tags: 2.5`、",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

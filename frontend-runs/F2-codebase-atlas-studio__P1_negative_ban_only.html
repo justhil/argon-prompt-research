@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codebase Search & Dependency Atlas — 代码库语义检索与架构图谱工作台</title>
+  <style>
+    :root {
+      --bg-canvas: #FAF9F5;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F3F2EE;
+      --bg-hover: #EFECE6;
+      --text-primary: #18181B;
+      --text-secondary: #52525B;
+      --text-muted: #8E8E93;
+      --border-light: #E4E4E0;
+      --border-focus: #2563EB;
+      
+      --cat-core: #2563EB;
+      --cat-core-bg: #EFF6FF;
+      --cat-rpc: #D97706;
+      --cat-rpc-bg: #FFFBEB;
+      --cat-storage: #059669;
+      --cat-storage-bg: #ECFDF5;
+      
+      --status-low: #10B981;
+      --status-med: #F59E0B;
+      --status-high: #EF4444;
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      
+      --shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.04);
+      --shadow-md: 0 4px 12px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 顶部导航栏 */
+    .top-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--text-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      background: var(--bg-subtle);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-light);
+    }
+
+    .repo-stats {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* 控制栏：搜索 + 过滤器 + 体积分布条 */
+    .control-panel {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-light);
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 320px;
+      max-width: 560px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 70px 9px 36px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      font-size: 13.5px;
+      font-family: var(--font-sans);
+      transition: all 0.15s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      background: var(--bg-card);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .search-shortcut {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-subtle);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+
+    .filter-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .filter-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .cat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .filter-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      padding: 0 5px;
+      border-radius: 10px;
+    }
+
+    /* 模块体积占比条 */
+    .volume-bar-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .volume-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .volume-title {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .volume-legend {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .volume-track {
+      height: 12px;
+      width: 100%;
+      background: var(--bg-subtle);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid var(--border-light);
+    }
+
+    .volume-segment {
+      height: 100%;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      opacity: 0.85;
+    }
+
+    .volume-segment:hover {
+      opacity: 1;
+      transform: scaleY(1.15);
+    }
+
+    .volume-segment.active {
+      opacity: 1;
+      outline: 2px solid var(--text-primary);
+      outline-offset: 1px;
+      z-index: 2;
+    }
+
+    .volume-segment.dimmed {
+      opacity: 0.2;
+    }
+
+    /* 主工作台区域 */
+    .workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 540px;
+      overflow: hidden;
+    }
+
+    /* 左侧卡片网格 */
+    .atlas-grid-section {
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 1360px) {
+      .modules-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .workspace {
+        grid-template-columns: 1fr 480px;
+      }
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .module-card:hover {
+      border-color: #CBD5E1;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .module-card.active {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15), var(--shadow-md);
+    }
+
+    .card-top {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-badges {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cat-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    .cat-badge.core { color: var(--cat-core); background: var(--cat-core-bg); }
+    .cat-badge.rpc { color: var(--cat-rpc); background: var(--cat-rpc-bg); }
+    .cat-badge.storage { color: var(--cat-storage); background: var(--cat-storage-bg); }
+
+    .coupling-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-secondary);
+      background: var(--bg-subtle);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .card-path {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      word-break: break-all;
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-symbols {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .symbol-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-light);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .card-footer {
+      border-top: 1px solid var(--bg-subtle);
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .card-metrics {
+      display: flex;
+      gap: 12px;
+    }
+
+    .metric-pair strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* 右侧详情抽屉 */
+    .inspector-drawer {
+      background: var(--bg-card);
+      border-left: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .drawer-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border-light);
+      background: var(--bg-canvas);
+    }
+
+    .drawer-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .drawer-path {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .drawer-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+      background: var(--bg-card);
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+
+    .meta-cell {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .meta-val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel-block {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 上下游依赖拓扑图 */
+    .dep-graph-box {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .dep-tier {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dep-tier-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dep-nodes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .dep-node-btn {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 6px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dep-node-btn:hover {
+      border-color: var(--border-focus);
+      color: var(--border-focus);
+      transform: translateY(-1px);
+    }
+
+    .dep-current-node {
+      background: var(--text-primary);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 6px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .dep-connector {
+      display: flex;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    /* 代码切片对比视图 */
+    .slice-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-subtle);
+      padding: 3px;
+      border-radius: 6px;
+      border: 1px solid var(--border-light);
+    }
+
+    .slice-tab {
+      border: none;
+      background: transparent;
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .slice-tab.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .code-comparison-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .code-pane {
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #FCFBF9;
+    }
+
+    .code-pane-header {
+      background: var(--bg-subtle);
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+
+    .code-tag {
+      font-size: 10.5px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+    }
+
+    .code-pre {
+      margin: 0;
+      padding: 12px 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+      color: #27272A;
+    }
+
+    .code-line {
+      display: flex;
+      padding: 0 14px;
+    }
+
+    .code-line.diff-add {
+      background-color: #ECFDF5;
+    }
+
+    .code-line.diff-del {
+      background-color: #FEF2F2;
+      color: #991B1B;
+      text-decoration: line-through;
+      opacity: 0.75;
+    }
+
+    .code-line.highlight {
+      background-color: #EFF6FF;
+      border-left: 3px solid var(--cat-core);
+      padding-left: 11px;
+    }
+
+    .ln {
+      width: 32px;
+      color: #A1A1AA;
+      user-select: none;
+      text-align: right;
+      padding-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .lc {
+      white-space: pre;
+    }
+
+    /* 语法高亮色彩（浅色主题友好） */
+    .kw { color: #7C3AED; font-weight: 600; }
+    .fn { color: #2563EB; }
+    .ty { color: #0D9488; font-weight: 500; }
+    .st { color: #15803D; }
+    .cm { color: #A1A1AA; font-style: italic; }
+    .nu { color: #D97706; }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-card);
+      border: 1px dashed var(--border-light);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+    }
+
+    mark {
+      background: #FEF08A;
+      color: var(--text-primary);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部标题与全局统计 -->
+  <header class="top-header">
+    <div class="brand">
+      <div class="brand-logo">Δ</div>
+      <span class="brand-title">Codebase Search & Dependency Atlas</span>
+      <span class="brand-subtitle">chronos-db / v2.4.0-rc1</span>
+    </div>
+    <div class="repo-stats">
+      <div class="stat-item">
+        <span>核心模块:</span>
+        <span class="stat-val" id="stat-modules">9</span>
+      </div>
+      <div class="stat-item">
+        <span>总代码行:</span>
+        <span class="stat-val" id="stat-loc">11,340 LOC</span>
+      </div>
+      <div class="stat-item">
+        <span>导出符号:</span>
+        <span class="stat-val" id="stat-exports">119</span>
+      </div>
+      <div class="stat-item">
+        <span>AST 索引耗时:</span>
+        <span class="stat-val">18.4ms</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 搜索、分类过滤与交互式体积条 -->
+  <section class="control-panel">
+    <div class="search-filter-row">
+      <div class="search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="搜索自然语言语义、文件路径或导出符号 (如: MVCC, VectorClock, B-Tree, raft)..."
+        >
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <div class="filter-group" id="filter-group">
+        <button class="filter-btn active" data-cat="All">
+          All <span class="filter-count" id="count-All">9</span>
+        </button>
+        <button class="filter-btn" data-cat="Core Engine">
+          <span class="cat-dot" style="background: var(--cat-core)"></span>
+          Core Engine <span class="filter-count" id="count-Core Engine">3</span>
+        </button>
+        <button class="filter-btn" data-cat="RPC Adapters">
+          <span class="cat-dot" style="background: var(--cat-rpc)"></span>
+          RPC Adapters <span class="filter-count" id="count-RPC Adapters">3</span>
+        </button>
+        <button class="filter-btn" data-cat="Storage">
+          <span class="cat-dot" style="background: var(--cat-storage)"></span>
+          Storage <span class="filter-count" id="count-Storage">3</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 模块体积占比条 -->
+    <div class="volume-bar-wrapper">
+      <div class="volume-header">
+        <div class="volume-title">
+          <span>模块代码体积与字节占比图谱 (點擊色块快速定位模块)</span>
+        </div>
+        <div class="volume-legend" id="volume-hover-info">
+          总计 11,340 LOC (412.8 KB) — 悬停或点击下方色块查看模块占比
+        </div>
+      </div>
+      <div class="volume-track" id="volume-track"></div>
+    </div>
+  </section>
+
+  <!-- 主体双栏工作台 -->
+  <main class="workspace">
+    <!-- 左侧：9 个核心模块网格 -->
+    <section class="atlas-grid-section">
+      <div class="section-toolbar">
+        <span class="section-title" id="grid-status-title">Architecture Modules (9)</span>
+        <span style="font-size: 12px; color: var(--text-muted);">点击任意卡片切换右侧依赖拓扑与代码切片对比</span>
+      </div>
+      <div class="modules-grid" id="modules-grid"></div>
+    </section>
+
+    <!-- 右侧：上下游依赖与真实代码切片对比抽屉 -->
+    <aside class="inspector-drawer" id="inspector-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title-row">
+          <div>
+            <span class="cat-badge core" id="drawer-cat-badge">Core Engine</span>
+            <h2 class="drawer-path" id="drawer-path" style="margin-top: 6px;">src/core/query_planner.ts</h2>
+          </div>
+          <div class="coupling-badge" id="drawer-coupling">
+            <span class="status-dot" style="background: var(--status-med)"></span>
+            <span>Medium Coupling</span>
+          </div>
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-secondary);" id="drawer-desc"></p>
+        
+        <div class="drawer-meta-grid">
+          <div class="meta-cell">
+            <span class="meta-label">代码行数</span>
+            <span class="meta-val" id="drawer-loc">1,840 LOC</span>
+          </div>
+          <div class="meta-cell">
+            <span class="meta-label">构建体积</span>
+            <span class="meta-val" id="drawer-size">68.4 KB</span>
+          </div>
+          <div class="meta-cell">
+            <span class="meta-label">导出符号</span>
+            <span class="meta-val" id="drawer-exports">14 symbols</span>
+          </div>
+          <div class="meta-cell">
+            <span class="meta-label">扇入 / 扇出</span>
+            <span class="meta-val" id="drawer-fan">In: 2 / Out: 2</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-body">
+        <!-- 上下游依赖拓扑 -->
+        <div class="panel-block">
+          <div class="panel-header">
+            <span class="panel-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              上下游依赖链路 (点击节点可跳转)
+            </span>
+          </div>
+
+          <div class="dep-graph-box">
+            <div class="dep-tier">
+              <div class="dep-tier-label">
+                <span>UPSTREAM CALLERS (上游调用方 / 依赖当前模块)</span>
+                <span id="upstream-count">2</span>
+              </div>
+              <div class="dep-nodes" id="upstream-nodes"></div>
+            </div>
+
+            <div class="dep-connector">▼ 调用契约流向 ▼</div>
+
+            <div class="dep-current-node" id="dep-current-node">
+              src/core/query_planner.ts
+            </div>
+
+            <div class="dep-connector">▼ 底层依赖调用 ▼</div>
+
+            <div class="dep-tier">
+              <div class="dep-tier-label">
+                <span>DOWNSTREAM DEPENDENCIES (下游被调方 / 当前模块所依赖)</span>
+                <span id="downstream-count">2</span>
+              </div>
+              <div class="dep-nodes" id="downstream-nodes"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 真实代码切片对比 -->
+        <div class="panel-block">
+          <div class="panel-header">
+            <span class="panel-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              真实代码切片对比 (Code Slice Comparison)
+            </span>
+            <div class="slice-tabs" id="slice-tabs">
+              <button class="slice-tab active" data-mode="contract">接口契约 vs 调用切片</button>
+              <button class="slice-tab" data-mode="diff">架構演进 Diff (v2.3 → v2.4)</button>
+            </div>
+          </div>
+
+          <div class="code-comparison-container" id="code-comparison-container"></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // 9 个核心模块完整架构数据集
+    const MODULES_DATA = [
+      {
+        id: "mod-planner",
+        path: "src/core/query_planner.ts",
+        category: "Core Engine",
+        catClass: "core",
+        color: "#2563EB",
+        loc: 1840,
+        sizeKb: 68.4,
+        exportsCount: 14,
+        symbols: ["CostBasedOptimizer", "LogicalPlan", "PhysicalOperator", "PredicatePushdown", "buildExecutionDAG"],
+        coupling: "Medium",
+        couplingScore: "Ce:2 / Ca:2",
+        couplingColor: "var(--status-med)",
+        description: "基于代价的向量与关系混合查询优化器（CBO），负责谓词下推、索引选择及物理执行计划 DAG 生成。",
+        upstream: ["mod-grpc", "mod-graphql"],
+        downstream: ["mod-scheduler", "mod-btree"],
+        slices: {
+          contractLeftTitle: "导出契约切片 — src/core/query_planner.ts",
+          contractLeftTag: "Exported Core API",
+          contractLeft: [
+            { ln: 84, text: '<span class="kw">export class</span> <span class="ty">CostBasedOptimizer</span> {' },
+            { ln: 85, text: '  <span class="kw">constructor</span>(<span class="kw">private readonly</span> stats: <span class="ty">CatalogStats</span>) {}' },
+            { ln: 86, text: '' },
+            { ln: 87, text: '  <span class="kw">public</span> <span class="fn">compilePhysicalDAG</span>(ast: <span class="ty">SelectStatement</span>): <span class="ty">PhysicalPlan</span> {', hl: true },
+            { ln: 88, text: '    <span class="kw">const</span> logical = <span class="kw">this</span>.<span class="fn">applyPredicatePushdown</span>(ast);', hl: true },
+            { ln: 89, text: '    <span class="kw">const</span> bestPath = <span class="kw">this</span>.<span class="fn">enumerateJoinOrder</span>(logical);' },
+            { ln: 90, text: '    <span class="kw">return</span> <span class="fn">lowerToBTreeScan</span>(bestPath, <span class="kw">this</span>.stats);' },
+            { ln: 91, text: '  }' },
+            { ln: 92, text: '}' }
+          ],
+          contractRightTitle: "下游调用切片 — src/storage/btree_pager.ts",
+          contractRightTag: "Downstream Consumer",
+          contractRight: [
+            { ln: 210, text: '<span class="cm">// 由 query_planner 下推生成的区间扫描算子直接驱动页缓存</span>' },
+            { ln: 211, text: '<span class="kw">export function</span> <span class="fn">lowerToBTreeScan</span>(path: <span class="ty">AccessPath</span>, stats: <span class="ty">CatalogStats</span>) {' },
+            { ln: 212, text: '  <span class="kw">const</span> pageHint = stats.<span class="fn">estimatePageSelectivity</span>(path.range);', hl: true },
+            { ln: 213, text: '  <span class="kw">return new</span> <span class="ty">BTreeRangeIterator</span>(path.indexId, path.range, pageHint);', hl: true },
+            { ln: 214, text: '}' }
+          ],
+          diffTitle: "架构演进切片 — 引入自适应基数估计 (v2.3 → v2.4)",
+          diffLines: [
+            { ln: 87, text: '  <span class="kw">public</span> <span class="fn">compilePhysicalDAG</span>(ast: <span class="ty">SelectStatement</span>): <span class="ty">PhysicalPlan</span> {' },
+            { ln: 88, type: "del", text: '-   <span class="kw">const</span> bestPath = <span class="kw">this</span>.<span class="fn">heuristicRuleMatch</span>(ast);' },
+            { ln: 88, type: "add", text: '+   <span class="kw">const</span> logical = <span class="kw">this</span>.<span class="fn">applyPredicatePushdown</span>(ast);' },
+            { ln: 89, type: "add", text: '+   <span class="kw">const</span> bestPath = <span class="kw">this</span>.<span class="fn">enumerateJoinOrder</span>(logical);' },
+            { ln: 90, text: '    <span class="kw">return</span> <span class="fn">lowerToBTreeScan</span>(bestPath, <span class="kw">this</span>.stats);' }
+          ]
+        }
+      },
+      {
+        id: "mod-scheduler",
+        path: "src/core/dag_scheduler.ts",
+        category: "Core Engine",
+        catClass: "core",
+        color: "#3B82F6",
+        loc: 1420,
+        sizeKb: 52.1,
+        exportsCount: 11,
+        symbols: ["WorkStealingPool", "TaskFiber", "ExecutionStage", "BackpressureValve", "dispatchSubgraph"],
+        coupling: "High",
+        couplingScore: "Ce:3 / Ca:3",
+        couplingColor: "var(--status-high)",
+        description: "基于 Work-Stealing 双端队列的协程级 DAG 并发调度器，支持反压限流与跨节点算子分片派发。",
+        upstream: ["mod-planner", "mod-grpc", "mod-raft"],
+        downstream: ["mod-state", "mod-wal", "mod-btree"],
+        slices: {
+          contractLeftTitle: "导出契约切片 — src/core/dag_scheduler.ts",
+          contractLeftTag: "Exported Core API",
+          contractLeft: [
+            { ln: 42, text: '<span class="kw">export class</span> <span class="ty">WorkStealingPool</span> {' },
+            { ln: 43, text: '  <span class="kw">public async</span> <span class="fn">dispatchSubgraph</span>(stage: <span class="ty">ExecutionStage</span>): <span class="ty">Promise</span>&lt;<span class="ty">ChunkBatch</span>&gt; {', hl: true },
+            { ln: 44, text: '    <span class="kw">if</span> (<span class="kw">this</span>.valve.<span class="fn">shouldThrottle</span>()) <span class="kw">await this</span>.valve.<span class="fn">waitPermit</span>();' },
+            { ln: 45, text: '    <span class="kw">const</span> snapshot = <span class="kw">await</span> <span class="fn">acquireMVCCSnapshot</span>(stage.txId);', hl: true },
+            { ln: 46, text: '    <span class="kw">return this</span>.workers[stage.partitionId].<span class="fn">exec</span>(stage, snapshot);' },
+            { ln: 47, text: '  }' },
+            { ln: 48, text: '}' }
+          ],
+          contractRightTitle: "下游调用切片 — src/core/state_machine.ts",
+          contractRightTag: "Downstream MVCC State",
+          contractRight: [
+            { ln: 118, text: '<span class="kw">export async function</span> <span class="fn">acquireMVCCSnapshot</span>(txId: <span class="ty"> TransactionId</span>): <span class="ty">Promise</span>&lt;<span class="ty">ReadView</span>&gt; {' },
+            { ln: 119, text: '  <span class="kw">const</span> hlc = <span class="ty">VectorClock</span>.<span class="fn">now</span>();', hl: true },
+            { ln: 120, text: '  <span class="kw">return</span> activeRegistry.<span class="fn">freezeReadViewAt</span>(txId, hlc);', hl: true },
+            { ln: 121, text: '}' }
+          ],
+          diffTitle: "架构演进切片 — 无锁队列替换互斥锁调度 (v2.3 → v2.4)",
+          diffLines: [
+            { ln: 43, text: '  <span class="kw">public async</span> <span class="fn">dispatchSubgraph</span>(stage: <span class="ty">ExecutionStage</span>): <span class="ty">Promise</span>&lt;<span class="ty">ChunkBatch</span>&gt; {' },
+            { ln: 44, type: "del", text: '-   <span class="kw">await this</span>.globalMutex.<span class="fn">lock</span>();' },
+            { ln: 44, type: "add", text: '+   <span class="kw">if</span> (<span class="kw">this</span>.valve.<span class="fn">shouldThrottle</span>()) <span class="kw">await this</span>.valve.<span class="fn">waitPermit</span>();' },
+            { ln: 45, text: '    <span class="kw">const</span> snapshot = <span class="kw">await</span> <span class="fn">acquireMVCCSnapshot</span>(stage.txId);' }
+          ]
+        }
+      },
+      {
+        id: "mod-state",
+        path: "src/core/state_machine.ts",
+        category: "Core Engine",
+        catClass: "core",
+        color: "#60A5FA",
+        loc: 1180,
+        sizeKb: 43.8,
+        exportsCount: 9,
+        symbols: ["MVCCSnapshot", "VectorClock", "IsolationLevel", "ConflictDetector", "commitTransaction"],
+        coupling: "Medium",
+        couplingScore: "Ce:2 / Ca:2",
+        couplingColor: "var(--status-med)",
+        description: "确定性状态机与混合逻辑时钟（HLC）实现，提供可串行化快照隔离（SSI）与写写冲突检测。",
+        upstream: ["mod-scheduler", "mod-raft"],
+        downstream: ["mod-wal", "mod-blob"],
+        slices: {
+          contractLeftTitle: "导出契约切片 — src/core/state_machine.ts",
+          contractLeftTag: "Exported Core API",
+          contractLeft: [
+            { ln: 61, text: '<span class="kw">export async function</span> <span class="fn">commitTransaction</span>(tx: <span class="ty">WriteBatch</span>): <span class="ty">Promise</span>&lt;<span class="ty">CommitLogPos</span>&gt; {' },
+            { ln: 62, text: '  <span class="ty">ConflictDetector</span>.<span class="fn">verifySerializable</span>(tx.readSet, tx.writeSet);', hl: true },
+            { ln: 63, text: '  <span class="kw">const</span> lsn = <span class="kw">await</span> walEngine.<span class="fn">appendSegmentedFrame</span>(tx.encode());', hl: true },
+            { ln: 64, text: '  <span class="kw">return</span> lsn;' },
+            { ln: 65, text: '}' }
+          ],
+          contractRightTitle: "下游调用切片 — src/storage/wal_engine.ts",
+          contractRightTag: "Downstream WAL Persistence",
+          contractRight: [
+            { ln: 94, text: '<span class="kw">export class</span> <span class="ty">WALEngine</span> {' },
+            { ln: 95, text: '  <span class="kw">public async</span> <span class="fn">appendSegmentedFrame</span>(payload: <span class="ty">Uint8Array</span>): <span class="ty">Promise</span>&lt;<span class="ty">LSN</span>&gt; {', hl: true },
+            { ln: 96, text: '    <span class="kw">const</span> crc = <span class="fn">crc32cHardware</span>(payload);' },
+            { ln: 97, text: '    <span class="kw">return this</span>.ringBuffer.<span class="fn">flushDirectIO</span>(payload, crc);', hl: true },
+            { ln: 98, text: '  }' },
+            { ln: 99, text: '}' }
+          ],
+          diffTitle: "架构演进切片 — 混合逻辑时钟偏移校验 (v2.3 → v2.4)",
+          diffLines: [
+            { ln: 61, text: '<span class="kw">export async function</span> <span class="fn">commitTransaction</span>(tx: <span class="ty">WriteBatch</span>): <span class="ty">Promise</span>&lt;<span class="ty">CommitLogPos</span>&gt; {' },
+            { ln: 62, type: "add", text: '+ <span class="kw">if</span> (tx.clockSkewMs > <span class="nu">250</span>) <span class="kw">throw new</span> <span class="ty">ClockDriftError</span>(tx.nodeId);' },
+            { ln: 63, text: '  <span class="ty">ConflictDetector</span>.<span class="fn">verifySerializable</span>(tx.readSet, tx.writeSet);' }
+          ]
+        }
+      },
+      {
+        id: "mod-grpc",
+        path: "src/rpc/grpc_transport.ts",
+        category: "RPC Adapters",
+        catClass: "rpc",
+        color: "#D97706",
+        loc: 960,
+        sizeKb: 35.2,
+        exportsCount: 16,
+        symbols: ["Http2MuxServer", "ZeroCopyFrameDecoder", "StreamInterceptor", "DeadlinePropagator"],
+        coupling: "Low",
+        couplingScore: "Ce:2 / Ca:0",
+        couplingColor: "var(--status-low)",
+        description: "基于 HTTP/2 多路复用的零拷贝二进制 gRPC 传输层，支持全链路超时传递与流式结果集分块返回。",
+        upstream: [],
+        downstream: ["mod-planner", "mod-scheduler"],
+        slices: {
+          contractLeftTitle: "入口协议适配切片 — src/rpc/grpc_transport.ts",
+          contractLeftTag: "Ingress Adapter",
+          contractLeft: [
+            { ln: 130, text: '<span class="kw">export class</span> <span class="ty">Http2MuxServer</span> {' },
+            { ln: 131, text: '  <span class="kw">private async</span> <span class="fn">onExecuteStream</span>(frame: <span class="ty">ZeroCopyFrame</span>): <span class="ty">AsyncIterable</span>&lt;<span class="ty">RowChunk</span>&gt; {' },
+            { ln: 132, text: '    <span class="kw">const</span> dag = <span class="kw">this</span>.planner.<span class="fn">compilePhysicalDAG</span>(frame.decodeAST());', hl: true },
+            { ln: 133, text: '    <span class="kw">yield</span>* <span class="kw">this</span>.scheduler.<span class="fn">streamStages</span>(dag);', hl: true },
+            { ln: 134, text: '  }' },
+            { ln: 135, text: '}' }
+          ],
+          contractRightTitle: "下游优化器契约 — src/core/query_planner.ts",
+          contractRightTag: "Downstream Target",
+          contractRight: [
+            { ln: 87, text: '  <span class="kw">public</span> <span class="fn">compilePhysicalDAG</span>(ast: <span class="ty">SelectStatement</span>): <span class="ty">PhysicalPlan</span> {', hl: true },
+            { ln: 88, text: '    <span class="kw">const</span> logical = <span class="kw">this</span>.<span class="fn">applyPredicatePushdown</span>(ast);' },
+            { ln: 89, text: '    <span class="kw">return</span> <span class="fn">lowerToBTreeScan</span>(<span class="kw">this</span>.<span class="fn">enumerateJoinOrder</span>(logical), <span class="kw">this</span>.stats);' },
+            { ln: 90, text: '  }' }
+          ],
+          diffTitle: "架构演进切片 — 零拷贝 Buffer 池化复用 (v2.3 → v2.4)",
+          diffLines: [
+            { ln: 131, type: "del", text: '- <span class="kw">private async</span> <span class="fn">onExecuteStream</span>(buf: <span class="ty">Buffer</span>) {' },
+            { ln: 131, type: "add", text: '+ <span class="kw">private async</span> <span class="fn">onExecuteStream</span>(frame: <span class="ty">ZeroCopyFrame</span>): <span class="ty">AsyncIterable</span>&lt;<span class="ty">RowChunk</span>&gt; {' },
+            { ln: 132, text: '    <span class="kw">const</span> dag = <span class="kw">this</span>.planner.<span class="fn">compilePhysicalDAG</span>(frame.decodeAST());' }
+          ]
+        }
+      },
+      {
+        id: "mod-raft",
+        path: "src/rpc/raft_consensus.ts",
+        category: "RPC Adapters",
+        catClass: "rpc",
+        color: "#F59E0B",
+        loc: 1290,
+        sizeKb: 48.9,
+        exportsCount: 12,
+        symbols: ["RaftNode", "AppendEntriesRPC", "LeaderLease", "PreVoteProtocol", "installSnapshotStream"],
+        coupling: "Medium",
+        couplingScore: "Ce:3 / Ca:0",
+        couplingColor: "var(--status-med)",
+        description: "Multi-Raft 分片共识协议通信层，实现 Pre-Vote 防网络分区抖动、Leader 租约读以及增量快照流式复制。",
+        upstream: [],
+        downstream: ["mod-scheduler", "mod-state", "mod-wal"],
+        slices: {
+          contractLeftTitle: "共识日志复制切片 — src/rpc/raft_consensus.ts",
+          contractLeftTag: "Consensus Engine",
+          contractLeft: [
+            { ln: 175, text: '<span class="kw">export class</span> <span class="ty">RaftNode</span> {' },
+            { ln: 176, text: '  <span class="kw">public async</span> <span class="fn">handleAppendEntries</span>(req: <span class="ty">AppendEntriesRPC</span>): <span class="ty">Promise</span>&lt;<span class="ty">Ack</span>&gt; {' },
+            { ln: 177, text: '    <span class="kw">if</span> (req.term &lt; <span class="kw">this</span>.currentTerm) <span class="kw">return</span> <span class="fn">rejectTerm</span>(<span class="kw">this</span>.currentTerm);' },
+            { ln: 178, text: '    <span class="kw">await this</span>.wal.<span class="fn">appendSegmentedFrame</span>(req.entriesBlob);', hl: true },
+            { ln: 179, text: '    <span class="kw">return this</span>.stateMachine.<span class="fn">applyCommitted</span>(req.leaderCommit);', hl: true },
+            { ln: 180, text: '  }' },
+            { ln: 181, text: '}' }
+          ],
+          contractRightTitle: "下游状态机提交切片 — src/core/state_machine.ts",
+          contractRightTag: "State Application",
+          contractRight: [
+            { ln: 140, text: '<span class="kw">public async</span> <span class="fn">applyCommitted</span>(commitIndex: <span class="ty">bigint</span>): <span class="ty">Promise</span>&lt;<span class="ty">Ack</span>&gt; {' },
+            { ln: 141, text: '  <span class="kw">while</span> (<span class="kw">this</span>.lastApplied &lt; commitIndex) {', hl: true },
+            { ln: 142, text: '    <span class="kw">await this</span>.<span class="fn">advanceDeterministicStep</span>(++<span class="kw">this</span>.lastApplied);', hl: true },
+            { ln: 143, text: '  }' },
+            { ln: 144, text: '}' }
+          ],
+          diffTitle: "架构演进切片 — 引入 Pipeline 批量日志复制 (v2.3 → v2.4)",
+          diffLines: [
+            { ln: 177, text: '    <span class="kw">if</span> (req.term &lt; <span class="kw">this</span>.currentTerm) <span class="kw">return</span> <span class="fn">rejectTerm</span>(<span class="kw">this</span>.currentTerm);' },
+            { ln: 178, type: "del", text: '-   <span class="kw">for</span> (<span class="kw">const</span> e <span class="kw">of</span> req.entries) <span class="kw">await this</span>.wal.<span class="fn">writeEntry</span>(e);' },
+            { ln: 178, type: "add", text: '+   <span class="kw">await this</span>.wal.<span class="fn">appendSegmentedFrame</span>(req.entriesBlob);' }
+          ]
+        }
+      },
+      {
+        id: "mod-graphql",
+        path: "src/rpc/graphql_federation.ts",
+        category: "RPC Adapters",
+        catClass: "rpc",
+        color: "#FBBF24",
+        loc: 710,
+        sizeKb: 26.5,
+        exportsCount: 19,
+        symbols: ["SubgraphResolver", "DataLoaderBatcher", "SchemaStitcher", "ASTToLogicalBridge"],
+        coupling: "Low",
+        couplingScore: "Ce:1 / Ca:0",
+        couplingColor: "var(--status-low)",
+        description: "声明式联邦图查询网关，通过 DataLoader 自动合并 N+1 子查询并将其直接编译为底层优化器 AST。",
+        upstream: [],
+        downstream: ["mod-planner"],
+        slices: {
+          contractLeftTitle: "导出契约切片 — src/rpc/graphql_federation.ts",
+          contractLeftTag: "GraphQL Federation",
+          contractLeft: [
+            { ln: 53, text: '<span class="kw">export class</span> <span class="ty">ASTToLogicalBridge</span> {' },
+            { ln: 54, text: '  <span class="kw">public</span> <span class="fn">lowerGraphSelection</span>(info: <span class="ty">GraphQLResolveInfo</span>): <span class="ty">PhysicalPlan</span> {' },
+            { ln: 55, text: '    <span class="kw">const</span> relationalAST = <span class="fn">flattenSelectionSet</span>(info.fieldNodes);', hl: true },
+            { ln: 56, text: '    <span class="kw">return</span> <span class="kw">this</span>.cbo.<span class="fn">compilePhysicalDAG</span>(relationalAST);', hl: true },
+            { ln: 57, text: '  }' },
+            { ln: 58, text: '}' }
+          ],
+          contractRightTitle: "下游调用切片 — src/core/query_planner.ts",
+          contractRightTag: "Query Planner CBO",
+          contractRight: [
+            { ln: 87, text: '  <span class="kw">public</span> <span class="fn">compilePhysicalDAG</span>(ast: <span class="ty">SelectStatement</span>): <span class="ty">PhysicalPlan</span> {', hl: true },
+            { ln: 88, text: '    <span class="kw">const</span> logical = <span class="kw">this</span>.<span class="fn">applyPredicatePushdown</span>(ast);' },
+            { ln: 89, text: '    <span class="kw">return</span> <span class="fn">lowerToBTreeScan</span>(<span class="kw">this</span>.<span class="fn">enumerateJoinOrder</span>(logical), <span class="kw">this</span>.stats);' },
+            { ln: 90, text: '  }' }
+          ],
+          diffTitle: "架构演进切片 — 消除 JSON 中间序列化开销 (v2.3 → v2.4)",
+          diffLines: [
+            { ln: 55, type: "del", text: '-   <span class="kw">const</span> jsonQuery = <span class="ty">JSON</span>.<span class="fn">stringify</span>(info.fieldNodes);' },
+            { ln: 55, type: "add", text: '+   <span class="kw">const</span> relationalAST = <span class="fn">flattenSelectionSet</span>(info.fieldNodes);' },
+            { ln: 56, text: '    <span class="kw">return</span> <span class="kw">this</span>.cbo.<span class="fn">compilePhysicalDAG</span>(relationalAST);' }
+          ]
+        }
+      },
+      {
+        id: "mod-wal",
+        path: "src/storage/wal_engine.ts",
+        category: "Storage",
+        catClass: "storage",
+        color: "#059669",
+        loc: 1560,
+        sizeKb: 58.0,
+        exportsCount: 10,
+        symbols: ["WALEngine", "SegmentedLogFile", "CRC32CChecksum", "GroupCommitQueue", "recoverFromCheckpoint"],
+        coupling: "High",
+        couplingScore: "Ce:1 / Ca:3",
+        couplingColor: "var(--status-high)",
+        description: "预写式日志（WAL）顺序持久化引擎，采用 O_DIRECT 绕过内核页缓存，支持 Group Commit 批量刷盘与硬件 CRC32C 校验。",
+        upstream: ["mod-scheduler", "mod-state", "mod-raft"],
+        downstream: ["mod-blob"],
+        slices: {
+          contractLeftTitle: "导出契约切片 — src/storage/wal_engine.ts",
+          contractLeftTag: "Storage Persistence",
+          contractLeft: [
+            { ln: 94, text: '<span class="kw">export class</span> <span class="ty">WALEngine</span> {' },
+            { ln: 95, text: '  <span class="kw">public async</span> <span class="fn">appendSegmentedFrame</span>(payload: <span class="ty">Uint8Array</span>): <span class="ty">Promise</span>&lt;<span class="ty">LSN</span>&gt; {', hl: true },
+            { ln: 96, text: '    <span class="kw">const</span> crc = <span class="fn">crc32cHardware</span>(payload);' },
+            { ln: 97, text: '    <span class="kw">if</span> (payload.byteLength &gt; <span class="nu">65536</span>) <span class="kw">await this</span>.blobStore.<span class="fn">spillOverflow</span>(payload);', hl: true },
+            { ln: 98, text: '    <span class="kw">return this</span>.ringBuffer.<span class="fn">flushDirectIO</span>(payload, crc);' },
+            { ln: 99, text: '  }' },
+            { ln: 100, text: '}' }
+          ],
+          contractRightTitle: "下游大对象溢出切片 — src/storage/blob_cas.ts",
+          contractRightTag: "Overflow CAS Storage",
+          contractRight: [
+            { ln: 72, text: '<span class="kw">export class</span> <span class="ty">BlobCASStore</span> {' },
+            { ln: 73, text: '  <span class="kw">public async</span> <span class="fn">spillOverflow</span>(raw: <span class="ty">Uint8Array</span>): <span class="ty">Promise</span>&lt;<span class="ty">Blake3Hash</span>&gt; {', hl: true },
+            { ln: 74, text: '    <span class="kw">const</span> digest = <span class="fn">computeBlake3</span>(raw);' },
+            { ln: 75, text: '    <span class="kw">await this</span>.arena.<span class="fn">writeImmutableChunk</span>(digest, <span class="fn">zstdCompress</span>(raw));', hl: true },
+            { ln: 76, text: '    <span class="kw">return</span> digest;' },
+            { ln: 77, text: '  }' },
+            { ln: 78, text: '}' }
+          ],
+          diffTitle: "架构演进切片 — io_uring 异步组提交队列 (v2.3 → v2.4)",
+          diffLines: [
+            { ln: 96, text: '    <span class="kw">const</span> crc = <span class="fn">crc32cHardware</span>(payload);' },
+            { ln: 97, type: "del", text: '-   <span class="kw">return</span> fs.<span class="fn">fdatasyncSync</span>(<span class="kw">this</span>.fd);' },
+            { ln: 97, type: "add", text: '+   <span class="kw">if</span> (payload.byteLength &gt; <span class="nu">65536</span>) <span class="kw">await this</span>.blobStore.<span class="fn">spillOverflow</span>(payload);' },
+            { ln: 98, type: "add", text: '+   <span class="kw">return this</span>.ringBuffer.<span class="fn">flushDirectIO</span>(payload, crc);' }
+          ]
+        }
+      },
+      {
+        id: "mod-btree",
+        path: "src/storage/btree_pager.ts",
+        category: "Storage",
+        catClass: "storage",
+        color: "#10B981",
+        loc: 1490,
+        sizeKb: 55.4,
+        exportsCount: 13,
+        symbols: ["BTreeRangeIterator", "SlottedPage", "OptimisticLockCoupling", "BufferPoolClockSweep"],
+        coupling: "Medium",
+        couplingScore: "Ce:1 / Ca:2",
+        couplingColor: "var(--status-med)",
+        description: "支持乐观锁耦合（Optimistic Lock Coupling）的高并发 B+Tree 页面管理器，内置 Clock-Sweep 缓冲池淘汰算法。",
+        upstream: ["mod-planner", "mod-scheduler"],
+        downstream: ["mod-blob"],
+        slices: {
+          contractLeftTitle: "导出契约切片 — src/storage/btree_pager.ts",
+          contractLeftTag: "B+Tree Slotted Page",
+          contractLeft: [
+            { ln: 211, text: '<span class="kw">export class</span> <span class="ty">BTreeRangeIterator</span> {' },
+            { ln: 212, text: '  <span class="kw">public</span> <span class="fn">nextTuple</span>(): <span class="ty">TupleSlice</span> | <span class="kw">null</span> {' },
+            { ln: 213, text: '    <span class="kw">const</span> version = <span class="kw">this</span>.currentPage.<span class="fn">tryReadOptimistic</span>();', hl: true },
+            { ln: 214, text: '    <span class="kw">const</span> slot = <span class="kw">this</span>.currentPage.<span class="fn">readSlot</span>(<span class="kw">this</span>.cursor++);' },
+            { ln: 215, text: '    <span class="kw">if</span> (!<span class="kw">this</span>.currentPage.<span class="fn">validateVersion</span>(version)) <span class="kw">return this</span>.<span class="fn">retryWithSharedLatch</span>();', hl: true },
+            { ln: 216, text: '    <span class="kw">return</span> slot;' },
+            { ln: 217, text: '  }' },
+            { ln: 218, text: '}' }
+          ],
+          contractRightTitle: "上游调用方切片 — src/core/query_planner.ts",
+          contractRightTag: "Upstream Planner",
+          contractRight: [
+            { ln: 87, text: '  <span class="kw">public</span> <span class="fn">compilePhysicalDAG</span>(ast: <span class="ty">SelectStatement</span>): <span class="ty">PhysicalPlan</span> {' },
+            { ln: 88, text: '    <span class="kw">const</span> logical = <span class="kw">this</span>.<span class="fn">applyPredicatePushdown</span>(ast);' },
+            { ln: 89, text: '    <span class="kw">const</span> bestPath = <span class="kw">this</span>.<span class="fn">enumerateJoinOrder</span>(logical);' },
+            { ln: 90, text: '    <span class="kw">return</span> <span class="fn">lowerToBTreeScan</span>(bestPath, <span class="kw">this</span>.stats);', hl: true },
+            { ln: 91, text: '  }' }
+          ],
+          diffTitle: "架构演进

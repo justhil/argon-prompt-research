@@ -1,0 +1,40 @@
+{
+  "runKey": "W2-quant-risk-terminal__O3_stochastic_movement_66w",
+  "taskId": "W2-quant-risk-terminal",
+  "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+  "styleId": "O3_stochastic_movement_66w",
+  "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 162.88,
+  "metrics": {
+    "htmlBytes": 46096,
+    "hasDarkBg": false,
+    "darkHexCount": 2,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 1,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  },
+  "palette": {
+    "primaryBg": "#ECEAE4",
+    "allHex": [
+      "#eceae4",
+      "#f6f5f0",
+      "#e4e1d8",
+      "#ffffff",
+      "#141413",
+      "#575652",
+      "#8c8a84",
+      "#c7c4ba"
+    ],
+    "rootCss": "--bg-canvas: #ECEAE4; --bg-panel: #F6F5F0; --bg-sub: #E4E1D8; --bg-active: #FFFFFF; --ink-high: #141413; --ink-mid: #575652; --ink-low: #8C8A84; --border-hairline: #C7C4BA; --border-strong: #141413; --signal-orange: #D9381E; /* 博朗/TE标志性信号红橙 - 策略主线 */ --cobalt-blue: #1D4ED8; /* 基准指数线 */ --forest-green: #15603E; /* 正向收益/低波暴露 */ --ochre-warn",
+    "themeNote": ""
+  }
+}

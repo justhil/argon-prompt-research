@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM GATEWAY // TELEMETRY & COST CONSOLE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* 
+   * DESIGN SYSTEM: SWISS ARCHITECTURAL PAPER & INDUSTRIAL SIGNAL
+   * Direction: High-Contrast Swiss Grid + Anodized Hardware Tactility
+   * Palette: Warm Stone Paper (#F3F2EE), Deep Carbon Ink (#141413), International Signal Orange (#FF4400)
+   */
+  :root {
+    --bg-paper: #F3F2EE;
+    --bg-panel: #FAF9F6;
+    --bg-subtle: #E8E6DF;
+    --bg-ink: #141413;
+    --ink-primary: #141413;
+    --ink-secondary: #5C5B57;
+    --ink-muted: #8C8B85;
+    --border-heavy: #141413;
+    --border-hairline: #D4D2C8;
+    --signal-orange: #FF4400;
+    --signal-green: #008A4B;
+    --signal-amber: #D97706;
+    --signal-blue: #1D4ED8;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-paper);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    padding: 20px;
+    min-height: 100vh;
+    /* Subtle architectural dot matrix background */
+    background-image: radial-gradient(var(--border-hairline) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  /* Master Swiss Grid Container */
+  .console-frame {
+    max-width: 1640px;
+    margin: 0 auto;
+    border: 2px solid var(--border-heavy);
+    background-color: var(--bg-panel);
+    box-shadow: 6px 6px 0px var(--border-heavy);
+  }
+
+  /* Top Utility Header */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    border-bottom: 2px solid var(--border-heavy);
+    background-color: var(--bg-ink);
+    color: var(--bg-panel);
+    min-height: 52px;
+  }
+
+  .brand-zone {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 14px;
+    border-right: 1px solid #333330;
+  }
+
+  .brand-mark {
+    width: 14px;
+    height: 14px;
+    background-color: var(--signal-orange);
+    display: inline-block;
+    position: relative;
+  }
+  .brand-mark::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background-color: var(--bg-ink);
+  }
+
+  .brand-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .brand-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #9E9D96;
+    padding-left: 12px;
+    border-left: 1px solid #333330;
+  }
+
+  .gateway-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    margin-left: auto;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #222220;
+    padding: 5px 10px;
+    border: 1px solid #3D3D38;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10B981;
+    border-radius: 50%;
+    animation: pulse 1.8s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.85); }
+  }
+
+  .mode-toggle {
+    display: flex;
+    align-items: center;
+    border-left: 1px solid #333330;
+    padding-left: 20px;
+    gap: 8px;
+  }
+
+  .btn-hardware {
+    background: #262624;
+    color: #EAE8E1;
+    border: 1px solid #4A4A44;
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.1s ease;
+  }
+  .btn-hardware:hover {
+    background: #3A3A36;
+  }
+  .btn-hardware.active {
+    background: var(--signal-orange);
+    color: #FFFFFF;
+    border-color: var(--signal-orange);
+    font-weight: 600;
+  }
+
+  /* Section 1: 5 Core KPI Strip (Asymmetric Proportions) */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr 1fr 1.35fr;
+    border-bottom: 2px solid var(--border-heavy);
+  }
+
+  .kpi-cell {
+    padding: 18px 20px;
+    border-right: 1px solid var(--border-heavy);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    background: var(--bg-panel);
+  }
+
+  .kpi-cell:last-child {
+    border-right: none;
+    background: var(--bg-subtle);
+  }
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .kpi-index {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .kpi-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 5px;
+    border: 1px solid var(--border-heavy);
+    background: var(--bg-paper);
+    font-weight: 600;
+  }
+
+  .kpi-tag.good {
+    color: var(--signal-green);
+    border-color: var(--signal-green);
+    background: rgba(0, 138, 75, 0.06);
+  }
+
+  .kpi-tag.warn {
+    color: var(--signal-orange);
+    border-color: var(--signal-orange);
+    background: rgba(255, 68, 0, 0.08);
+  }
+
+  .kpi-main-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 12px 0;
+  }
+
+  .kpi-value {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-unit {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-secondary);
+    margin-left: 4px;
+  }
+
+  .kpi-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    border-top: 1px dashed var(--border-hairline);
+    padding-top: 8px;
+  }
+
+  .sparkline-svg {
+    width: 78px;
+    height: 26px;
+    overflow: visible;
+  }
+
+  /* Section 2: Main Analytical Workbench (Asymmetric 3-Zone Layout) */
+  .workbench-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1.15fr;
+    grid-template-rows: auto auto;
+  }
+
+  .left-column {
+    border-right: 2px solid var(--border-heavy);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-block {
+    padding: 20px;
+    border-bottom: 2px solid var(--border-heavy);
+  }
+  .panel-block:last-child {
+    border-bottom: none;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-heavy);
+  }
+
+  .section-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .section-code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--signal-orange);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .section-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    text-align: right;
+  }
+
+  /* Latency Distribution Table & Range Bars */
+  .latency-legend {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    margin-bottom: 14px;
+    align-items: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .swatch-p50 {
+    width: 10px;
+    height: 10px;
+    background: var(--ink-primary);
+    display: inline-block;
+  }
+  .swatch-p95 {
+    width: 12px;
+    height: 4px;
+    background: var(--ink-secondary);
+    display: inline-block;
+  }
+  .swatch-p99 {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--signal-orange);
+    display: inline-block;
+  }
+
+  .model-latency-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .latency-row {
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-paper);
+    padding: 12px 14px;
+    transition: border-color 0.15s;
+  }
+  .latency-row:hover {
+    border-color: var(--border-heavy);
+  }
+
+  .latency-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 9px;
+  }
+
+  .model-id-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .model-color-bar {
+    width: 4px;
+    height: 16px;
+    display: inline-block;
+  }
+
+  .model-name {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .model-provider {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    background: var(--bg-panel);
+    padding: 1px 5px;
+    border: 1px solid var(--border-hairline);
+  }
+
+  .latency-metrics-readout {
+    display: flex;
+    gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .latency-metrics-readout span strong {
+    color: var(--ink-primary);
+  }
+
+  /* Precision Ruler Track for Latency Boxplot */
+  .ruler-track {
+    position: relative;
+    height: 22px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    background-image: linear-gradient(to right, var(--border-hairline) 1px, transparent 1px);
+    background-size: 10% 100%;
+    overflow: hidden;
+  }
+
+  /* Whisker line from min to P99 */
+  .whisker-line {
+    position: absolute;
+    top: 10px;
+    height: 2px;
+    background: var(--ink-secondary);
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* IQR / P50-P95 Density Block */
+  .density-block {
+    position: absolute;
+    top: 4px;
+    height: 12px;
+    background: rgba(20, 20, 19, 0.18);
+    border: 1px solid var(--ink-primary);
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* P50 Median Marker */
+  .marker-p50 {
+    position: absolute;
+    top: 2px;
+    width: 3px;
+    height: 16px;
+    background: var(--ink-primary);
+    transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* P99 Tail Marker */
+  .marker-p99 {
+    position: absolute;
+    top: 4px;
+    width: 8px;
+    height: 12px;
+    border: 2px solid var(--signal-orange);
+    background: var(--bg-panel);
+    transform: translateX(-4px);
+    transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ruler-scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+    padding: 0 2px;
+  }
+
+  /* Section 2B: Traffic Routing Sliders & Real-time Cost Simulator */
+  .routing-controls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
+  .preset-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .btn-preset {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 4px 8px;
+    background: var(--bg-paper);
+    border: 1px solid var(--border-heavy);
+    cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.1s;
+  }
+  .btn-preset:hover {
+    background: var(--ink-primary);
+    color: var(--bg-panel);
+  }
+  .btn-preset.active {
+    background: var(--signal-orange);
+    color: #fff;
+    border-color: var(--signal-orange);
+  }
+
+  /* Stacked Allocation Bar */
+  .allocation-bar-wrap {
+    margin-bottom: 16px;
+  }
+  .allocation-bar {
+    height: 14px;
+    width: 100%;
+    display: flex;
+    border: 1px solid var(--border-heavy);
+    overflow: hidden;
+    background: var(--bg-paper);
+  }
+  .alloc-segment {
+    height: 100%;
+    transition: width 0.15s ease;
+    border-right: 1px solid var(--bg-panel);
+  }
+
+  .slider-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .slider-card {
+    background: var(--bg-paper);
+    border: 1px solid var(--border-hairline);
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 190px 1fr 115px;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .slider-model-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .slider-model-title {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .slider-model-price {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  /* Custom Industrial Range Input */
+  input[type="range"].fader-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--border-hairline);
+    outline: none;
+    border: 1px solid var(--ink-primary);
+    cursor: ew-resize;
+  }
+
+  input[type="range"].fader-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 22px;
+    background: var(--ink-primary);
+    border: 2px solid var(--bg-panel);
+    box-shadow: 0 0 0 1px var(--ink-primary);
+    cursor: ew-resize;
+    transition: background 0.1s;
+  }
+
+  input[type="range"].fader-input:hover::-webkit-slider-thumb,
+  input[type="range"].fader-input:active::-webkit-slider-thumb {
+    background: var(--signal-orange);
+  }
+
+  .slider-readout {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .weight-pct {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink-primary);
+  }
+
+  .weight-cost-est {
+    font-size: 10px;
+    color: var(--ink-secondary);
+    display: block;
+  }
+
+  /* Cost Financial Ledger Summary Box */
+  .cost-ledger-box {
+    background: var(--bg-ink);
+    color: var(--bg-panel);
+    padding: 16px 18px;
+    border: 1px solid var(--border-heavy);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .ledger-item {
+    border-right: 1px solid #333330;
+    padding-right: 12px;
+  }
+  .ledger-item:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .ledger-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #9E9D96;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .ledger-val {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ledger-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    margin-top: 2px;
+    color: #A3A29B;
+  }
+
+  /* Right Column: Live Request Telemetry Stream */
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-panel);
+    height: 100%;
+  }
+
+  .stream-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filter-tabs {
+    display: flex;
+    border: 1px solid var(--border-heavy);
+    background: var(--bg-paper);
+  }
+
+  .filter-tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 6px 11px;
+    border: none;
+    border-right: 1px solid var(--border-heavy);
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--ink-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-tab:last-child {
+    border-right: none;
+  }
+  .filter-tab.active {
+    background: var(--ink-primary);
+    color: var(--bg-panel);
+  }
+
+  .filter-count {
+    font-size: 10px;
+    padding: 0 4px;
+    background: rgba(128,128,128,0.2);
+  }
+
+  .stream-search {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-heavy);
+    background: var(--bg-paper);
+    color: var(--ink-primary);
+    width: 180px;
+    outline: none;
+  }
+  .stream-search:focus {
+    border-color: var(--signal-orange);
+    background: #fff;
+  }
+
+  /* Trace Stream Table */
+  .trace-table-container {
+    border: 1px solid var(--border-heavy);
+    background: var(--bg-paper);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 540px;
+    max-height: 680px;
+    overflow: hidden;
+  }
+
+  .trace-thead {
+    display: grid;
+    grid-template-columns: 78px 72px 135px 86px 76px 90px 1fr;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-heavy);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-secondary);
+    text-transform: uppercase;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .trace-tbody {
+    overflow-y: auto;
+    flex: 1;
+    divide-y: 1px solid var(--border-hairline);
+  }
+
+  .trace-row {
+    display: grid;
+    grid-template-columns: 78px 72px 135px 86px 76px 90px 1fr;
+    padding: 8px 12px;
+    gap: 8px;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border-bottom: 1px solid var(--border-hairline);
+    background: var(--bg-panel);
+    cursor: pointer;
+    transition: background 0.12s;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .trace-row:hover {
+    background: #EFECE4;
+  }
+
+  .trace-row.selected {
+    background: #FFF3ED;
+    border-left: 3px solid var(--signal-orange);
+    padding-left: 9px;
+  }
+
+  .trace-row.new-flash {
+    animation: rowFlash 0.6s ease-out;
+  }
+
+  @keyframes rowFlash {
+    0% { background-color: rgba(255, 68, 0, 0.22); }
+    100% { background-color: var(--bg-panel); }
+  }
+
+  .badge-status {
+    display: inline-block;
+    padding: 2px 5px;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    border: 1px solid transparent;
+  }
+
+  .badge-200 {
+    color: var(--signal-green);
+    background: rgba(0, 138, 75, 0.08);
+    border-color: rgba(0, 138, 75, 0.3);
+  }
+
+  .badge-cache {
+    color: var(--signal-blue);
+    background: rgba(29, 78, 216, 0.08);
+    border-color: rgba(29, 78, 216, 0.3);
+  }
+
+  .badge-429 {
+    color: var(--signal-orange);
+    background: rgba(255, 68, 0, 0.1);
+    border-color: var(--signal-orange);
+  }
+
+  .badge-fallback {
+    color: var(--signal-amber);
+    background: rgba(217, 119, 6, 0.1);
+    border-color: var(--signal-amber);
+  }
+
+  /* Inspector Drawer at Bottom of Stream */
+  .trace-inspector {
+    border-top: 2px solid var(--border-heavy);
+    background: var(--bg-subtle);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .inspector-kv {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .inspector-kv div span {
+    color: var(--ink-muted);
+    margin-right: 4px;
+  }
+
+  /* Footer Specification Strip */
+  .console-footer {
+    border-top: 2px solid var(--border-heavy);
+    background: var(--bg-paper);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  /* Responsive adaptation */
+  @media (max-width: 1280px) {
+    .kpi-strip {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .kpi-cell {
+      border-bottom: 1px solid var(--border-heavy);
+    }
+    .workbench-grid {
+      grid-template-columns: 1fr;
+    }
+    .left-column {
+      border-right: none;
+      border-bottom: 2px solid var(--border-heavy);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="console-frame">
+  <!-- TOP UTILITY & GATEWAY HEALTH BAR -->
+  <header class="topbar">
+    <div class="brand-zone">
+      <span class="brand-mark"></span>
+      <span class="brand-title">AETHER // GATEWAY-01</span>
+      <span class="brand-sub">SPEC-REV 4.8 // MULTI-PROVIDER ROUTER</span>
+    </div>
+
+    <div class="gateway-status-bar">
+      <div class="status-pill">
+        <span class="pulse-dot" id="livePulse"></span>
+        <span id="gatewayStateText">INGRESS: NOMINAL (99.98% SLA)</span>
+      </div>
+      <div>REGION: <strong>US-EAST / EU-CENTRAL</strong></div>
+      <div>CLOCK: <strong id="utcClock">--:--:-- UTC</strong></div>
+      <div class="mode-toggle">
+        <button class="btn-hardware active" id="btnStreamToggle" onclick="toggleTelemetryStream()">STREAM: ON</button>
+        <button class="btn-hardware" onclick="injectTrafficSpike()">SIMULATE BURST</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: 5 CORE TELEMETRY & FINANCIAL KPIs -->
+  <section class="kpi-strip">
+    <!-- 01. Total Requests -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-index">01 // INGRESS REQUESTS (24H)</span>
+        <span class="kpi-tag good" id="rpsTag">242 req/s</span>
+      </div>
+      <div class="kpi-main-row">
+        <div>
+          <span class="kpi-value" id="kpiTotalReq">14,892,410</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkReq" viewBox="0 0 78 26"></svg>
+      </div>
+      <div class="kpi-foot">
+        <span>ERR RATE: <strong id="errRateText">0.12%</strong></span>
+        <span>+18.4% vs YESTERDAY</span>
+      </div>
+    </div>
+
+    <!-- 02. Mean TTFT -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-index">02 // MEAN TTFT (WEIGHTED)</span>
+        <span class="kpi-tag good" id="ttftStatusTag">SLO &lt; 350ms</span>
+      </div>
+      <div class="kpi-main-row">
+        <div>
+          <span class="kpi-value" id="kpiTtft">234</span><span class="kpi-unit">ms</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkTtft" viewBox="0 0 78 26"></svg>
+      </div>
+      <div class="kpi-foot">
+        <span>P95: <strong id="kpiGlobalP95">482 ms</strong></span>
+        <span>P99: <strong id="kpiGlobalP99">790 ms</strong></span>
+      </div>
+    </div>
+
+    <!-- 03. Streaming Throughput -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-index">03 // STREAM THROUGHPUT</span>
+        <span class="kpi-tag">OUTPUT TOK/S</span>
+      </div>
+      <div class="kpi-main-row">
+        <div>
+          <span class="kpi-value" id="kpiThroughput">98.4</span><span class="kpi-unit">tok/s</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkTps" viewBox="0 0 78 26"></svg>
+      </div>
+      <div class="kpi-foot">
+        <span>CLUSTER AGG: <strong>23.8K tok/s</strong></span>
+        <span>TPOT: <strong>10.1 ms</strong></span>
+      </div>
+    </div>
+
+    <!-- 04. Semantic Cache Hit Ratio -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-index">04 // SEMANTIC & KV CACHE</span>
+        <span class="kpi-tag good">REDIS + VEC</span>
+      </div>
+      <div class="kpi-main-row">
+        <div>
+          <span class="kpi-value" id="kpiCacheHit">36.8</span><span class="kpi-unit">%</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkCache" viewBox="0 0 78 26"></svg>
+      </div>
+      <div class="kpi-foot">
+        <span>SAVED TODAY: <strong style="color:var(--signal-green)" id="kpiCacheSaved">$1,428.50</strong></span>
+        <span>HIT LATENCY: <strong>14ms</strong></span>
+      </div>
+    </div>
+
+    <!-- 05. Today's Burn & Projected Bill -->
+    <div class="kpi-cell">
+      <div class="kpi-header">
+        <span class="kpi-index">05 // TODAY ACCRUED COST</span>
+        <span class="kpi-tag warn" id="burnRateTag">$184.20 / HR</span>
+      </div>
+      <div class="kpi-main-row">
+        <div>
+          <span class="kpi-value" id="kpiDailyCost">$3,842.65</span>
+        </div>
+        <svg class="sparkline-svg" id="sparkCost" viewBox="0 0 78 26"></svg>
+      </div>
+      <div class="kpi-foot">
+        <span>EOD FORECAST: <strong id="kpiProjectedBill">$4,420.80</strong></span>
+        <span>BUDGET CAP: <strong>$5,000</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: MIDDLE WORKBENCH -->
+  <main class="workbench-grid">
+    <!-- LEFT COLUMN: LATENCY DISTRIBUTION + ROUTING WEIGHT SIMULATOR -->
+    <div class="left-column">
+      
+      <!-- 2A: 4 PRIMARY MODELS LATENCY DISTRIBUTION COMPARISON -->
+      <div class="panel-block">
+        <div class="section-head">
+          <div class="section-title-group">
+            <span class="section-code">MODULE A // TELEMETRY DISTRIBUTION</span>
+            <h2 class="section-title">Primary Model TTFT & Tail Latency Profile</h2>
+          </div>
+          <div class="section-meta">
+            WINDOW: ROLLING 5M<br>
+            SCALE: 0ms — 1,200ms
+          </div>
+        </div>
+
+        <div class="latency-legend">
+          <div class="legend-item"><span class="swatch-p50"></span> P50 MEDIAN</div>
+          <div class="legend-item"><span class="swatch-p95"></span> P50–P95 INTERQUARTILE DENSITY</div>
+          <div class="legend-item"><span class="swatch-p99"></span> P99 TAIL ANOMALY</div>
+          <div style="margin-left:auto; font-weight:600;">SLO THRESHOLD: 800ms</div>
+        </div>
+
+        <div class="model-latency-list" id="latencyModelList">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </div>
+
+      <!-- 2B: DYNAMIC ROUTING WEIGHT SLIDERS & REAL-TIME COST ENGINE -->
+      <div class="panel-block" style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <div class="section-head">
+            <div class="section-title-group">
+              <span class="section-code">MODULE B // TRAFFIC ARBITRAGE & ROUTING ENGINE</span>
+              <h2 class="section-title">Weighted Load Balancer & Cost Recalculator</h2>
+            </div>
+            <div class="section-meta">
+              AUTO-NORMALIZATION: <strong>100% LOCK</strong><br>
+              DRAG SLIDERS TO RE-COMPUTE RUN-RATE
+            </div>
+          </div>
+
+          <div class="routing-controls-header">
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-secondary);">ROUTING POLICY PRESETS:</span>
+            <div class="preset-group">
+              <button class="btn-preset active" id="preset-production" onclick="applyRoutingPreset('production')">PROD BALANCED</button>
+              <button class="btn-preset" id="preset-cost" onclick="applyRoutingPreset('cost')">MINIMIZE COST</button>
+              <button class="btn-preset" id="preset-latency" onclick="applyRoutingPreset('latency')">ULTRA-LOW LATENCY</button>
+              <button class="btn-preset" id="preset-quality" onclick="applyRoutingPreset('quality')">FRONTIER QUALITY</button>
+            </div>
+          </div>
+
+          <!-- Visual Stacked Allocation Strip -->
+          <div class="allocation-bar-wrap">
+            <div class="allocation-bar" id="stackedAllocationBar"></div>
+          </div>
+
+          <!-- 4 Interactive Model Faders -->
+          <div class="slider-stack" id="routingSlidersContainer">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Real-Time Recalculated Cost Ledger -->
+        <div class="cost-ledger-box">
+          <div class="ledger-item">
+            <div class="ledger-label">BLENDED COST / 1M TOK</div>
+            <div class="ledger-val" id="simBlendedCpm">$4.12</div>
+            <div class="ledger-sub">IN: 72% / OUT: 28% MIX</div>
+          </div>
+          <div class="ledger-item">
+            <div class="ledger-label">SIMULATED DAILY BILL</div>
+            <div class="ledger-val" id="simDailyBill">$4,420.80</div>
+            <div class="ledger-sub" id="simHourlyRate">$184.20 / hr run-rate</div>
+          </div>
+          <div class="ledger-item">
+            <div class="ledger-label">DELTA VS BASELINE</div>
+            <div class="ledger-val" id="simDeltaCost">$0.00</div>
+            <div class="ledger-sub" id="simDeltaPct">0.0% variance / day</div>
+          </div>
+          <div class="ledger-item">
+            <div class="ledger-label">SIMULATED MEAN TTFT</div>
+            <div class="ledger-val" id="simBlendedTtft">234 ms</div>
+            <div class="ledger-sub" id="simBlendedTps">98.4 tok/s avg</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: REAL-TIME REQUEST TELEMETRY TRACE STREAM -->
+    <div class="right-column">
+      <div class="panel-block" style="border-bottom:none; display:flex; flex-direction:column; height:100%;">
+        <div class="section-head">
+          <div class="section-title-group">
+            <span class="section-code">MODULE C // LIVE PACKET & COMPLETION INSPECTOR</span>
+            <h2 class="section-title">Real-Time Inference Trace Stream</h2>
+          </div>
+          <div class="section-meta">
+            SAMPLING: <strong>1:100 PROD STREAM</strong><br>
+            CLICK ANY TRACE TO INSPECT PAYLOAD
+          </div>
+        </div>
+
+        <!-- Filter Tabs & Search -->
+        <div class="stream-toolbar">
+          <div class="filter-tabs" id="streamFilterTabs">
+            <button class="filter-tab active" data-filter="ALL" onclick="setStreamFilter('ALL')">
+              ALL <span class="filter-count" id="cnt-ALL">0</span>
+            </button>
+            <button class="filter-tab" data-filter="200_OK" onclick="setStreamFilter('200_OK')">
+              200 OK <span class="filter-count" id="cnt-200_OK">0</span>
+            </button>
+            <button class="filter-tab" data-filter="CACHE_HIT" onclick="setStreamFilter('CACHE_HIT')">
+              CACHE HIT <span class="filter-count" id="cnt-CACHE_HIT">0</span>
+            </button>
+            <button class="filter-tab" data-filter="429_LIMIT" onclick="setStreamFilter('429_LIMIT')">
+              429 LIMIT <span class="filter-count" id="cnt-429_LIMIT">0</span>
+            </button>
+            <button class="filter-tab" data-filter="FALLBACK" onclick="setStreamFilter('FALLBACK')">
+              FALLBACK <span class="filter-count" id="cnt-FALLBACK">0</span>
+            </button>
+          </div>
+
+          <input type="text" class="stream-search" id="traceSearchInput" placeholder="FILTER MODEL / REQ_ID..." oninput="renderTraceTable()">
+        </div>
+
+        <!-- Stream Table -->
+        <div class="trace-table-container">
+          <div class="trace-thead">
+            <div>REQ_ID</div>
+            <div>TIME</div>
+            <div>ROUTED MODEL</div>
+            <div>TOKENS (I/O)</div>
+            <div>TTFT / TPS</div>
+            <div>COST (USD)</div>
+            <div>STATUS</div>
+          </div>
+          <div class="trace-tbody" id="traceTableBody">
+            <!-- Live rows injected here -->
+          </div>
+          <!-- Selected Trace Inspector Bar -->
+          <div class="trace-inspector" id="traceInspector">
+            <div class="inspector-kv" id="inspectorContent">
+              <div><span>SELECTED:</span> <strong>req_99481a</strong></div>
+              <div><span>ROUTE POLICY:</span> <strong>LATENCY_WEIGHTED_POOL</strong></div>
+              <div><span>PROMPT HASH:</span> <strong>0x7f83b2...e91a</strong></div>
+              <div><span>UPSTREAM ENDPOINT:</span> <strong>us-east-anthropic-direct-03</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER SPECIFICATION BAR -->
+  <footer class="console-footer">
+    <div>LLM GATEWAY CONTROL PLANE // ZERO-BLOAT TELEMETRY ARCHITECTURE</div>
+    <div>ALL PRICING REFLECTS CONTRACT TIER-4 VOLUME RATES // SEMANTIC CACHE SIMILARITY THRESHOLD: 0.94</div>
+  </footer>
+</div>
+
+<script>
+  /********************************************************************
+   * 1. CORE MODEL SPECIFICATIONS & STATE
+   ********************************************************************/
+  const MODELS = [
+    {
+      id: 'claude-3-7-sonnet',
+      name: 'Claude 3.7 Sonnet',
+      provider: 'ANTHROPIC',
+      color: '#FF4400',
+      inputCostPerM: 3.00,
+      outputCostPerM: 15.00,
+      baseTtftP50: 275,
+      baseTtftP95: 510,
+      baseTtftP99: 840,
+      baseTps: 86,
+      weight: 42
+    },
+    {
+      id: 'gpt-4o-2025',
+      name: 'GPT-4o (Prod-05)',
+      provider: 'OPENAI',
+      color: '#141413',
+      inputCostPerM: 2.50,
+      outputCostPerM: 10.00,
+      baseTtftP50: 230,
+      baseTtftP95: 440,
+      baseTtftP99: 720,
+      baseTps: 104,
+      weight: 33
+    },
+    {
+      id: 'deepseek-v3-fast',
+      name: 'DeepSeek-V3 Turbo',
+      provider: 'FIREWORKS-FP8',
+      color: '#008A4B',
+      inputCostPerM: 0.27,
+      outputCostPerM: 1.10,
+      baseTtftP50: 195,
+      baseTtftP95: 380,
+      baseTtftP99: 630,
+      baseTps: 128,
+      weight: 15
+    },
+    {
+      id: 'gemini-2-0-flash',
+      name: 'Gemini 2.0 Flash',
+      provider: 'VERTEX-AI',
+      color: '#1D4ED8',
+      inputCostPerM: 0.10,
+      outputCostPerM: 0.40,
+      baseTtftP50: 135,
+      baseTtftP95: 255,
+      baseTtftP99: 410,
+      baseTps: 162,
+      weight: 10
+    }
+  ];
+
+  // Daily token volume baseline (e.g., 850M tokens/day across gateway)
+  const DAILY_TOTAL_TOKENS_M = 850;
+  const INPUT_TOKEN_RATIO = 0.72;
+  const OUTPUT_TOKEN_RATIO = 0.28;
+
+  // Baseline daily cost under initial weights [42, 33, 15, 10]
+  let baselineDailyCost = 0;
+
+  // Live Telemetry State
+  let totalRequests = 14892410;
+  let accruedCostToday = 3842.65;
+  let cacheSavedToday = 1428.50;
+  let streamActive = true;
+  let currentFilter = 'ALL';
+  let selectedTraceId = null;
+
+  // Sparkline history buffers
+  const sparkHistory = {
+    req: [215, 224, 218, 235, 240, 238, 248, 242, 251, 245, 239, 242],
+    ttft: [248, 241, 239, 232, 236, 228, 235, 231, 238, 233, 236, 234],
+    tps: [94, 96, 95, 99, 97, 101, 98, 97, 100, 99, 98, 98.4],
+    cache: [34.2, 35.0, 35.1, 36.0, 35.8, 36.4, 36.9, 36.5, 37.1, 36.7, 36.8, 36.8],
+    cost: [175, 178, 179, 181, 180, 183, 182, 185, 184, 183, 184, 184.2]
+  };
+
+  // Trace buffer
+  let traces = [];
+  const MAX_TRACES = 65;
+
+  const ENDPOINTS = [
+    'us-east-anth-direct-01',
+    'us-west-oai-pt-04',
+    'fw-us-central-fp8-02',
+    'gcp-us-east4-vertex-09'
+  ];
+
+  const POLICIES = [
+    'LATENCY_WEIGHTED_POOL',
+    'COST_ARBITRAGE_ROUTER',
+    'SEMANTIC_CACHE_SHORTCIRCUIT',
+    'AUTO_FAILOVER_RETRY'
+  ];
+
+  /********************************************************************
+   * 2. INITIALIZATION & RENDER PIPELINE
+   ********************************************************************/
+  function initConsole() {
+    // Compute initial baseline cost
+    baselineDailyCost = computeDailyCostForWeights(MODELS.map(m => m.weight));
+
+    renderLatencyDistribution();
+    renderRoutingSliders();
+    recalculateCostAndTelemetry();
+    renderAllSparklines();
+    seedInitialTraces(28);
+    updateClock();
+
+    setInterval(updateClock, 1000);
+    setInterval(tickLiveTelemetry, 1100);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    const timeStr = now.toISOString().slice(11, 19) + ' UTC';
+    document.getElementById('utcClock').textContent = timeStr;
+  }
+
+  /********************************************************************
+   * 3. MODULE A: LATENCY DISTRIBUTION RENDERER
+   ********************************************************************/
+  function renderLatencyDistribution() {
+    const container = document.getElementById('latencyModelList');
+    const maxScaleMs = 1000; // 0 to 1000ms ruler
+
+    container.innerHTML = MODELS.map((m) => {
+      const p50Left = Math.min(98, (m.baseTtftP50 / maxScaleMs) * 100);
+      const p95Left = Math.min(98, (m.baseTtftP95 / maxScaleMs) * 100);
+      const p99Left = Math.min(98, (m.baseTtftP99 / maxScaleMs) * 100);
+      const minLeft = Math.max(2, p50Left * 0.55);
+      const densityWidth = Math.max(2, p95Left - p50Left);
+      const whiskerWidth = Math.max(4, p99Left - minLeft);
+
+      return `
+        <div class="latency-row" id="lat-row-${m.id}">
+          <div class="latency-row-top">
+            <div class="model-id-badge">
+              <span class="model-color-bar" style="background:${m.color}"></span>
+              <span class="model-name">${m.name}</span>
+              <span class="model-provider">${m.provider}</span>
+            </div>
+            <div class="latency-metrics-readout">
+              <span>P50: <strong id="p50-val-${m.id}">${m.baseTtftP50}ms</strong></span>
+              <span>P95: <strong id="p95-val-${m.id}">${m.baseTtftP95}ms</strong></span>
+              <span>P99: <strong id="p99-val-${m.id}" style="color:var(--signal-orange)">${m.baseTtftP99}ms</strong></span>
+              <span>TPS: <strong>${m.baseTps} tok/s</strong></span>
+            </div>
+          </div>
+          <div class="ruler-track">
+            <div class="whisker-line" id="whisker-${m.id}" style="left:${minLeft}%; width:${whiskerWidth}%;"></div>
+            <div class="density-block" id="density-${m.id}" style="left:${p50Left}%; width:${densityWidth}%; border-color:${m.color}"></div>
+            <div class="marker-p50" id="mp50-${m.id}" style="left:${p50Left}%; background:${m.color}"></div>
+            <div class="marker-p99" id="mp99-${m.id}" style="left:${p99Left}%;"></div>
+          </div>
+          <div class="ruler-scale">
+            <span>0ms</span>
+            <span>250ms</span>
+            <span>500ms</span>
+            <span>750ms</span>
+            <span>1000ms+</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function jitterLatencyDistribution(spikeFactor = 1.0) {
+    const maxScaleMs = 1000;
+    MODELS.forEach(m => {
+      const jitter = () => (Math.random() - 0.48) * 14;
+      const p50 = Math.round(Math.max(80, (m.baseTtftP50 + jitter()) * spikeFactor));
+      const p95 = Math.round(Math.max(p50 + 60, (m.baseTtftP95 + jitter() * 1.8) * spikeFactor));
+      const p99 = Math.round(Math.max(p95 + 80, (m.baseTtftP99 + jitter() * 2.6) * spikeFactor));
+
+      const p50Left = Math.min(96, (p50 / maxScaleMs) * 100);
+      const p95Left = Math.min(97, (p95 / maxScaleMs) * 100);
+      const p99Left = Math.min(98, (p99 / maxScaleMs) * 100);
+      const minLeft = Math.max(2, p50Left * 0.55);
+
+      document.getElementById(`p50-val-${m.id}`).textContent = `${p50}ms`;
+      document.getElementById(`p95-val-${m.id}`).textContent = `${p95}ms`;
+      document.getElementById(`p99-val-${m.id}`).textContent = `${p99}ms`;
+
+      document.getElementById(`whisker-${m.id}`).style.left = `${minLeft}%`;
+      document.getElementById(`whisker-${m.id}`).style.width = `${Math.max(4, p99Left - minLeft)}%`;
+      document.getElementById(`density-${m.id}`).style.left = `${p50Left}%`;
+      document.getElementById(`density-${m.id}`).style.width = `${Math.max(2, p95Left - p50Left)}%`;
+      document.getElementById(`mp50-${m.id}`).style.left = `${p50Left}%`;
+      document.getElementById(`mp99-${m.id}`).style.left = `${p99Left}%`;
+    });
+  }
+
+  /********************************************************************
+   * 4. MODULE B: ROUTING WEIGHT SLIDERS & COST ENGINE
+   ********************************************************************/
+  function computeModelBlendedCpm(model) {
+    return (model.inputCostPerM * INPUT_TOKEN_RATIO) + (model.outputCostPerM * OUTPUT_TOKEN_RATIO);
+  }
+
+  function computeDailyCostForWeights(weightsArray) {
+    let blendedCpm = 0;
+    MODELS.forEach((m, idx) => {
+      const share = (weightsArray[idx] || 0) / 100;
+      blendedCpm += share * computeModelBlendedCpm(m);
+    });
+    // Factor in semantic cache hit rate (36.8% discount on input/output compute)
+    const effectiveCacheFactor = 1 - (0.368 * 0.65);
+    return DAILY_TOTAL_TOKENS_M * blendedCpm * effectiveCacheFactor;
+  }
+
+  function renderRoutingSliders() {
+    const container = document.getElementById('routingSlidersContainer');
+    container.innerHTML = MODELS.map((m, idx) => {
+      const blendedCpm = computeModelBlendedCpm(m).toFixed(2);
+      return `
+        <div class="slider-card">
+          <div class="slider-model-info">
+            <div class="slider-model-title">
+              <span style="width:8px; height:8px; background:${m.color}; display:inline-block;"></span>
+              ${m.name}
+            </div>
+            <div class="slider-model-price">
+              IN: $${m.inputCostPerM.toFixed(2)} / OUT: $${m.outputCostPerM.toFixed(2)} (BLENDED $${blendedCpm}/1M)
+            </div>
+          </div>
+          <div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value="${m.weight}"
+              class="fader-input"
+              id="slider-${idx}"
+              oninput="handleSliderDrag(${idx}, this.value)"
+            >
+          </div>
+          <div class="slider-readout">
+            <span class="weight-pct" id="weight-pct-${idx}">${m.weight}%</span>
+            <span class="weight-cost-est" id="weight-cost-${idx}">$0/day</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    updateAllocationBar();
+  }
+
+  function updateAllocationBar() {
+    const bar = document.getElementById('stackedAllocationBar');
+    bar.innerHTML = MODELS.map(m => `
+      <div class="alloc-segment" style="width:${m.weight}%; background:${m.color};" title="${m.name}: ${m.weight}%"></div>
+    `).join('');
+  }
+
+  // Proportional auto-normalization so total always equals 100%
+  function handleSliderDrag(changedIndex, newValueStr) {
+    // Clear active preset highlight on manual drag
+    document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+
+    let newVal = parseInt(newValueStr, 10);
+    if (isNaN(newVal)) newVal = 0;
+    newVal = Math.max(0, Math.min(100, newVal));
+
+    MODELS[changedIndex].weight = newVal;
+    const remainder = 100 - newVal;
+
+    const otherIndices = MODELS.map((_, i) => i).filter(i => i !== changedIndex);
+    const otherSum = otherIndices.reduce((acc, i) => acc + MODELS[i].weight, 0);
+
+    if (otherSum === 0) {
+      // Distribute evenly among others
+      const evenShare = Math.floor(remainder / otherIndices.length);
+      otherIndices.forEach((i, pos) => {
+        MODELS[i].weight = (pos === otherIndices.length - 1)
+          ? remainder - (evenShare * (otherIndices.length - 1))
+          : evenShare;
+      });
+    } else {
+      let allocated = 0;
+      otherIndices.forEach((i, pos) => {
+        if (pos === otherIndices.length - 1) {
+          MODELS[i].weight = Math.max(0, remainder - allocated);
+        } else {
+          const scaled = Math.round((MODELS[i].weight / otherSum) * remainder);
+          MODELS[i].weight = scaled;
+          allocated += scaled;
+        }
+      });
+    }
+
+    syncSlidersUI();
+    recalculateCostAndTelemetry();
+  }
+
+  function syncSlidersUI() {
+    MODELS.forEach((m, idx) => {
+      const sliderEl = document.getElementById(`slider-${idx}`);
+      const pctEl = document.getElementById(`weight-pct-${idx}`);
+      if (sliderEl) sliderEl.value = m.weight;
+      if (pctEl) pctEl.textContent = `${m.weight}%`;
+    });
+    updateAllocationBar();
+  }
+
+  function applyRoutingPreset(presetName) {
+    document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+    const activeBtn = document.getElementById(`preset-${presetName}`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    const presets = {
+      production: [42, 33, 15, 10],
+      cost:       [8,  12, 45, 35],
+      latency:    [10, 20, 25, 45],
+      quality:    [60, 30, 8,  2]
+    };
+
+    const targetWeights = presets[presetName] || presets.production;
+    MODELS.forEach((m, idx) => {
+      m.weight = targetWeights[idx];
+    });
+
+    syncSlidersUI();
+    recalculateCostAndTelemetry();
+  }
+
+  function recalculateCostAndTelemetry() {
+    const effectiveCacheFactor = 1 - (0.368 * 0.65);
+
+    let blendedCpm = 0;
+    let weightedTtftP50 = 0;
+    let weightedTtftP95 = 0;
+    let weightedTtftP99 = 0;
+    let weightedTps = 0;
+
+    MODELS.forEach((m, idx) => {
+      const share = m.weight / 100;
+      const modelCpm = computeModelBlendedCpm(m);
+      blendedCpm += share * modelCpm;
+
+      weightedTtftP50 += share * m.baseTtftP50;
+      weightedTtftP95 += share * m.baseTtftP95;
+      weightedTtftP99 += share * m.baseTtftP99;
+      weightedTps     += share * m.baseTps;
+
+      const modelDailyCost = DAILY_TOTAL_TOKENS_M * share * modelCpm * effectiveCacheFactor;
+      const modelCostEl = document.getElementById(`weight-cost-${idx}`);
+      if (modelCostEl) {
+        modelCostEl.textContent = `$${modelDailyCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/day`;
+      }
+    });
+
+    const simulatedDailyBill = DAILY_TOTAL_TOKENS_M * blendedCpm * effectiveCacheFactor;
+    const simulatedHourly = simulatedDailyBill / 24;
+    const deltaCost = simulatedDailyBill - baselineDailyCost;
+    const deltaPct = baselineDailyCost > 0 ? (deltaCost / baselineDailyCost) * 100 : 0;
+
+    // Update Module B Ledger
+    document.getElementById('simBlendedCpm').textContent = `$${blendedCpm.toFixed(2)}`;
+    document.getElementById('simDailyBill').textContent = `$${simulatedDailyBill.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('simHourlyRate').textContent = `$${simulatedHourly.toFixed(2)} / hr run-rate`;
+
+    const deltaEl = document.getElementById('simDeltaCost');
+    const deltaPctEl = document.getElementById('simDeltaPct');
+
+    if (Math.abs(deltaCost) < 1) {
+      deltaEl.textContent = '$0.00';
+      deltaEl.style.color = '#FAF9F6';
+      deltaPctEl.textContent = 'Baseline configuration';
+    } else if (deltaCost < 0) {
+      deltaEl.textContent = `-$${Math.abs(deltaCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      deltaEl.style.color = '#10B981';
+      deltaPctEl.textContent = `${deltaPct.toFixed(1)}% daily savings`;
+    } else {
+      deltaEl.textContent = `+$${deltaCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      deltaEl.style.color = '#FF4400';
+      deltaPctEl.textContent = `+${deltaPct.toFixed(1)}% cost increase`;
+    }
+
+    const roundedTtft = Math.round(weightedTtftP50);
+    document.getElementById('simBlendedTtft').textContent = `${roundedTtft} ms`;
+    document.getElementById('simBlendedTps').textContent = `${weightedTps.toFixed(1)} tok/s avg`;
+
+    // Sync Top KPI Strip with new routing weights
+    document.getElementById('kpiTtft').textContent = roundedTtft;
+    document.getElementById('kpiGlobalP95').textContent = `${Math.round(weightedTtftP95)} ms`;
+    document.getElementById('kpiGlobalP99').textContent = `${Math.round(weightedTtftP99)} ms`;
+    document.getElementById('kpiThroughput').textContent = weightedTps.toFixed(1);
+    document.getElementById('kpiProjectedBill').textContent = `$${simulatedDailyBill.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('burnRateTag').textContent = `$${simulatedHourly.toFixed(2)} / HR`;
+  }
+
+  /********************************************************************
+   * 5. MODULE C: REAL-TIME REQUEST TELEMETRY TRACE STREAM
+   ********************************************************************/
+  function pickModelByWeight() {
+    const r = Math.random() * 100;
+    let cumulative = 0;
+    for (let i = 0; i < MODELS.length; i++) {
+      cumulative += MODELS[i].weight;
+      if (r <= cumulative) return MODELS[i];
+    }
+    return MODELS[0];
+  }
+
+  function generateTracePacket() {
+    const model = pickModelByWeight();
+    const rand = Math.random();

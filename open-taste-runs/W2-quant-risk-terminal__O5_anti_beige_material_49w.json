@@ -1,0 +1,35 @@
+{
+  "runKey": "W2-quant-risk-terminal__O5_anti_beige_material_49w",
+  "taskId": "W2-quant-risk-terminal",
+  "styleId": "O5_anti_beige_material_49w",
+  "elapsedSec": 125.3,
+  "metrics": {
+    "htmlBytes": 46136,
+    "hasDarkBg": true,
+    "darkHexCount": 5,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 30
+  },
+  "palette": {
+    "primaryBg": "#E6E3DC",
+    "allHex": [
+      "#e6e3dc",
+      "#efece6",
+      "#141917",
+      "#111513",
+      "#48504b",
+      "#7c847e",
+      "#bfc4be",
+      "#005c3e"
+    ],
+    "reasoning": ""
+  }
+}

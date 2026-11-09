@@ -1,0 +1,40 @@
+{
+  "runKey": "W2-quant-risk-terminal__O1_ultra_short_28w",
+  "taskId": "W2-quant-risk-terminal",
+  "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+  "styleId": "O1_ultra_short_28w",
+  "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 150.2,
+  "metrics": {
+    "htmlBytes": 44658,
+    "hasDarkBg": true,
+    "darkHexCount": 0,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 30
+  },
+  "palette": {
+    "primaryBg": "#F4F1EA",
+    "allHex": [
+      "#f4f1ea",
+      "#faf8f5",
+      "#eae5dc",
+      "#181816",
+      "#161615",
+      "#5a5852",
+      "#8c8980",
+      "#c8c3b8"
+    ],
+    "rootCss": "/* 瑞士私人银行与精密仪器定制色板：亚麻账簿纸、炭黑油墨、森林绿、朱砂红、黄铜金 */ --bg-paper: #F4F1EA; --bg-panel: #FAF8F5; --bg-subtle: #EAE5DC; --bg-invert: #181816; --ink-primary: #161615; --ink-secondary: #5A5852; --ink-muted: #8C8980; --border-heavy: #161615; --border-mid: #C8C3B8; --border-hairline: #DEDAD0; --signal-pos: #18583A; /* 森林绿：收益/正向 */ --signal-pos-bg: #E4EF",
+    "themeNote": ""
+  }
+}

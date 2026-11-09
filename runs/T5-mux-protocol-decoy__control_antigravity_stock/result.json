@@ -1,0 +1,206 @@
+{
+  "runId": "T5-mux-protocol-decoy__control_antigravity_stock",
+  "taskId": "T5-mux-protocol-decoy",
+  "variantKey": "control_antigravity_stock",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\nok 1 - Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\n  ---\n  duration_ms: 0.4821\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 50.368\n",
+  "turns": 6,
+  "elapsedSec": 39.09,
+  "totalTokens": 17326,
+  "reasoningTokens": 544,
+  "targetFilesTotal": 1,
+  "targetFilesReadTotal": 1,
+  "firstEditTurn": 3,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 1,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 1,
+  "filesReadList": [
+    "src/net/frame_wire.mjs",
+    "package.json",
+    "test/smoke.test.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/net/frame_wire.mjs\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1389,
+        "completion_tokens": 74,
+        "total_tokens": 1463,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 26,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"package.json\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1699,
+        "completion_tokens": 81,
+        "total_tokens": 1780,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 39,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Analyzing File Operations**\n\nI'm considering the best approach to handle file operations. I can read and edit files concurrently, or read the files first. However, I now recall specific modifications needed for `src/net/mux_session.mjs` and `src/net/frame_wire.mjs`, which simplifies the process.",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  onDataFrame(frame) {\\n    if (this.state !== 'ACTIVE' \\u0026\\u0026 !(this.state === 'DRAINING' \\u0026\\u0026 frame.fin === true)) {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\",\"Target\":\"  onDataFrame(frame) {\\n    if (this.state !== 'ACTIVE') {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\",\"path\":\"src/net/mux_session.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = Buffer.byteLength(str, 'utf8');\\n  const buf = Buffer.alloc(6 + len);\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"Target\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = str.length;\\n  const buf = Buffer.alloc(6 + Buffer.byteLength(str, 'utf8'));\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"path\":\"src/net/frame_wire.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1881,
+        "completion_tokens": 873,
+        "total_tokens": 2754,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 433,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"test('smoke: active ascii data frame works', () =\\u003e {\\n  const s = new MuxSession();\\n  const r = s.onDataFrame({ channelId: 1, payload: 'hello', fin: false });\\n  assert.equal(r.handled, true);\\n  assert.equal(r.payload, 'hello');\\n});\\n\\ntest('draining state only allows fin === true data frames and utf8 byte length works', () =\\u003e {\\n  const s = new MuxSession();\\n  s.state = 'DRAINING';\\n\\n  assert.deepEqual(s.onOpenChannel({ channelId: 2 }), { handled: false, reason: 'SESSION_INACTIVE' });\\n  assert.deepEqual(s.onWindowUpdate({ delta: 100 }), { handled: false, reason: 'SESSION_INACTIVE' });\\n  assert.deepEqual(s.onPingFrame({ nonce: 42 }), { handled: false, reason: 'SESSION_INACTIVE' });\\n  assert.deepEqual(s.onDataFrame({ channelId: 1, payload: 'test', fin: false }), { handled: false, reason: 'SESSION_INACTIVE' });\\n  assert.deepEqual(s.onDataFrame({ channelId: 1, payload: 'test', fin: 1 }), { handled: false, reason: 'SESSION_INACTIVE' });\\n  assert.equal(s.metrics.droppedFrames, 5);\\n\\n  const finRes = s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: true });\\n  assert.deepEqual(finRes, { handled: true, payload: '尾帧完整载荷测试', fin: true });\\n  assert.equal(s.metrics.dataBytes, Buffer.byteLength('尾帧完整载荷测试', 'utf8'));\\n\\n  s.state = 'CLOSED';\\n  assert.deepEqual(s.onDataFrame({ channelId: 1, payload: '尾帧完整载荷测试', fin: true }), { handled: false, reason: 'SESSION_INACTIVE' });\\n  assert.equal(s.metrics.droppedFrames, 6);\\n});\",\"Target\":\"test('smoke: active ascii data frame works', () =\\u003e {\\n  const s = new MuxSession();\\n  const r = s.onDataFrame({ channelId: 1, payload: 'hello', fin: false });\\n  assert.equal(r.handled, true);\\n  assert.equal(r.payload, 'hello');\\n});\",\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2959,
+        "completion_tokens": 613,
+        "total_tokens": 3572,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 21,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3606,
+        "completion_tokens": 31,
+        "total_tokens": 3637,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 758
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 8,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复上述两个问题：\n\n1. **`src/net/mux_session.mjs`（`DRAINING` 状态尾帧放行）**：\n   - 将 `onDataFrame(frame)` 的状态拦截条件更新为 `if (this.state !== 'ACTIVE' && !(this.state === 'DRAINING' && frame.fin === true))`，确保 `DRAINING` 状态下仅放行 `frame.fin === true` 的数据帧，其余处理函数及非 `fin === true` 的数据帧仍保持严格拦截。\n\n2. **`src/net/frame_wire.mjs`（多字节 UTF-8 字符长度计算错误）**：\n   - 在 `encodeWireFrame` 中，原本将字符数 `str.length` 写入帧头的载荷长度字段，导致解码时只按字符数读取字节（如 8 个汉字 24 字节只读取前 8 字节）。现已改为使用 `Buffer.byteLength(str, 'utf8')` 写入真实 UTF-8 字节长度，保证解码完整且 `metrics.dataBytes` 统计准确。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 3856,
+        "completion_tokens": 264,
+        "total_tokens": 4120,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1558
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 17,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

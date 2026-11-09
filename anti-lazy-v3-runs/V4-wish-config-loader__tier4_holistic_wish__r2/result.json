@@ -1,0 +1,66 @@
+{
+  "runId": "V4-wish-config-loader__tier4_holistic_wish__r2",
+  "taskId": "V4-wish-config-loader",
+  "domain": "配置管理与安全边界",
+  "variantKey": "tier4_holistic_wish",
+  "rep": 2,
+  "turns": 4,
+  "elapsedSec": 166.9,
+  "commandsRunCount": 2,
+  "completeness": {
+    "score": 6,
+    "maxScore": 6,
+    "linesCount": 303,
+    "details": {
+      "linesCount": 303,
+      "t1_deep_nested_merge": true,
+      "t2_does_not_mutate_default_singleton": true,
+      "t3_prototype_pollution_blocked": true,
+      "t4_env_var_override_and_type_coercion": true,
+      "t5_array_replacement_not_objectified": true,
+      "t6_validation_or_freeze_protection": true
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "已完成 `src/config_loader.mjs` 的配置加载与合并功能升级，保留了 `DEFAULT_CONFIG` 与 `loadConfig(userConfig, env)` 导出签名兼容，并补充了 `deepMerge` 与 `validateConfig` 辅助导出。\n\n### 主要改进点\n\n1. **递归深度合并与深拷贝隔离 (`deepMerge` / `deepClone`)**：\n   - 递归合并嵌套 Plain Object（例如只传入 `{ server: { port: 9090 } }` 时，完整保留 `server.host` 与 `server.cors` 默认配置）。\n   - 对数组和嵌套对象做深拷贝，避免修改返回的配置对象或传入对象时污染全局 `DEFAULT_CONFIG`。\n   - 忽略值为 `undefined` 的属性覆盖，避免意外抹除",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

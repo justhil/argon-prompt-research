@@ -1,0 +1,40 @@
+{
+  "runKey": "W1-synth-sequencer__O1_ultra_short_28w",
+  "taskId": "W1-synth-sequencer",
+  "taskTitle": "模块化步进音序器与合成器控制面板 (Tactile Audio Synth & Sequencer)",
+  "styleId": "O1_ultra_short_28w",
+  "styleLabel": "O1 · 28字极简自由口令 (无预设流派/色值)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 137.62,
+  "metrics": {
+    "htmlBytes": 41753,
+    "hasDarkBg": false,
+    "darkHexCount": 2,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 4,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 10
+  },
+  "palette": {
+    "primaryBg": "#2B2927",
+    "allHex": [
+      "#e6e2d8",
+      "#dcd7cc",
+      "#22211f",
+      "#1c1b19",
+      "#6e6a63",
+      "#bdb7ab",
+      "#df4b27",
+      "#e59b23"
+    ],
+    "rootCss": "--chassis-bg: #E6E2D8; --panel-bg: #DCD7CC; --panel-dark: #22211F; --ink: #1C1B19; --ink-muted: #6E6A63; --border-hard: #1C1B19; --border-subtle: #BDB7AB; --accent-orange: #DF4B27; --accent-amber: #E59B23; --accent-teal: #1D7874; --accent-crimson: #B8292F; --screen-bg: #161917; --screen-phosphor: #D96B27; --screen-grid: #262B28; --step-of",
+    "themeNote": ""
+  }
+}

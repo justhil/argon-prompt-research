@@ -1,0 +1,88 @@
+{
+  "runId": "V3-wish-article-search__tier4_holistic_wish__r2",
+  "taskId": "V3-wish-article-search",
+  "domain": "搜索排序与容错算法",
+  "variantKey": "tier4_holistic_wish",
+  "rep": 2,
+  "turns": 6,
+  "elapsedSec": 278.5,
+  "commandsRunCount": 3,
+  "completeness": {
+    "score": 6,
+    "maxScore": 6,
+    "linesCount": 613,
+    "details": {
+      "linesCount": 613,
+      "t1_multi_word_non_adjacent_match": true,
+      "t2_relevance_ranking_title_boost": true,
+      "t3_prefix_or_fuzzy_typo_match": true,
+      "t4_regex_special_chars_safe": true,
+      "t5_tag_filtering_support": true,
+      "t6_dedup_or_remove_update_doc": true
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command"
+        }
+      ]
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "已对 `src/article_search.mjs` 进行了全面重构与增强，同时完整保留了 `ArticleSearch` 类、`this.docs`、`add(doc)` 与 `search(query, options)` 的向后兼容性。\n\n### 主要增强点\n\n1. **多词分词与中英文归一化（Normalization & Tokenization）**\n   - 大小写不敏感、Unicode 变音符号（Diacritics）归一化，并支持英文词元与中文字符/短语检索。\n   - 支持高级查询语法：双引号精确短语（`\"...\"`）、排除词（`-term`）以及内联标签过滤（`tag:xxx`）。\n\n2. **多字段加权与相关性排序（Field-Weighted BM25/TF-IDF 相关性打分）**\n   - 默认按 `title (3.5) > tags (2.5) > bo",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

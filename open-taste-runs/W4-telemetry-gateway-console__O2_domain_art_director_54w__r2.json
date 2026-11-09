@@ -1,0 +1,40 @@
+{
+  "runKey": "W4-telemetry-gateway-console__O2_domain_art_director_54w__r2",
+  "taskId": "W4-telemetry-gateway-console",
+  "taskTitle": "大模型推理网关监控与成本分析台 (LLM Gateway Telemetry Console)",
+  "styleId": "O2_domain_art_director_54w",
+  "styleLabel": "O2 · 54字领域自适应主创指导 (自由匹配产品气质)",
+  "rep": 2,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 155.4,
+  "metrics": {
+    "htmlBytes": 46726,
+    "hasDarkBg": true,
+    "darkHexCount": 3,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 1,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 39
+  },
+  "palette": {
+    "primaryBg": "#F3F0E6",
+    "allHex": [
+      "#f3f0e6",
+      "#faf8f2",
+      "#eae6d9",
+      "#161815",
+      "#141613",
+      "#575a53",
+      "#8c8f84",
+      "#cec9b8"
+    ],
+    "rootCss": "/* 瑞士工业图纸与精密仪器暖纸配色 (Warm Engineering Vellum & Carbon Ink) */ --bg-canvas: #F3F0E6; --bg-panel: #FAF8F2; --bg-subtle: #EAE6D9; --bg-dark: #161815; --ink-primary: #141613; --ink-secondary: #575A53; --ink-muted: #8C8F84; --ink-invert: #F3F0E6; --border-heavy: #141613; --border-hairline: #CEC9B8; --border-dotted: #B5B09E; /* 克制的信号色：工业朱砂、林地松绿、",
+    "themeNote": ""
+  }
+}

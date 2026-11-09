@@ -1,0 +1,40 @@
+{
+  "runKey": "W2-quant-risk-terminal__O4_quadrant_roulette_62w",
+  "taskId": "W2-quant-risk-terminal",
+  "taskTitle": "多因子量化回测与组合风险分析终端 (Quantitative Backtest & Risk Desk)",
+  "styleId": "O4_quadrant_roulette_62w",
+  "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 161.2,
+  "metrics": {
+    "htmlBytes": 45475,
+    "hasDarkBg": false,
+    "darkHexCount": 3,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 1,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  },
+  "palette": {
+    "primaryBg": "#F2F1EC",
+    "allHex": [
+      "#f2f1ec",
+      "#eae8e1",
+      "#f8f7f4",
+      "#121314",
+      "#5a5d60",
+      "#929598",
+      "#cfcbc2",
+      "#dfdcd4"
+    ],
+    "rootCss": "/* 瑞士建筑冷白与阳极氧化铝工业色板 */ --bg-paper: #F2F1EC; --bg-panel: #EAE8E1; --bg-elevated: #F8F7F4; --ink-black: #121314; --ink-muted: #5A5D60; --ink-faint: #929598; --rule-hard: #121314; --rule-soft: #CFCBC2; --rule- hair: #DFDCD4; /* 工业信号色：朱砂红、钴蓝、氧化绿、琥珀黄 */ --sig-vermilion: #D9381E; --sig-vermilion-bg: rgba(217, 56, 30, 0.1); --sig-cobalt: #0047AB",
+    "themeNote": ""
+  }
+}

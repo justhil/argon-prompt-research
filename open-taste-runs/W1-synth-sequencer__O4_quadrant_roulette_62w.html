@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP-16 // MODULAR RHYTHM & ACID WORKSTATION</title>
+<style>
+  :root {
+    /* 阳极氧化铝与瑞士工业白灰配色体系 */
+    --bg-room: #CBD0D4;
+    --chassis-main: #E7E7E2;
+    --chassis-panel: #DDDDD7;
+    --chassis-well: #CECEC7;
+    --ink-dark: #141516;
+    --ink-muted: #686A6C;
+    --border-hairline: #B5B5AE;
+    --border-dark: #141516;
+    
+    /* 工业信号色 */
+    --sig-orange: #FF4800;
+    --sig-orange-glow: rgba(255, 72, 0, 0.35);
+    --sig-amber: #F59E0B;
+    --sig-green: #00A859;
+    --sig-blue: #1D4ED8;
+    --lcd-bg: #111312;
+    --lcd-text: #FF4F00;
+    --lcd-dim: #331B11;
+
+    --font-sans: 'Helvetica Neue', 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    min-height: 100vh;
+    background-color: var(--bg-room);
+    background-image: 
+      radial-gradient(#999fa5 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(0,0,0,0.08));
+    background-size: 20px 20px, 100% 100%;
+    font-family: var(--font-sans);
+    color: var(--ink-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* 硬件机箱主体 */
+  .hardware-case {
+    width: 100%;
+    max-width: 1240px;
+    background-color: var(--chassis-main);
+    border: 2px solid var(--border-dark);
+    border-radius: 6px;
+    box-shadow: 
+      0 28px 60px rgba(0, 0, 0, 0.28),
+      0 4px 12px rgba(0, 0, 0, 0.15),
+      inset 0 2px 0 rgba(255, 255, 255, 0.8),
+      inset 0 -3px 0 #C2C2BA;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 机箱四角内六角螺丝 */
+  .screw {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #C4C4BC;
+    border: 1px solid #555;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.8);
+    position: relative;
+    display: inline-block;
+  }
+  .screw::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px; right: 3px; bottom: 3px;
+    background: #333;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  }
+
+  /* 1. 顶部工业铭牌栏 */
+  .top-manifold {
+    display: grid;
+    grid-template-columns: 280px 1fr 240px;
+    border-bottom: 2px solid var(--border-dark);
+    background: var(--chassis-panel);
+    min-height: 54px;
+  }
+
+  .brand-block {
+    padding: 10px 16px;
+    border-right: 1px solid var(--border-dark);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .model-badge {
+    background: var(--ink-dark);
+    color: var(--chassis-main);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 16px;
+    padding: 4px 8px;
+    letter-spacing: 1px;
+  }
+
+  .brand-title {
+    display: flex;
+    flex-direction: column;
+  }
+  .brand-title .main {
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .brand-title .sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .vent-grille {
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-right: 1px solid var(--border-dark);
+  }
+  .vents {
+    display: flex;
+    gap: 6px;
+    height: 22px;
+    align-items: center;
+  }
+  .vents span {
+    width: 4px;
+    height: 100%;
+    background: var(--ink-dark);
+    border-radius: 2px;
+    box-shadow: 1px 0 0 rgba(255,255,255,0.7);
+  }
+  .spec-stamp {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    text-align: right;
+    line-height: 1.3;
+  }
+
+  .master-vu {
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #D4D4CE;
+  }
+
+  /* 2. 模块控制主区 (非对称3栏网格) */
+  .control-deck {
+    display: grid;
+    grid-template-columns: 310px 260px 1fr;
+    border-bottom: 2px solid var(--border-dark);
+  }
+
+  .module-section {
+    padding: 20px;
+    border-right: 1px solid var(--border-dark);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .module-section:last-child {
+    border-right: none;
+  }
+
+  .sec-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid var(--ink-dark);
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+  }
+  .sec-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--ink-dark);
+    color: #fff;
+    padding: 1px 5px;
+  }
+  .sec-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* LCD 显示屏 (高对比琥珀/朱红点阵感) */
+  .lcd-screen {
+    background: var(--lcd-bg);
+    border: 2px solid #2A2C2B;
+    border-radius: 3px;
+    padding: 10px 14px;
+    color: var(--lcd-text);
+    font-family: var(--font-mono);
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.7);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .lcd-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.18), rgba(0,0,0,0.18) 1px, transparent 1px, transparent 2px);
+    pointer-events: none;
+  }
+  .bpm-readout {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1;
+    text-shadow: 0 0 8px rgba(255, 79, 0, 0.4);
+  }
+  .bpm-unit {
+    font-size: 10px;
+    color: #9E8A78;
+    display: block;
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+  }
+  .step-counter-lcd {
+    text-align: right;
+    border-left: 1px solid #2c2f2d;
+    padding-left: 12px;
+  }
+  .step-counter-lcd .label {
+    font-size: 9px;
+    color: #777;
+    display: block;
+  }
+  .step-counter-lcd .val {
+    font-size: 20px;
+    color: #EAEAEA;
+    font-weight: 700;
+  }
+
+  /* BPM 工业滑块与微调 */
+  .bpm-control-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .nudge-btn {
+    width: 28px;
+    height: 28px;
+    background: var(--chassis-panel);
+    border: 1.5px solid var(--ink-dark);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--ink-dark);
+    active: translateY(1px);
+  }
+  .nudge-btn:active {
+    transform: translateY(2px);
+    box-shadow: none;
+  }
+
+  input[type="range"].ind-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 6px;
+    background: var(--ink-dark);
+    border-radius: 0;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.8);
+  }
+  input[type="range"].ind-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 24px;
+    background: var(--chassis-main);
+    border: 1.5px solid var(--ink-dark);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 #fff;
+    cursor: ew-resize;
+    position: relative;
+  }
+
+  /* 走带机械按键 */
+  .transport-triggers {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 0.8fr;
+    gap: 8px;
+  }
+  .hw-btn {
+    height: 44px;
+    border: 1.5px solid var(--ink-dark);
+    border-radius: 3px;
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+    transition: transform 0.05s, box-shadow 0.05s;
+    box-shadow: 0 4px 0 var(--ink-dark), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .hw-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--ink-dark);
+  }
+  .hw-btn.btn-play {
+    background: var(--sig-orange);
+    color: #fff;
+  }
+  .hw-btn.btn-play.playing {
+    background: #ff5e1f;
+    box-shadow: 0 1px 0 var(--ink-dark), 0 0 12px var(--sig-orange-glow);
+    transform: translateY(3px);
+  }
+  .hw-btn.btn-stop {
+    background: #323437;
+    color: #EAEAEA;
+  }
+  .hw-btn.btn-clear {
+    background: var(--chassis-panel);
+    color: var(--ink-dark);
+  }
+  .led-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #441100;
+    border: 1px solid rgba(0,0,0,0.6);
+  }
+  .btn-play.playing .led-dot {
+    background: #FFF700;
+    box-shadow: 0 0 6px #FFF700;
+  }
+
+  /* 波形选择互锁开关组 */
+  .wave-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .wave-switch {
+    background: var(--chassis-panel);
+    border: 1.5px solid var(--ink-dark);
+    padding: 10px 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 0 var(--ink-dark), inset 0 1px 0 #fff;
+    transition: all 0.06s;
+  }
+  .wave-switch svg {
+    width: 36px;
+    height: 16px;
+    stroke: var(--ink-dark);
+    stroke-width: 2;
+    fill: none;
+  }
+  .wave-switch span {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .wave-switch.active {
+    background: var(--ink-dark);
+    color: var(--chassis-main);
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--ink-dark);
+  }
+  .wave-switch.active svg {
+    stroke: var(--sig-orange);
+  }
+
+  /* 示波器小窗 */
+  .scope-box {
+    background: var(--lcd-bg);
+    border: 1.5px solid var(--ink-dark);
+    height: 46px;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+  }
+  #scopeCanvas {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+  }
+  .scope-label {
+    position: relative;
+    z-index: 2;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: rgba(255,255,255,0.45);
+    pointer-events: none;
+  }
+
+  /* 旋钮矩阵 (4颗精密编码器) */
+  .knobs-rack {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    align-items: center;
+    height: 100%;
+    padding-top: 4px;
+  }
+
+  .knob-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--chassis-panel);
+    border: 1px solid var(--border-hairline);
+    padding: 12px 6px 10px;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 #fff;
+  }
+
+  .knob- dial-wrap {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .knob-svg {
+    width: 78px;
+    height: 78px;
+    overflow: visible;
+    cursor: ns-resize;
+  }
+
+  .knob-track {
+    fill: none;
+    stroke: #BDBDB5;
+    stroke-width: 4;
+    stroke-linecap: butt;
+  }
+
+  .knob-value-arc {
+    fill: none;
+    stroke: var(--sig-orange);
+    stroke-width: 4;
+    stroke-linecap: butt;
+  }
+
+  .knob-cap {
+    fill: #232527;
+    stroke: var(--ink-dark);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.35));
+  }
+  .knob-cap-top {
+    fill: #34373A;
+  }
+  .knob-indicator {
+    stroke: var(--sig-orange);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .knob-name {
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  .knob-val-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-dark);
+    background: var(--chassis-well);
+    border: 1px solid #B0B0A8;
+    padding: 2px 6px;
+    margin-top: 4px;
+    border-radius: 2px;
+    min-width: 64px;
+    text-align: center;
+  }
+
+  /* 3. 16步进音序器工作台 */
+  .sequencer-bay {
+    padding: 20px;
+    background: var(--chassis-main);
+    position: relative;
+  }
+
+  .seq-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--ink-dark);
+  }
+
+  .preset-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .preset-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    margin-right: 4px;
+    color: var(--ink-muted);
+  }
+  .mini-btn {
+    background: var(--chassis-panel);
+    border: 1px solid var(--ink-dark);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--ink-dark);
+    text-transform: uppercase;
+  }
+  .mini-btn:hover {
+    background: #fff;
+  }
+  .mini-btn:active {
+    transform: translateY(2px);
+    box-shadow: none;
+  }
+  .mini-btn.accent {
+    background: var(--ink-dark);
+    color: #fff;
+  }
+
+  /* 矩阵网格对齐容器 */
+  .matrix-frame {
+    position: relative;
+    border: 2px solid var(--ink-dark);
+    background: var(--chassis-well);
+    padding: 12px;
+    border-radius: 4px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.12);
+  }
+
+  .matrix-row {
+    display: grid;
+    grid-template-columns: 165px 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .matrix-row:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 步进标尺行 */
+  .ruler-row {
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #B2B2AA;
+  }
+  .ruler-left-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+  }
+
+  .steps-strip {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 6px;
+    position: relative;
+  }
+
+  /* 逢4拍视觉分组微调 */
+  .step-col-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 0;
+  }
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-muted);
+  }
+  .step-col-header.beat-anchor .step-num {
+    color: var(--ink-dark);
+    text-decoration: underline;
+  }
+  .step-led {
+    width: 14px;
+    height: 5px;
+    background: #A8A8A0;
+    border: 1px solid #777;
+    border-radius: 1px;
+    transition: background 0.04s, box-shadow 0.04s;
+  }
+  .step-col-header.current .step-led {
+    background: var(--sig-orange);
+    border-color: #000;
+    box-shadow: 0 0 8px var(--sig-orange);
+  }
+  .step-col-header.current .step-num {
+    color: var(--sig-orange);
+  }
+
+  /* 音轨左侧铭牌卡槽 */
+  .track-module-card {
+    background: var(--chassis-main);
+    border: 1.5px solid var(--ink-dark);
+    padding: 8px 10px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.12), inset 0 1px 0 #fff;
+    position: relative;
+  }
+  .track-color-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+  }
+  .track-info {
+    padding-left: 6px;
+  }
+  .track-name {
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    display: block;
+  }
+  .track-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-muted);
+  }
+  .track-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .trig-lamp {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #BBB;
+    border: 1px solid #555;
+    transition: background 0.05s;
+  }
+  .trig-lamp.flash {
+    background: var(--sig-orange);
+    box-shadow: 0 0 8px var(--sig-orange);
+  }
+  .mute-btn {
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--ink-dark);
+    background: var(--chassis-panel);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mute-btn.muted {
+    background: var(--ink-dark);
+    color: var(--sig-orange);
+  }
+
+  /* 步进实体琴键按钮 (16 Pads) */
+  .pad-cell {
+    height: 52px;
+    background: #D8D8D0;
+    border: 1.5px solid var(--ink-dark);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px;
+    box-shadow: 
+      0 3px 0 var(--ink-dark),
+      inset 0 1px 0 rgba(255,255,255,0.7);
+    transition: transform 0.05s, background-color 0.08s, box-shadow 0.05s;
+  }
+
+  /* 每4步一个灰阶微差，方便对齐小节 */
+  .pad-cell.group-alt {
+    background: #CFCFC6;
+  }
+
+  .pad-cell:hover {
+    filter: brightness(1.03);
+  }
+
+  /* 按钮顶部的条形LED灯窗 */
+  .pad-led {
+    width: 100%;
+    height: 5px;
+    background: #9E9E96;
+    border: 1px solid rgba(0,0,0,0.45);
+    border-radius: 1px;
+    transition: all 0.06s;
+  }
+
+  .pad-note-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: #777;
+    text-align: center;
+    letter-spacing: -0.03em;
+  }
+
+  /* 激活态 (点亮步进) */
+  .pad-cell.active {
+    background: #F4F4F0;
+    transform: translateY(1px);
+    box-shadow: 
+      0 2px 0 var(--ink-dark),
+      inset 0 1px 0 #fff;
+  }
+  .pad-cell.active .pad-note-tag {
+    color: var(--ink-dark);
+  }
+
+  /* 各轨道专属信号灯色 */
+  .row-kick .pad-cell.active .pad-led {
+    background: var(--sig-orange);
+    box-shadow: 0 0 8px var(--sig-orange);
+    border-color: #000;
+  }
+  .row-snare .pad-cell.active .pad-led {
+    background: var(--sig-amber);
+    box-shadow: 0 0 8px var(--sig-amber);
+    border-color: #000;
+  }
+  .row-hihat .pad-cell.active .pad-led {
+    background: var(--sig-green);
+    box-shadow: 0 0 8px var(--sig-green);
+    border-color: #000;
+  }
+  .row-bass .pad-cell.active .pad-led {
+    background: var(--sig-blue);
+    box-shadow: 0 0 8px rgba(29, 78, 216, 0.6);
+    border-color: #000;
+  }
+
+  /* 走带扫描头经过时的瞬态反馈 */
+  .pad-cell.playhead-col {
+    outline: 2px solid var(--ink-dark);
+    background-color: #EAEAE2;
+  }
+  .pad-cell.active.playhead-hit {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--ink-dark);
+    background: #FFFFFF;
+  }
+
+  /* 贯穿式物理扫描线标尺 */
+  .playhead-beam {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    width: calc((100% - 165px - 12px - 24px - 90px) / 16);
+    pointer-events: none;
+    border-left: 2px solid var(--sig-orange);
+    border-right: 1px solid rgba(255, 72, 0, 0.4);
+    background: linear-gradient(90deg, rgba(255, 72, 0, 0.14), rgba(255, 72, 0, 0.03));
+    z-index: 10;
+    opacity: 0;
+    transition: left 0.04s linear, opacity 0.15s;
+  }
+  .playhead-beam.visible {
+    opacity: 1;
+  }
+
+  /* 4. 底部工业规格参数栏 */
+  .bottom-plate {
+    padding: 8px 16px;
+    background: var(--chassis-panel);
+    border-top: 1px solid var(--border-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+  .bottom-plate .key-hint {
+    display: flex;
+    gap: 16px;
+  }
+  .kbd {
+    background: var(--chassis-main);
+    border: 1px solid var(--ink-dark);
+    padding: 1px 5px;
+    color: var(--ink-dark);
+    font-weight: 700;
+  }
+
+  @media (max-width: 1024px) {
+    .control-deck {
+      grid-template-columns: 1fr 1fr;
+    }
+    .module-section:nth-child(3) {
+      grid-column: span 2;
+      border-top: 1px solid var(--border-dark);
+    }
+    .matrix-row {
+      grid-template-columns: 130px 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="hardware-case">
+  <!-- 顶部工业栏 -->
+  <header class="top-manifold">
+    <div class="brand-block">
+      <span class="screw"></span>
+      <div class="model-badge">TP-16</div>
+      <div class="brand-title">
+        <span class="main">Taktwerk Audio</span>
+        <span class="sub">MODULAR RHYTHM / ACID SYNTH</span>
+      </div>
+    </div>
+
+    <div class="vent-grille">
+      <div class="vents" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="spec-stamp">
+        DSP ENGINE: 32-BIT FLOAT WEB AUDIO<br>
+        SERIAL NO. ZH-808-303-REV.B
+      </div>
+    </div>
+
+    <div class="master-vu">
+      <div style="font-family: var(--font-mono); font-size: 10px; font-weight: 700;">
+        OUTPUT GAIN<br>
+        <span id="audioStateTxt" style="color: var(--sig-green);">● READY</span>
+      </div>
+      <span class="screw"></span>
+    </div>
+  </header>
+
+  <!-- 模块控制主甲板 -->
+  <section class="control-deck">
+    
+    <!-- SEC 01: 走带与主时钟 -->
+    <div class="module-section">
+      <div>
+        <div class="sec-header">
+          <span class="sec-title">Master Clock & Transport</span>
+          <span class="sec-num">SEC.01</span>
+        </div>
+
+        <div class="lcd-screen">
+          <div>
+            <div class="bpm-readout" id="bpmDisplay">126.0</div>
+            <span class="bpm-unit">TEMPO // BEATS PER MIN</span>
+          </div>
+          <div class="step-counter-lcd">
+            <span class="label">STEP</span>
+            <span class="val" id="stepLcd">01</span>
+          </div>
+        </div>
+
+        <div class="bpm-control-row">
+          <button class="nudge-btn" id="bpmDown" title="-1 BPM">−</button>
+          <input type="range" id="bpmSlider" class="ind-slider" min="60" max="180" step="1" value="126">
+          <button class="nudge-btn" id="bpmUp" title="+1 BPM">+</button>
+        </div>
+      </div>
+
+      <div class="transport-triggers">
+        <button class="hw-btn btn-play" id="playBtn">
+          <span class="led-dot"></span>
+          <span id="playBtnText">PLAY</span>
+        </button>
+        <button class="hw-btn btn-stop" id="stopBtn">STOP</button>
+        <button class="hw-btn btn-clear" id="clearBtn" title="Clear All Steps">CLR</button>
+      </div>
+    </div>
+
+    <!-- SEC 02: 振荡器波形发生器 -->
+    <div class="module-section">
+      <div>
+        <div class="sec-header">
+          <span class="sec-title">Acid VCO Waveform</span>
+          <span class="sec-num">SEC.02</span>
+        </div>
+
+        <div class="wave-grid" id="waveSelector">
+          <button class="wave-switch" data-wave="sine">
+            <svg viewBox="0 0 40 18"><path d="M2 9 C10 -2, 10 -2, 20 9 C30 20, 30 20, 38 9"/></svg>
+            <span>SINE</span>
+          </button>
+          <button class="wave-switch active" data-wave="sawtooth">
+            <svg viewBox="0 0 40 18"><polyline points="2,15 20,3 20,15 38,3 38,15"/></svg>
+            <span>SAWTOOTH</span>
+          </button>
+          <button class="wave-switch" data-wave="square">
+            <svg viewBox="0 0 40 18"><polyline points="2,15 2,3 20,3 20,15 38,15 38,3"/></svg>
+            <span>SQUARE</span>
+          </button>
+          <button class="wave-switch" data-wave="noise">
+            <svg viewBox="0 0 40 18"><polyline points="2,9 6,2 10,16 14,5 18,14 22,3 26,15 30,6 34,13 38,8"/></svg>
+            <span>NOISE</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="scope-box">
+        <span class="scope-label">VCO OUT</span>
+        <canvas id="scopeCanvas" width="220" height="46"></canvas>
+        <span class="scope-label" id="waveCodeLabel">SAW//303</span>
+      </div>
+    </div>
+
+    <!-- SEC 03: 滤波器与包络调制旋钮架 -->
+    <div class="module-section">
+      <div class="sec-header">
+        <span class="sec-title">VCF Resonant Filter & Envelope Contour</span>
+        <span class="sec-num">SEC.03</span>
+      </div>
+
+      <div class="knobs-rack">
+        <!-- CUTOFF -->
+        <div class="knob-unit" data-param="cutoff" data-min="120" data-max="7200" data-val="1650" data-unit="Hz">
+          <svg class="knob-svg" viewBox="0 0 80 80">
+            <path class="knob-track" id="track-cutoff"></path>
+            <path class="knob-value-arc" id="arc-cutoff"></path>
+            <g class="knob-rotor" id="rotor-cutoff" transform="rotate(0 40 40)">
+              <circle class="knob-cap" cx="40" cy="40" r="24"></circle>
+              <circle class="knob-cap-top" cx="40" cy="40" r="19"></circle>
+              <line class="knob-indicator" x1="40" y1="17" x2="40" y2="28"></line>
+            </g>
+          </svg>
+          <span class="knob-name">Cutoff</span>
+          <span class="knob-val-badge" id="val-cutoff">1650 Hz</span>
+        </div>
+
+        <!-- RESONANCE -->
+        <div class="knob-unit" data-param="resonance" data-min="0.5" data-max="20" data-val="9.5" data-step="0.1" data-unit="Q">
+          <svg class="knob-svg" viewBox="0 0 80 80">
+            <path class="knob-track" id="track-resonance"></path>
+            <path class="knob-value-arc" id="arc-resonance"></path>
+            <g class="knob-rotor" id="rotor-resonance" transform="rotate(0 40 40)">
+              <circle class="knob-cap" cx="40" cy="40" r="24"></circle>
+              <circle class="knob-cap-top" cx="40" cy="40" r="19"></circle>
+              <line class="knob-indicator" x1="40" y1="17" x2="40" y2="28"></line>
+            </g>
+          </svg>
+          <span class="knob-name">Resonance</span>
+          <span class="knob-val-badge" id="val-resonance">9.5 Q</span>
+        </div>
+
+        <!-- ATTACK -->
+        <div class="knob-unit" data-param="attack" data-min="2" data-max="180" data-val="8" data-unit="ms">
+          <svg class="knob-svg" viewBox="0 0 80 80">
+            <path class="knob-track" id="track-attack"></path>
+            <path class="knob-value-arc" id="arc-attack"></path>
+            <g class="knob-rotor" id="rotor-attack" transform="rotate(0 40 40)">
+              <circle class="knob-cap" cx="40" cy="40" r="24"></circle>
+              <circle class="knob-cap-top" cx="40" cy="40" r="19"></circle>
+              <line class="knob-indicator" x1="40" y1="17" x2="40" y2="28"></line>
+            </g>
+          </svg>
+          <span class="knob-name">Attack</span>
+          <span class="knob-val-badge" id="val-attack">8 ms</span>
+        </div>
+
+        <!-- DECAY -->
+        <div class="knob-unit" data-param="decay" data-min="60" data-max="750" data-val="260" data-unit="ms">
+          <svg class="knob-svg" viewBox="0 0 80 80">
+            <path class="knob-track" id="track-decay"></path>
+            <path class="knob-value-arc" id="arc-decay"></path>
+            <g class="knob-rotor" id="rotor-decay" transform="rotate(0 40 40)">
+              <circle class="knob-cap" cx="40" cy="40" r="24"></circle>
+              <circle class="knob-cap-top" cx="40" cy="40" r="19"></circle>
+              <line class="knob-indicator" x1="40" y1="17" x2="40" y2="28"></line>
+            </g>
+          </svg>
+          <span class="knob-name">Decay</span>
+          <span class="knob-val-badge" id="val-decay">260 ms</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16步进矩阵音序器 -->
+  <main class="sequencer-bay">
+    <div class="seq-toolbar">
+      <div style="display:flex; align-items:center; gap: 10px;">
+        <span class="sec-num">SEC.04</span>
+        <span class="sec-title">16-Step Trigger Matrix // 4-Channel Sequencer</span>
+      </div>
+      <div class="preset-group">
+        <span class="preset-label">PATTERNS:</span>
+        <button class="mini-btn accent" id="presetTechno">A1: WAREHOUSE</button>
+        <button class="mini-btn" id="presetElectro">B2: ELECTRO</button>
+        <button class="mini-btn" id="presetRandom">RND: MUTATE</button>
+      </div>
+    </div>
+
+    <div class="matrix-frame" id="matrixFrame">
+      <!-- 实时扫描线 -->
+      <div class="playhead-beam" id="playheadBeam"></div>
+
+      <!-- 顶部步进标尺与跑马灯 -->
+      <div class="matrix-row ruler-row">
+        <div class="ruler-left-title">CHANNEL // MODULE</div>
+        <div class="steps-strip" id="rulerStrip"></div>
+      </div>
+
+      <!-- 4条音轨容器 -->
+      <div id="tracksContainer"></div>
+    </div>
+  </main>
+
+  <!-- 底部工业规格铭牌 -->
+  <footer class="bottom-plate">
+    <div class="key-hint">
+      <span><span class="kbd">SPACE</span> PLAY / STOP</span>
+      <span><span class="kbd">DRAG KNOB</span> VERTICAL ADJUST</span>
+      <span><span class="kbd">CLICK PAD</span> TOGGLE STEP</span>
+    </div>
+    <div>DESIGNED IN ZÜRICH // PRECISION HARDWARE INTERFACE</div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ==================== 合成器全局状态与预置 ====================
+  const state = {
+    isPlaying: false,
+    bpm: 126,
+    currentStep: 0,
+    waveform: 'sawtooth', // sine, sawtooth, square, noise
+    params: {
+      cutoff: 1650,    // Hz
+      resonance: 9.5,  // Q
+      attack: 8,       // ms
+      decay: 260       // ms
+    },
+    muted: [false, false, false, false],
+    // Acid Bass 16步进音高序列 (经典小调Techno/Acid音阶)
+    bassNotes: [
+      { note: 'C2',  freq: 65.41 },
+      { note: 'C2',  freq: 65.41 },
+      { note: 'C3',  freq: 130.81 },
+      { note: 'C2',  freq: 65.41 },
+      { note: 'D#2', freq: 77.78 },
+      { note: 'G2',  freq: 98.00 },
+      { note: 'C2',  freq: 65.41 },
+      { note: 'A#2', freq: 116.54 },
+      { note: 'C2',  freq: 65.41 },
+      { note: 'F2',  freq: 87.31 },
+      { note: 'C3',  freq: 130.81 },
+      { note: 'D#2', freq: 77.78 },
+      { note: 'G2',  freq: 98.00 },
+      { note: 'F2',  freq: 87.31 },
+      { note: 'C2',  freq: 65.41 },
+      { note: 'A#1', freq: 58.27 }
+    ],
+    tracks: [
+      { id: 'kick',  name: 'KICK',      sub: 'ANALOG BD-909', color: '#FF4800' },
+      { id: 'snare', name: 'SNARE',     sub: 'CRISP SD-808',  color: '#F59E0B' },
+      { id: 'hihat', name: 'HI-HAT',    sub: 'METALLIC CH',   color: '#00A859' },
+      { id: 'bass',  name: 'ACID BASS', sub: 'TB-303 SYNTH',  color: '#1D4ED8' }
+    ],
+    // 4 x 16 矩阵默认开机节奏 (A1: Warehouse Acid)
+    grid: [
+      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,1,0], // Kick
+      [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,1], // Snare
+      [0,0,1,0, 0,0,1,1, 0,0,1,0, 0,0,1,1], // Hi-Hat
+      [1,0,1,1, 0,1,0,1, 1,0,0,1, 1,0,1,0]  // Acid Bass
+    ]
+  };
+
+  const PRESETS = {
+    techno: [
+      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,1,0],
+      [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,1],
+      [0,0,1,0, 0,0,1,1, 0,0,1,0, 0,0,1,1],
+      [1,0,1,1, 0,1,0,1, 1,0,0,1, 1,0,1,0]
+    ],
+    electro: [
+      [1,0,0,1, 0,0,1,0, 0,0,1,0, 0,1,0,0],
+      [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      [1,1,1,0, 1,1,1,0, 1,0,1,1, 1,0,1,1],
+      [1,0,0,1, 1,0,1,0, 0,1,1,0, 1,0,0,1]
+    ]
+  };
+
+  // ==================== WEB AUDIO API 声音合成引擎 ====================
+  let audioCtx = null;
+  let masterGain = null;
+  let analyser = null;
+  let noiseBuffer = null;
+
+  function initAudioEngine() {
+    if (audioCtx) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return;
+    }
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+
+    // 主动态压缩防止破音
+    const compressor = audioCtx.createDynamicsCompressor();
+    compressor.threshold.setValueAtTime(-10, audioCtx.currentTime);
+    compressor.knee.setValueAtTime(12, audioCtx.currentTime);
+    compressor.ratio.setValueAtTime(6, audioCtx.currentTime);
+    compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
+    compressor.release.setValueAtTime(0.15, audioCtx.currentTime);
+
+    masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+
+    masterGain.connect(compressor);
+    compressor.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    // 预生成1秒白噪声音频缓冲
+    const bufferSize = audioCtx.sampleRate * 1.0;
+    noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+  }
+
+  // 1. KICK 合成：下潜正弦波冲击 + 瞬态咔哒声
+  function triggerKick(time) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+
+    osc.frequency.setValueAtTime(155, time);
+    osc.frequency.exponentialRampToValueAtTime(46, time + 0.075);
+    osc.frequency.exponentialRampToValueAtTime(29, time + 0.34);
+
+    gain.gain.setValueAtTime(1.0, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.36);
+
+    osc.connect(gain);
+    gain.connect(masterGain);
+
+    osc.start(time);
+    osc.stop(time + 0.37);
+  }
+
+  // 2. SNARE 合成：音调胴体 + 受控高通噪声响弦
+  function triggerSnare(time) {
+    // 鼓腔音调
+    const osc = audioCtx.createOscillator();
+    const oscGain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(190, time);
+    osc.frequency.exponentialRampToValueAtTime(95, time + 0.11);
+
+    oscGain.gain.setValueAtTime(0.55, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.13);
+    osc.connect(oscGain);
+    oscGain.connect(masterGain);
+    osc.start(time);
+    osc.stop(time + 0.14);
+
+    // 响弦噪声受 Decay 微调影响
+    const snareDecay = Math.min(0.35, Math.max(0.10, state.params.decay / 1400));
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(950, time);
+
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.65, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, time + snareDecay);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+
+    noise.start(time);
+    noise.stop(time + snareDecay + 0.02);
+  }
+
+  // 3. HI-HAT 合成：金属感高频带通滤波噪声
+  function triggerHiHat(time) {
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const bandpass = audioCtx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.setValueAtTime(9200, time);
+    bandpass.Q.setValueAtTime(1.8, time);
+
+    const highpass = audioCtx.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.setValueAtTime(6800, time);
+
+    const gain = audioCtx.createGain();
+    const hatDecay = 0.065;
+    gain.gain.setValueAtTime(0.45, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + hatDecay);
+
+    noise.connect(bandpass);
+    bandpass.connect(highpass);
+    highpass.connect(gain);
+    gain.connect(masterGain);
+
+    noise.start(time);
+    noise.stop(time + hatDecay + 0.01);
+  }
+
+  // 4. ACID BASS 合成：受波形选择器 + Cutoff/Resonance/Attack/Decay 完全实时控制
+  function triggerAcidBass(time, stepIndex) {
+    const noteObj = state.bassNotes[stepIndex % state.bassNotes.length];
+    const freq = noteObj.freq;
+
+    const atkSec = Math.max(0.002, state.params.attack / 1000);
+    const decSec = Math.max(0.05, state.params.decay / 1000);
+    const cutoff = state.params.cutoff;
+    const res = state.params.resonance;
+
+    let sourceNode;
+    if (state.waveform === 'noise') {
+      sourceNode = audioCtx.createBufferSource();
+      sourceNode.buffer = noiseBuffer;
+      sourceNode.loop = true;
+    } else {
+      sourceNode = audioCtx.createOscillator();
+      sourceNode.type = state.waveform;
+      sourceNode.frequency.setValueAtTime(freq, time);
+    }
+
+    // 经典 303 低通谐振滤波器与包络扫描
+    const vcf = audioCtx.createBiquadFilter();
+    vcf.type = 'lowpass';
+    vcf.Q.setValueAtTime(res, time);
+
+    const baseCutoff = Math.max(60, cutoff * 0.25);
+    const peakCutoff = Math.min(12000, cutoff * 2.1);
+    vcf.frequency.setValueAtTime(baseCutoff, time);
+    vcf.frequency.linearRampToValueAtTime(peakCutoff, time + atkSec);
+    vcf.frequency.exponentialRampToValueAtTime(baseCutoff, time + atkSec + decSec);
+
+    // VCA 振幅包络
+    const vca = audioCtx.createGain();
+    vca.gain.setValueAtTime(0.0001, time);
+    vca.gain.linearRampToValueAtTime(0.55, time + atkSec);
+    vca.gain.exponentialRampToValueAtTime(0.0001, time + atkSec + decSec + 0.02);
+
+    sourceNode.connect(vcf);
+    vcf.connect(vca);
+    vca.connect(masterGain);
+
+    sourceNode.start(time);
+    sourceNode.stop(time + atkSec + decSec + 0.04);
+  }
+
+  // ==================== 构建 16 步进矩阵 DOM ====================
+  const rulerStrip = document.getElementById('rulerStrip');
+  const tracksContainer = document.getElementById('tracksContainer');
+  const stepHeaderElements = [];
+  const padElements = [[], [], [], []];
+  const trigLampElements = [];
+
+  function buildSequencerDOM() {
+    // 1. 顶部16步进标尺与LED
+    rulerStrip.innerHTML = '';
+    for (let s = 0; s < 16; s++) {
+      const col = document.createElement('div');
+      col.className = 'step-col-header' + (s % 4 === 0 ? ' beat-anchor' : '');
+      col.innerHTML = `
+        <span class="step-num">${String(s + 1).padStart(2, '0')}</span>
+        <div class="step-led"></div>
+      `;
+      rulerStrip.appendChild(col);
+      stepHeaderElements.push(col);
+    }
+
+    // 2. 4条音轨与16个步进Pad
+    tracksContainer.innerHTML = '';
+    state.tracks.forEach((track, tIdx) => {
+      const row = document.createElement('div');
+      row.className = `matrix-row row-${track.id}`;
+
+      // 左侧音轨信息模块
+      const card = document.createElement('div');
+      card.className = 'track-module-card';
+      card.innerHTML = `
+        <div class="track-color-bar" style="background:${track.color}"></div>
+        <div class="track-info">
+          <span class="track-name">${track.name}</span>
+          <span class="track-sub">${track.sub}</span>
+        </div>
+        <div class="track-actions">
+          <div class="trig-lamp" id="lamp-${tIdx}"></div>
+          <button class="mute-btn" data-track="${tIdx}" title="Mute Track">M</button>
+        </div>
+      `;
+      row.appendChild(card);
+
+      // 右侧16步进按钮阵列
+      const strip = document.createElement('div');
+      strip.className = 'steps-strip';
+
+      for (let s = 0; s < 16; s++) {
+        const pad = document.createElement('button');
+        const isGroupAlt = Math.floor(s / 4) % 2 === 1;
+        pad.className = 'pad-cell' + (isGroupAlt ? ' group-alt' : '') + (state.grid[tIdx][s] ? ' active' : '');
+        pad.setAttribute('aria-label', `${track.name} Step ${s + 1}`);
+
+        const noteTag = tIdx === 3 ? state.bassNotes[s].note : String(s + 1).padStart(2, '0');
+        pad.innerHTML = `
+          <div class="pad-led"></div>
+          <span class="pad-note-tag">${noteTag}</span>
+        `;
+
+        pad.addEventListener('click', () => {
+          initAudioEngine();
+          state.grid[tIdx][s] = state.grid[tIdx][s] ? 0 : 1;
+          pad.classList.toggle('active', Boolean(state.grid[tIdx][s]));
+
+          // 若在停止状态点击点亮某格，提供即时声音预览
+          if (state.grid[tIdx][s] && !state.isPlaying && !state.muted[tIdx]) {
+            triggerTrackSound(tIdx, s, audioCtx.currentTime);
+            flashTrackLamp(tIdx);
+          }
+        });
+
+        strip.appendChild(pad);
+        padElements[tIdx][s] = pad;
+      }
+
+      row.appendChild(strip);
+      tracksContainer.appendChild(row);
+      trigLampElements[tIdx] = card.querySelector(`#lamp-${tIdx}`);
+    });
+
+    // 绑定静音按钮
+    document.querySelectorAll('.mute-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tIdx = parseInt(btn.dataset.track, 10);
+        state.muted[tIdx] = !state.muted[tIdx];
+        btn.classList.toggle('muted', state.muted[tIdx]);
+      });
+    });
+  }
+
+  function syncGridUI() {
+    for (let t = 0; t < 4; t++) {
+      for (let s = 0; s < 16; s++) {
+        padElements[t][s].classList.toggle('active', Boolean(state.grid[t][s]));
+      }
+    }
+  }
+
+  function triggerTrackSound(trackIndex, stepIndex, time) {
+    switch (trackIndex) {
+      case 0: triggerKick(time); break;
+      case 1: triggerSnare(time); break;
+      case 2: triggerHiHat(time); break;
+      case 3: triggerAcidBass(time, stepIndex); break;
+    }
+  }
+
+  function flashTrackLamp(tIdx) {
+    const lamp = trigLampElements[tIdx];
+    if (!lamp) return;
+    lamp.classList.add('flash');
+    setTimeout(() => lamp.classList.remove('flash'), 90);
+  }
+
+  // ==================== 高精度音序走带调度器 ====================
+  let nextNoteTime = 0;
+  let schedulerTimerId = null;
+  const scheduleAheadTime = 0.08; // 秒
+  const lookaheadMs = 20;         // 毫秒
+
+  const playBtn = document.getElementById('playBtn');
+  const playBtnText = document.getElementById('playBtnText');
+  const stopBtn = document.getElementById('stopBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const stepLcd = document.getElementById('stepLcd');
+  const playheadBeam = document.getElementById('playheadBeam');
+
+  function updateVisualPlayhead(stepIndex) {
+    stepLcd.textContent = String(stepIndex + 1).padStart(2, '0');
+
+    // 更新顶部标尺LED与每列高亮
+    for (let s = 0; s < 16; s++) {
+      const isCurr = s === stepIndex;
+      stepHeaderElements[s].classList.toggle('current', isCurr);
+      for (let t = 0; t < 4; t++) {
+        const pad = padElements[t][s];
+        pad.classList.toggle('playhead-col', isCurr);
+        pad.classList.toggle('playhead-hit', isCurr && Boolean(state.grid[t][s]));
+      }
+    }
+
+    // 定位物理扫描光线
+    const targetPad = padElements[0][stepIndex];
+    const frameRect = document.getElementById('matrixFrame').getBoundingClientRect();
+    const padRect = targetPad.getBoundingClientRect();
+    const leftOffset = padRect.left - frameRect.left;
+
+    playheadBeam.style.width = `${padRect.width}px`;
+    playheadBeam.style.left = `${leftOffset}px`;
+    playheadBeam.classList.add('visible');
+  }
+
+  function clearVisualPlayhead() {
+    playheadBeam.classList.remove('visible');
+    stepLcd.textContent = '01';
+    for (let s = 0; s < 16; s++) {
+      stepHeaderElements[s].classList.remove('current');
+      for (let t = 0; t < 4; t++) {
+        padElements[t][s].classList.remove('playhead-col', 'playhead-hit');
+      }
+    }
+  }
+
+  function scheduleStep(stepIndex, time) {
+    for (let t = 0; t < 4; t++) {
+      if (state.grid[t][stepIndex] && !state.muted[t]) {
+        triggerTrackSound(t, stepIndex, time);
+      }
+    }
+
+    // 同步视觉扫描线与音频触发时刻
+    const delayMs = Math.max(0, (time - audioCtx.currentTime) * 1000);
+    setTimeout(() => {
+      if (!state.isPlaying) return;
+      updateVisualPlayhead(stepIndex);
+      for (let t = 0; t < 4; t++) {
+        if (state.grid[t][stepIndex] && !state.muted[t]) {
+          flashTrackLamp(t);
+        }
+      }
+    }, delayMs);
+  }
+
+  function schedulerTick() {
+    while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
+      scheduleStep(state.currentStep, nextNoteTime);
+      const secondsPerStep = (60.0 / state.bpm) / 4.0; // 16分音符
+      nextNoteTime += secondsPerStep;
+      state.currentStep = (state.currentStep + 1) % 16;
+    }
+  }
+
+  function startSequencer() {

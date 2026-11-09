@@ -1,0 +1,49 @@
+{
+  "runId": "L2-durable-task-queue__tier4_surgical_only__r1",
+  "taskId": "L2-durable-task-queue",
+  "domain": "后端并发与分布式容错引擎",
+  "variantKey": "tier4_surgical_only",
+  "rep": 1,
+  "turns": 2,
+  "elapsedSec": 54.3,
+  "filesWrittenCount": 1,
+  "commandsRunCount": 0,
+  "completeness": {
+    "score": 9,
+    "maxScore": 10,
+    "linesCount": 573,
+    "details": {
+      "linesCount": 573,
+      "c1_class_exported": true,
+      "c2_concurrency_limit_enforced": true,
+      "c3_exponential_backoff_and_jitter": true,
+      "c4_timeout_abort_handling": true,
+      "c5_durable_disk_checkpoint": true,
+      "c6_resume_skips_completed": true,
+      "c7_atomic_or_safe_persistence": true,
+      "c8_priority_or_dependencies": true,
+      "c9_pause_drain_lifecycle": true,
+      "c10_self_tests_created": false
+    }
+  },
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "write_file"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "已在 `src/task_queue.mjs` 中实现并导出 `DurableTaskQueue`（同时别名导出 `TaskQueue`、`TaskStatus` 与 `TimeoutError`）。\n\n### 核心特性说明\n\n1. **并发限流与优先级调度**：\n   - 通过 `concurrency` 控制同时运行的最大任务数，支持 `priority` 优先级（同优先级按入队时间 FIFO）以及 `pause()` / `start()` / `onIdle()` 控制。\n2. **指数退避重试（含 Jitter 抖动）**：\n   - 支持全局与单任务配置 `maxRetries`、`baseDelayMs`、`maxDelayMs`、`backoffFactor` 和 `jitter`，退避期间释放并发槽位。\n3. **单任务超时中断与主动取消**：\n   - 每个任务执行时注入 `AbortSignal`（`ctx.signal`），当超过 `timeoutMs` 或调用 `queue.cancel(id)` 时自动触发 `abort()` 并抛出 `TimeoutError` / `AbortError`。\n4. **本地文件断点续传（原子写入）**：\n   - 通过临时文件写入 + `rename` 原子替换更新 `stateFile`，防止进程崩溃导致 JSON",
+      "reasoningPreview": "",
+      "toolCalls": []
+    }
+  ]
+}

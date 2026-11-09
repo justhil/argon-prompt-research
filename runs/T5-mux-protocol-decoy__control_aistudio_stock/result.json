@@ -1,0 +1,138 @@
+{
+  "runId": "T5-mux-protocol-decoy__control_aistudio_stock",
+  "taskId": "T5-mux-protocol-decoy",
+  "variantKey": "control_aistudio_stock",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\nok 1 - Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\n  ---\n  duration_ms: 0.4862\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 50.1031\n",
+  "turns": 4,
+  "elapsedSec": 47.01,
+  "totalTokens": 8984,
+  "reasoningTokens": 248,
+  "targetFilesTotal": 1,
+  "targetFilesReadTotal": 1,
+  "firstEditTurn": 2,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 1,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 1,
+  "filesReadList": [
+    "src/net/frame_wire.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/net/frame_wire.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1459,
+        "completion_tokens": 48,
+        "total_tokens": 1507,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 18,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  onDataFrame(frame) {\\n    const canHandleInDraining = this.state === 'DRAINING' \\u0026\\u0026 frame.fin === true;\\n    if (this.state !== 'ACTIVE' \\u0026\\u0026 !canHandleInDraining) {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\\n    const wire = encodeWireFrame(frame.channelId, frame.payload);\",\"Target\":\"  onDataFrame(frame) {\\n    if (this.state !== 'ACTIVE') {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\\n    const wire = encodeWireFrame(frame.channelId, frame.payload);\",\"path\":\"src/net/mux_session.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = Buffer.byteLength(str, 'utf8');\\n  const buf = Buffer.alloc(6 + len);\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"Target\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = str.length;\\n  const buf = Buffer.alloc(6 + Buffer.byteLength(str, 'utf8'));\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"path\":\"src/net/frame_wire.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1717,
+        "completion_tokens": 529,
+        "total_tokens": 2246,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 62,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"node --test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2318,
+        "completion_tokens": 98,
+        "total_tokens": 2416,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 74,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "已完成修复：\n\n1. **`src/net/mux_session.mjs`**：在 `onDataFrame(frame)` 中新增 `this.state === 'DRAINING' && frame.fin === true` 的放行条件，同时保持 `onOpenChannel`、`onWindowUpdate`、`onPingFrame` 以及非尾帧数据帧对非 `ACTIVE` 状态的严格拦截。\n2. **`src/net/frame_wire.mjs`**：将 `encodeWireFrame` 中写入帧头的长度从 UTF-16 字符数 `str.length` 改为 UTF-8 字节长度 `Buffer.byteLength(str, 'utf8')`，修复多字节字符（如中文）在 `decodeWireFrame` 时被截断及 `metrics.dataBytes` 统计偏小的问题。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 2543,
+        "completion_tokens": 272,
+        "total_tokens": 2815,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 94,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

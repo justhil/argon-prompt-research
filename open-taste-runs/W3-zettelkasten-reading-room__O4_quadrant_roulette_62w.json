@@ -1,0 +1,40 @@
+{
+  "runKey": "W3-zettelkasten-reading-room__O4_quadrant_roulette_62w",
+  "taskId": "W3-zettelkasten-reading-room",
+  "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+  "styleId": "O4_quadrant_roulette_62w",
+  "styleLabel": "O4 · 62字跨色温全象限自由演化口令 (破除米色坍缩与蓝紫霓虹)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 196.88,
+  "metrics": {
+    "htmlBytes": 50063,
+    "hasDarkBg": false,
+    "darkHexCount": 3,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 3,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 12
+  },
+  "palette": {
+    "primaryBg": "#F4F1EA",
+    "allHex": [
+      "#f4f1ea",
+      "#faf8f5",
+      "#eae5dc",
+      "#121211",
+      "#3d3b38",
+      "#78746e",
+      "#d2cdc3",
+      "#d9381e"
+    ],
+    "rootCss": "/* 高对比先锋报刊网格 & 瑞士档案美学 (High-Contrast Avant-Garde Editorial Grid) */ --bg-paper: #F4F1EA; --bg-paper-elevated: #FAF8F5; --bg-paper-sunken: #EAE5DC; --ink-black: #121211; --ink-charcoal: #3D3B38; --ink-muted: #78746E; --border-heavy: #121211; --border-hairline: #D2CDC3; /* 信号与批注色 */ --signal-vermilion: #D9381E; /* 朱砂信号色 */ --signal-cobalt: ",
+    "themeNote": ""
+  }
+}

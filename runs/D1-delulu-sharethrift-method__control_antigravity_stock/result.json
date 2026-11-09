@@ -1,0 +1,276 @@
+{
+  "runId": "D1-delulu-sharethrift-method__control_antigravity_stock",
+  "taskId": "D1-delulu-sharethrift-method",
+  "variantKey": "control_antigravity_stock",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Delulu Oracle: clears input.value and uses real message.info instead of hallucinated message.notifyLimit\nok 1 - Delulu Oracle: clears input.value and uses real message.info instead of hallucinated message.notifyLimit\n  ---\n  duration_ms: 0.4781\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 52.6293\n",
+  "turns": 8,
+  "elapsedSec": 57.92,
+  "totalTokens": 20176,
+  "reasoningTokens": 256,
+  "targetFilesTotal": 1,
+  "targetFilesReadTotal": 1,
+  "firstEditTurn": 2,
+  "blindFirstEdit": true,
+  "targetFilesReadBeforeFirstEdit": 0,
+  "targetReadRatioBeforeEdit": 0,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 1,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 1,
+  "filesReadList": [
+    "src/hooks/use_file_limit.mjs",
+    "package.json",
+    "test/smoke.test.mjs",
+    "src/ui/message.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/hooks/use_file_limit.mjs\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1056,
+        "completion_tokens": 74,
+        "total_tokens": 1130,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 24,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"package.json\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  if (remaining \\u003c= 0) {\\n    input.value = '';\\n    message.notifyLimit(`Maximum of ${maxCount} images allowed`);\\n    return { accepted: 0 };\\n  }\",\"Target\":\"  if (remaining \\u003c= 0) {\\n    // BUG: forgot to clear input.value = ''\\n    message.notifyLimit(`Maximum of ${maxCount} images allowed`);\\n    return { accepted: 0 };\\n  }\",\"path\":\"src/hooks/use_file_limit.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1380,
+        "completion_tokens": 209,
+        "total_tokens": 1589,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 35,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        },
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1730,
+        "completion_tokens": 64,
+        "total_tokens": 1794,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 17,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"test('smoke: within limit accepts all files', () =\\u003e {\\n  const input = { value: 'a.png', files: ['a.png', 'b.png'] };\\n  const res = handleFileLimitChange(input, 1, 5);\\n  assert.equal(res.accepted, 2);\\n});\\n\\ntest('when remaining \\u003c= 0, clears input.value and accepts 0', () =\\u003e {\\n  const input = { value: 'a.png', files: ['a.png'] };\\n  const res = handleFileLimitChange(input, 5, 5);\\n  assert.equal(res.accepted, 0);\\n  assert.equal(input.value, '');\\n});\",\"Target\":\"test('smoke: within limit accepts all files', () =\\u003e {\\n  const input = { value: 'a.png', files: ['a.png', 'b.png'] };\\n  const res = handleFileLimitChange(input, 1, 5);\\n  assert.equal(res.accepted, 2);\\n});\",\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2081,
+        "completion_tokens": 306,
+        "total_tokens": 2387,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 38,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2421,
+        "completion_tokens": 31,
+        "total_tokens": 2452,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 8,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/ui/message.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3085,
+        "completion_tokens": 60,
+        "total_tokens": 3145,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 32,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src\"}"
+        },
+        {
+          "name": "grep_search",
+          "args": "{\"query\":\"notifyLimit\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3369,
+        "completion_tokens": 93,
+        "total_tokens": 3462,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 758
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 52,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  if (remaining \\u003c= 0) {\\n    input.value = '';\\n    message.info(`Maximum of ${maxCount} images allowed`);\\n    return { accepted: 0 };\\n  }\\n  if (files.length \\u003e remaining) {\\n    input.files = files.slice(0, remaining);\\n    message.info(\\n      `${files.length} image${files.length \\u003e 1 ? 's' : ''} selected — only ${remaining} accepted`\\n    );\\n    return { accepted: remaining };\\n  }\",\"Target\":\"  if (remaining \\u003c= 0) {\\n    input.value = '';\\n    message.notifyLimit(`Maximum of ${maxCount} images allowed`);\\n    return { accepted: 0 };\\n  }\\n  if (files.length \\u003e remaining) {\\n    input.files = files.slice(0, remaining);\\n    message.notifyLimit(\\n      `${files.length} image${files.length \\u003e 1 ? 's' : ''} selected — only ${remaining} accepted`\\n    );\\n    return { accepted: remaining };\\n  }\",\"path\":\"src/hooks/use_file_limit.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"test('when remaining \\u003c= 0, clears input.value and accepts 0', () =\\u003e {\\n  const input = { value: 'a.png', files: ['a.png'] };\\n  const res = handleFileLimitChange(input, 5, 5);\\n  assert.equal(res.accepted, 0);\\n  assert.equal(input.value, '');\\n});\\n\\ntest('when files.length \\u003e remaining, slices files and notifies info', () =\\u003e {\\n  const input = { value: 'a.png', files: ['a.png', 'b.png', 'c.png'] };\\n  const res = handleFileLimitChange(input, 3, 5);\\n  assert.equal(res.accepted, 2);\\n  assert.deepEqual(input.files, ['a.png', 'b.png']);\\n});\",\"Target\":\"test('when remaining \\u003c= 0, clears input.value and accepts 0', () =\\u003e {\\n  const input = { value: 'a.png', files: ['a.png'] };\\n  const res = handleFileLimitChange(input, 5, 5);\\n  assert.equal(res.accepted, 0);\\n  assert.equal(input.value, '');\\n});\",\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3581,
+        "completion_tokens": 636,
+        "total_tokens": 4217,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1321
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 50,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ],
+  "baseTaskId": "D1-delulu-sharethrift-method",
+  "rep": 1
+}

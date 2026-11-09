@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM 推理网关监控与成本分析台 · Telemetry & Cost Console</title>
+<style>
+  :root {
+    /* 瑞士极简浅色工程美学调色盘 */
+    --bg-canvas: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-subtle: #F1F5F9;
+    --bg-muted: #E2E8F0;
+    
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    
+    --border-light: #E2E8F0;
+    --border-focus: #CBD5E1;
+    
+    --accent-primary: #2563EB;
+    --accent-primary-bg: #EFF6FF;
+    
+    /* 4大主力模型专属色彩标识 */
+    --model-gemini: #2563EB;     /* 皇家蓝 */
+    --model-claude: #D97706;     /* 琥珀金 */
+    --model-gpt: #059669;        /* 翡翠绿 */
+    --model-deepseek: #7C3AED;   /* 紫罗兰 */
+    
+    /* 状态语义色 */
+    --status-ok-text: #15803D;
+    --status-ok-bg: #DCFCE7;
+    --status-warn-text: #B45309;
+    --status-warn-bg: #FEF3C7;
+    --status-cache-text: #0369A1;
+    --status-cache-bg: #E0F2FE;
+
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+    --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    
+    --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 32px;
+  }
+
+  .num, .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 顶部导航栏 */
+  .topbar {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 24px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .brand-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-logo {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: var(--text-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .brand-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .brand-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding-left: 12px;
+    border-left: 1px solid var(--border-light);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--status-ok-bg);
+    color: var(--status-ok-text);
+  }
+
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #16A34A;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .env-pill {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn:hover {
+    background: var(--bg-subtle);
+    border-color: var(--border-focus);
+  }
+
+  .btn.active-sim {
+    background: var(--accent-primary-bg);
+    border-color: #BFDBFE;
+    color: var(--accent-primary);
+  }
+
+  /* 主体容器 */
+  .container {
+    max-width: 1520px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* 1. 顶部 KPI 汇总卡片网格 */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+
+  .kpi-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .kpi-tag {
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .tag-up { background: #DCFCE7; color: #15803D; }
+  .tag-down { background: #E0F2FE; color: #0369A1; }
+  .tag-warn { background: #FEF3C7; color: #B45309; }
+
+  .kpi-main {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 4px 0 8px;
+  }
+
+  .kpi-value {
+    font-size: 25px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .kpi-unit {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 3px;
+  }
+
+  .kpi-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    border-top: 1px dashed var(--border-light);
+    padding-top: 8px;
+  }
+
+  .sparkline-svg {
+    width: 72px;
+    height: 24px;
+    overflow: visible;
+  }
+
+  /* 2. 中部双栏核心工作区 */
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: 1.28fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .panel-body {
+    padding: 18px 20px;
+  }
+
+  /* 左侧：模型延迟对比与路由权重控制 */
+  .alloc-bar-wrapper {
+    margin-bottom: 18px;
+    background: var(--bg-subtle);
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+  }
+
+  .alloc-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .alloc-stacked-bar {
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+    background: var(--bg-muted);
+    gap: 2px;
+  }
+
+  .alloc-segment {
+    height: 100%;
+    transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .preset-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-xs {
+    padding: 4px 9px;
+    font-size: 11.5px;
+    border-radius: 5px;
+  }
+
+  /* 模型行列表 */
+  .model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .model-row {
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    background: #FFFFFF;
+  }
+
+  .model-row:hover {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .model-top {
+    display: grid;
+    grid-template-columns: 215px 1fr 210px;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .model-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .model-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .model-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .model-name {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--text-primary);
+  }
+
+  .model-provider-tag {
+    font-size: 10.5px;
+    padding: 1px 6px;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+  }
+
+  .model-price {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    padding-left: 18px;
+  }
+
+  /* 延迟分布条形图 */
+  .latency-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .latency-metrics {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+  }
+
+  .latency-label {
+    color: var(--text-secondary);
+    display: flex;
+    gap: 12px;
+  }
+
+  .latency-track {
+    height: 14px;
+    background: var(--bg-subtle);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    border: 1px solid #E2E8F0;
+  }
+
+  /* 背景刻度网格线 */
+  .latency-track::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to right, transparent 24.8%, rgba(148,163,184,0.25) 25%, transparent 25.2%, transparent 49.8%, rgba(148,163,184,0.25) 50%, transparent 50.2%, transparent 74.8%, rgba(148,163,184,0.25) 75%, transparent 75.2%);
+    pointer-events: none;
+  }
+
+  .bar-p95 {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 3px;
+    opacity: 0.26;
+    transition: width 0.25s ease;
+  }
+
+  .bar-ttft {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 3px;
+    transition: width 0.25s ease;
+  }
+
+  /* 路由权重滑块区 */
+  .slider-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border-light);
+  }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .slider-label {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .slider-val-group {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .slider-pct {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .slider-est-cost {
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  input[type="range"].weight-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--bg-muted);
+    border-radius: 999px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"].weight-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 2.5px solid var(--accent-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+    transition: transform 0.1s ease;
+  }
+
+  input[type="range"].weight-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.12);
+  }
+
+  /* 底部实时重算成本沙盘汇总栏 */
+  .cost-simulator-summary {
+    margin-top: 16px;
+    background: #F8FAFC;
+    border: 1px solid #CBD5E1;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    align-items: center;
+  }
+
+  .sim-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sim-metric:not(:first-child) {
+    border-left: 1px solid var(--border-light);
+    padding-left: 16px;
+  }
+
+  .sim-label {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+  }
+
+  .sim-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .sim-delta {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* 右侧：实时请求追踪流 (Request Trace Log) */
+  .filter-tabs {
+    display: inline-flex;
+    background: var(--bg-subtle);
+    padding: 3px;
+    border-radius: 7px;
+    border: 1px solid var(--border-light);
+  }
+
+  .filter-tab {
+    border: none;
+    background: transparent;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .filter-tab.active {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tab-count {
+    font-size: 10.5px;
+    padding: 0 5px;
+    border-radius: 99px;
+    background: var(--bg-muted);
+    color: var(--text-secondary);
+  }
+
+  .trace-table-container {
+    height: 492px;
+    overflow-y: auto;
+  }
+
+  .trace-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .trace-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border-light);
+    z-index: 5;
+  }
+
+  .trace-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 12.5px;
+    vertical-align: middle;
+  }
+
+  .trace-row {
+    transition: background-color 0.2s ease;
+    animation: fadeInRow 0.25s ease-out;
+  }
+
+  .trace-row:hover {
+    background-color: #F8FAFC;
+  }
+
+  @keyframes fadeInRow {
+    from {
+      opacity: 0;
+      background-color: #EFF6FF;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      background-color: transparent;
+      transform: translateY(0);
+    }
+  }
+
+  .req-id {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .req-time {
+    color: var(--text-muted);
+    font-size: 11px;
+    display: block;
+  }
+
+  .route-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-routed {
+    background: var(--status-ok-bg);
+    color: var(--status-ok-text);
+  }
+
+  .badge-fallback {
+    background: var(--status-warn-bg);
+    color: var(--status-warn-text);
+  }
+
+  .badge-cached {
+    background: var(--status-cache-bg);
+    color: var(--status-cache-text);
+  }
+
+  .model-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 12px;
+  }
+
+  .fallback-chain {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .origin-failed {
+    font-size: 10.5px;
+    color: #DC2626;
+    text-decoration: line-through;
+  }
+
+  .tok-pair {
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  /* 响应式适配 */
+  @media (max-width: 1280px) {
+    .kpi-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+    .model-top {
+      grid-template-columns: 1fr;
+    }
+    .slider-box {
+      border-left: none;
+      padding-left: 0;
+      border-top: 1px dashed var(--border-light);
+      padding-top: 10px;
+    }
+    .cost-simulator-summary {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 顶部导航栏 -->
+  <header class="topbar">
+    <div class="brand-area">
+      <div class="brand-logo">GW</div>
+      <div>
+        <span class="brand-title">AetherGate LLM 推理网关监控与成本分析台</span>
+      </div>
+      <span class="brand-sub">生产集群 · us-east / ap-northeast 多活路由</span>
+      <div class="status-badge">
+        <span class="pulse-dot" id="livePulse"></span>
+        <span id="gatewayStatusText">网关健康 · SLA 99.98%</span>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="env-pill">
+        <span>计费周期:</span>
+        <strong class="mono">UTC 今日实时</strong>
+      </div>
+      <button class="btn active-sim" id="toggleStreamBtn" title="暂停或恢复实时遥测流">
+        <span id="streamBtnIcon">●</span>
+        <span id="streamBtnText">实时遥测流: 开启</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 1. 顶部核心汇总指标（5张卡片） -->
+    <section class="kpi-grid">
+      <!-- 总请求数 -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span>今日总请求数 (Total Requests)</span>
+          <span class="kpi-tag tag-up">+14.2% 同比</span>
+        </div>
+        <div class="kpi-main">
+          <div>
+            <span class="kpi-value num" id="kpiTotalReq">1,482,910</span>
+            <span class="kpi-unit">reqs</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 72 24">
+            <polyline fill="none" stroke="#2563EB" stroke-width="1.8" points="0,19 12,16 24,17 36,12 48,13 60,7 72,4"/>
+          </svg>
+        </div>
+        <div class="kpi-footer">
+          <span>当前并发 QPS: <strong class="num" id="kpiQps">186.4</strong>/s</span>
+          <span class="num">错误率 0.02%</span>
+        </div>
+      </div>
+
+      <!-- 平均 TTFT 首字延迟 -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span>平均首字延迟 (Avg TTFT)</span>
+          <span class="kpi-tag tag-down" id="ttftStatusTag">动态加权</span>
+        </div>
+        <div class="kpi-main">
+          <div>
+            <span class="kpi-value num" id="kpiAvgTtft">286</span>
+            <span class="kpi-unit">ms</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 72 24">
+            <polyline fill="none" stroke="#059669" stroke-width="1.8" points="0,8 12,11 24,9 36,14 48,13 60,16 72,15"/>
+          </svg>
+        </div>
+        <div class="kpi-footer">
+          <span>全网 P95 TTFT: <strong class="num" id="kpiP95Ttft">642</strong> ms</span>
+          <span>SLA 阈值 &lt; 800ms</span>
+        </div>
+      </div>
+
+      <!-- 流式吞吐 tok/s -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span>集群流式吞吐 (Token Velocity)</span>
+          <span class="kpi-tag tag-up">峰值负载 76%</span>
+        </div>
+        <div class="kpi-main">
+          <div>
+            <span class="kpi-value num" id="kpiThroughput">48,620</span>
+            <span class="kpi-unit">tok/s</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 72 24">
+            <polyline fill="none" stroke="#7C3AED" stroke-width="1.8" points="0,18 12,14 24,15 36,9 48,11 60,6 72,5"/>
+          </svg>
+        </div>
+        <div class="kpi-footer">
+          <span>单流平均解码: <strong class="num" id="kpiDecodeSpeed">98.4</strong> tok/s</span>
+          <span>含 Speculative 加速</span>
+        </div>
+      </div>
+
+      <!-- 缓存命中率 -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span>语义与前缀缓存命中 (Cache Hit)</span>
+          <span class="kpi-tag tag-up">+4.8% 优化</span>
+        </div>
+        <div class="kpi-main">
+          <div>
+            <span class="kpi-value num" id="kpiCacheHit">38.4</span>
+            <span class="kpi-unit">%</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 72 24">
+            <polyline fill="none" stroke="#0284C7" stroke-width="1.8" points="0,16 12,15 24,12 36,13 48,9 60,8 72,6"/>
+          </svg>
+        </div>
+        <div class="kpi-footer">
+          <span>今日已省 Token: <strong class="num">412.8M</strong></span>
+          <span style="color:#15803D;font-weight:600;">省 $1,142.50</span>
+        </div>
+      </div>
+
+      <!-- 今日账单与重算预估 -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span>今日累计账单 / 路由日预算</span>
+          <span class="kpi-tag tag-warn" id="costSavingsTag">实时重算联动</span>
+        </div>
+        <div class="kpi-main">
+          <div>
+            <span class="kpi-value num" id="kpiTodaySpend">$3,418.65</span>
+          </div>
+          <svg class="sparkline-svg" viewBox="0 0 72 24">
+            <polyline fill="none" stroke="#D97706" stroke-width="1.8" points="0,20 12,18 24,15 36,12 48,10 60,7 72,5"/>
+          </svg>
+        </div>
+        <div class="kpi-footer">
+          <span>按当前滑块预计全天:</span>
+          <strong class="num" id="kpiProjectedDaily" style="color:var(--accent-primary);font-size:12.5px;">$4,792.40</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 中部核心工作区 -->
+    <section class="workspace-grid">
+      
+      <!-- 中部左侧：4个主力模型延迟分布对比与路由权重滑块 -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-title">
+              <span>主力模型延迟分布对比 &amp; 动态流量路由权重控制台</span>
+            </div>
+            <div class="panel-subtitle">拖动下方模型权重滑块，系统将自动归一化流量占比并实时重算网关预估成本与加权 TTFT 延迟</div>
+          </div>
+          <div class="preset-group">
+            <button class="btn btn-xs" onclick="applyPreset([35, 20, 25, 20])">均衡生产默认</button>
+            <button class="btn btn-xs" onclick="applyPreset([50, 10, 15, 25])">极致低延迟</button>
+            <button class="btn btn-xs" onclick="applyPreset([20, 5, 10, 65])">成本优先模式</button>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <!-- 顶部100%流量堆叠分配条 -->
+          <div class="alloc-bar-wrapper">
+            <div class="alloc-bar-labels">
+              <span>实时网关流量分配比例 (100% 归一化路由权重)</span>
+              <span class="mono" id="allocSummaryText">Gemini 35% · Claude 20% · GPT 25% · DeepSeek 20%</span>
+            </div>
+            <div class="alloc-stacked-bar" id="allocStackedBar">
+              <!-- 由 JS 动态渲染宽度 -->
+            </div>
+          </div>
+
+          <!-- 4个主力模型行 -->
+          <div class="model-list" id="modelListContainer">
+            <!-- 由 JS 渲染 4 个模型卡片 -->
+          </div>
+
+          <!-- 底部路由成本实时模拟汇总条 -->
+          <div class="cost-simulator-summary">
+            <div class="sim-metric">
+              <span class="sim-label">加权综合单价 (每 1M Tokens)</span>
+              <span class="sim-value num" id="simBlendedRate">$3.48</span>
+              <span class="sim-delta num" style="color:var(--text-muted);">含输入 75% / 输出 25% 混合比</span>
+            </div>
+            <div class="sim-metric">
+              <span class="sim-label">当前权重预估日账单 (24h)</span>
+              <span class="sim-value num" id="simDailyCost" style="color:var(--accent-primary);">$4,792.40</span>
+              <span class="sim-delta num" id="simCostDiff" style="color:#15803D;">基准对比: $0.00/日</span>
+            </div>
+            <div class="sim-metric">
+              <span class="sim-label">预估月度推理总支出 (30d)</span>
+              <span class="sim-value num" id="simMonthlyCost">$143,772</span>
+              <span class="sim-delta num" style="color:var(--text-muted);">基于日均 1.38B Tokens</span>
+            </div>
+            <div class="sim-metric">
+              <span class="sim-label">路由后综合首字延迟 / 吞吐</span>
+              <span class="sim-value num" id="simWeightedLatency">286 ms</span>
+              <span class="sim-delta num" id="simWeightedTps" style="color:#059669;">平均解码 98.4 tok/s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中部右侧：实时请求追踪流 (Request Trace Log) -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-title">
+              <span>实时请求追踪流 (Request Trace Log)</span>
+            </div>
+            <div class="panel-subtitle">按照左侧实时路由权重分发请求，自动捕获超时熔断与跨模型 Fallback 轨迹</div>
+          </div>
+
+          <!-- 状态筛选器 All / Routed / Fallback -->
+          <div class="filter-tabs" role="tablist">
+            <button class="filter-tab active" data-filter="ALL" onclick="setTraceFilter('ALL')">
+              <span>All</span>
+              <span class="tab-count num" id="countAll">0</span>
+            </button>
+            <button class="filter-tab" data-filter="ROUTED" onclick="setTraceFilter('ROUTED')">
+              <span>Routed</span>
+              <span class="tab-count num" id="countRouted">0</span>
+            </button>
+            <button class="filter-tab" data-filter="FALLBACK" onclick="setTraceFilter('FALLBACK')">
+              <span>Fallback</span>
+              <span class="tab-count num" id="countFallback">0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="trace-table-container">
+          <table class="trace-table">
+            <thead>
+              <tr>
+                <th>Trace ID / 时间</th>
+                <th>状态</th>
+                <th>目标路由模型</th>
+                <th>Token (In/Out)</th>
+                <th>TTFT / 耗时</th>
+                <th style="text-align:right;">单次成本</th>
+              </tr>
+            </thead>
+            <tbody id="traceTableBody">
+              <!-- 由 JS 实时插入追踪日志 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+<script>
+  /**
+   * 4个主力模型核心基准配置数据
+   * - inputCost / outputCost: 美元 / 1M Tokens
+   * - blendedCostPerM: 按网关标准 75% Prompt + 25% Completion 折算的每百万 Token 综合成本
+   */
+  const MODELS = [
+    {
+      id: 'gemini-4-argon',
+      name: 'Gemini 4 Argon',
+      provider: 'Google DeepMind',
+      color: '#2563EB',
+      inputCost: 1.25,
+      outputCost: 5.00,
+      blendedCostPerM: 2.1875,
+      ttftMedian: 195,
+      ttftP95: 420,
+      tps: 138,
+      weight: 35
+    },
+    {
+      id: 'claude-4-6-opus',
+      name: 'Claude 4.6 Opus',
+      provider: 'Anthropic',
+      color: '#D97706',
+      inputCost: 6.00,
+      outputCost: 24.00,
+      blendedCostPerM: 10.50,
+      ttftMedian: 430,
+      ttftP95: 890,
+      tps: 68,
+      weight: 20
+    },
+    {
+      id: 'gpt-6-1-sol',
+      name: 'GPT-6.1 Sol',
+      provider: 'OpenAI',
+      color: '#059669',
+      inputCost: 2.50,
+      outputCost: 10.00,
+      blendedCostPerM: 4.375,
+      ttftMedian: 280,
+      ttftP95: 610,
+      tps: 104,
+      weight: 25
+    },
+    {
+      id: 'deepseek-v4-1',
+      name: 'DeepSeek V4.1',
+      provider: 'DeepSeek',
+      color: '#7C3AED',
+      inputCost: 0.28,
+      outputCost: 0.96,
+      blendedCostPerM: 0.45,
+      ttftMedian: 250,
+      ttftP95: 570,
+      tps: 92,
+      weight: 20
+    }
+  ];
+
+  // 网关日均处理 Token 总量基准：1,380M (13.8亿 Tokens/Day)，用于实时重算预估成本
+  const DAILY_TOTAL_TOKENS_M = 1380;
+  // 已发生的历史账单锚点
+  let accumulatedTodaySpend = 3418.65;
+  let totalRequestsCount = 1482910;
+  let baselineDailyCost = 0; // 记录默认配比下的日账单，用于计算差额
+
+  // 实时请求流状态
+  let traceLogs = [];
+  let currentFilter = 'ALL';
+  let streamActive = true;
+  const MAX_TRACE_LOGS = 45;
+
+  // 初始化模型列表 DOM 与事件
+  function initModelsUI() {
+    const container = document.getElementById('modelListContainer');
+    const barContainer = document.getElementById('allocStackedBar');
+    container.innerHTML = '';
+    barContainer.innerHTML = '';
+
+    MODELS.forEach((m, index) => {
+      // 1. 顶部堆叠比例条分段
+      const seg = document.createElement('div');
+      seg.className = 'alloc-segment';
+      seg.id = `seg-${m.id}`;
+      seg.style.backgroundColor = m.color;
+      seg.style.width = `${m.weight}%`;
+      barContainer.appendChild(seg);
+
+      // 2. 模型卡片行 (最大延迟刻度 1000ms)
+      const p50Width = Math.min(100, (m.ttftMedian / 1000) * 100).toFixed(1);
+      const p95Width = Math.min(100, (m.ttftP95 / 1000) * 100).toFixed(1);
+
+      const row = document.createElement('div');
+      row.className = 'model-row';
+      row.innerHTML = `
+        <div class="model-top">
+          <!-- 模型名称与单价 -->
+          <div class="model-identity">
+            <div class="model-name-row">
+              <span class="model-dot" style="background:${m.color}"></span>
+              <span class="model-name">${m.name}</span>
+              <span class="model-provider-tag">${m.provider}</span>
+            </div>
+            <div class="model-price mono">
+              In: $${m.inputCost.toFixed(2)} · Out: $${m.outputCost.toFixed(2)} / 1M
+            </div>
+          </div>
+
+          <!-- 延迟分布条形对比 (P50 TTFT vs P95 TTFT) -->
+          <div class="latency-box">
+            <div class="latency-metrics">
+              <div class="latency-label">
+                <span>P50 首字: <strong class="num" id="p50-${m.id}" style="color:var(--text-primary)">${m.ttftMedian}ms</strong></span>
+                <span>P95 尾延: <strong class="num" id="p95-${m.id}">${m.ttftP95}ms</strong></span>
+              </div>
+              <span class="mono" style="color:var(--text-secondary)">吞吐 <strong class="num">${m.tps}</strong> tok/s</span>
+            </div>
+            <div class="latency-track" title="深色条: P50 首字延迟 | 浅色条: P95 尾部延迟 (满刻度 1000ms)">
+              <div class="bar-p95" id="bar-p95-${m.id}" style="width:${p95Width}%; background:${m.color};"></div>
+              <div class="bar-ttft" id="bar-p50-${m.id}" style="width:${p50Width}%; background:${m.color};"></div>
+            </div>
+          </div>
+
+          <!-- 路由权重滑块 -->
+          <div class="slider-box">
+            <div class="slider-header">
+              <span class="slider-label">路由权重</span>
+              <div class="slider-val-group">
+                <span class="slider-pct num" id="weight-val-${m.id}" style="color:${m.color}">${m.weight}%</span>
+                <span class="slider-est-cost num" id="model-cost-${m.id}">$0/日</span>
+              </div>
+            </div>
+            <input
+              type="range"
+              class="weight-slider"
+              id="slider-${m.id}"
+              min="0"
+              max="100"
+              step="1"
+              value="${m.weight}"
+              style="accent-color:${m.color}"
+              oninput="handleSliderChange(${index}, this.value)"
+            />
+          </div>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+
+    // 计算初始基准成本
+    baselineDailyCost = calculateWeightedMetrics().dailyCost;
+    recalculateAllMetrics();
+  }
+
+  /**
+   * 拖动任意一个滑块时，自动联动其余3个滑块保持总权重 = 100%
+   */
+  function handleSliderChange(changedIndex, newValueStr) {
+    const newVal = Math.max(0, Math.min(100, parseInt(newValueStr, 10) || 0));
+    MODELS[changedIndex].weight = newVal;
+
+    const remainingTarget = 100 - newVal;
+    const otherIndices = MODELS.map((_, idx) => idx).filter(idx => idx !== changedIndex);
+    const currentOthersSum = otherIndices.reduce((acc, idx) => acc + MODELS[idx].weight, 0);
+
+    if (currentOthersSum === 0) {
+      // 若其他模型原本全为0，则均分剩余权重
+      const evenShare = Math.floor(remainingTarget / otherIndices.length);
+      let remainder = remainingTarget - evenShare * otherIndices.length;
+      otherIndices.forEach(idx => {
+        MODELS[idx].weight = evenShare + (remainder > 0 ? 1 : 0);
+        if (remainder > 0) remainder--;
+      });
+    } else {
+      // 按原有比例缩放其他模型权重
+      let allocated = 0;
+      otherIndices.forEach((idx, i) => {
+        if (i === otherIndices.length - 1) {
+          MODELS[idx].weight = Math.max(0, remainingTarget - allocated);
+        } else {
+          const scaled = Math.round((MODELS[idx].weight / currentOthersSum) * remainingTarget);
+          MODELS[idx].weight = scaled;
+          allocated += scaled;
+        }
+      });
+    }
+
+    syncSlidersAndRecalculate();
+  }
+
+  // 一键应用预设路由策略
+  function applyPreset(weightsArray) {
+    weightsArray.forEach((w, idx) => {
+      MODELS[idx].weight = w;
+    });
+    syncSlidersAndRecalculate();
+  }
+
+  function syncSlidersAndRecalculate() {
+    MODELS.forEach(m => {
+      const sliderEl = document.getElementById(`slider-${m.id}`);
+      if (sliderEl) sliderEl.value = m.weight;
+    });
+    recalculateAllMetrics();
+  }
+
+  // 计算加权延迟、吞吐与成本
+  function calculateWeightedMetrics() {
+    let blendedRatePerM = 0;
+    let weightedTtft = 0;
+    let weightedP95 = 0;
+    let weightedTps = 0;
+
+    MODELS.forEach(m => {
+      const ratio = m.weight / 100;
+      blendedRatePerM += m.blendedCostPerM * ratio;
+      weightedTtft += m.ttftMedian * ratio;
+      weightedP95 += m.ttftP95 * ratio;
+      weightedTps += m.tps * ratio;
+    });
+
+    // 考虑 38.4% 缓存命中减免后的全天预估账单
+    const cacheDiscountFactor = 0.72;
+    const dailyCost = DAILY_TOTAL_TOKENS_M * blendedRatePerM * cacheDiscountFactor;
+
+    return {
+      blendedRatePerM,
+      dailyCost,
+      monthlyCost: dailyCost * 30,
+      weightedTtft: Math.round(weightedTtft),
+      weightedP95: Math.round(weightedP95),
+      weightedTps: weightedTps.toFixed(1)
+    };
+  }
+
+  // 实时刷新所有关联 UI 与顶部 KPI
+  function recalculateAllMetrics() {
+    const metrics = calculateWeightedMetrics();
+
+    // 更新每个模型的百分比文字、分段条宽度与分项日成本
+    const cacheDiscountFactor = 0.72;
+    MODELS.forEach(m => {
+      const pctEl = document.getElementById(`weight-val-${m.id}`);
+      const segEl = document.getElementById(`seg-${m.id}`);
+      const costEl = document.getElementById(`model-cost-${m.id}`);
+
+      if (pctEl) pctEl.textContent = `${m.weight}%`;
+      if (segEl) segEl.style.width = `${m.weight}%`;
+
+      const modelDailyCost = DAILY_TOTAL_TOKENS_M * (m.weight / 100) * m.blendedCostPerM * cacheDiscountFactor;
+      if (costEl) costEl.textContent = `$${Math.round(modelDailyCost).toLocaleString()}/日`;
+    });
+
+    // 更新堆叠条上方文字摘要
+    document.getElementById('allocSummaryText').textContent =
+      `Gemini ${MODELS[0].weight}% · Claude ${MODELS[1].weight}% · GPT ${MODELS[2].weight}% · DeepSeek ${MODELS[3].weight}%`;
+
+    // 更新底部模拟沙盘汇总栏
+    document.getElementById('simBlendedRate').textContent = `$${metrics.blendedRatePerM.toFixed(2)}`;
+    document.getElementById('simDailyCost').textContent = `$${metrics.dailyCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById('simMonthlyCost').textContent = `$${Math.round(metrics.monthlyCost).toLocaleString('en-US')}`;
+    document.getElementById('simWeightedLatency').textContent = `${metrics.weightedTtft} ms`;
+    document.getElementById('simWeightedTps').textContent = `平均解码 ${metrics.weightedTps} tok/s`;
+
+    // 计算与默认基准配比的成本差额
+    const diff = metrics.dailyCost - baselineDailyCost;
+    const diffEl = document.getElementById('simCostDiff');
+    const topSavingsTag = document.getElementById('costSavingsTag');
+
+    if (Math.abs(diff) < 1) {
+      diffEl.textContent = '基准对比: $0.00/日 (当前为默认均衡配比)';
+      diffEl.style.color = 'var(--text-muted)';
+      topSavingsTag.textContent = '基准配比';
+      topSavingsTag.className = 'kpi-tag tag-down';
+    } else if (diff < 0) {
+      const saved = Math.abs(diff).toFixed(2);
+      diffEl.textContent = `较默认配比节省: -$${saved}/日`;
+      diffEl.style.color = '#15803D';
+      topSavingsTag.textContent = `日省 $${Math.round(Math.abs(diff))}`;
+      topSavingsTag.className = 'kpi-tag tag-up';
+    } else {
+      const extra = diff.toFixed(2);
+      diffEl.textContent = `较默认配比增加: +$${extra}/日`;
+      diffEl.style.color = '#B45309';
+      topSavingsTag.textContent = `日增 $${Math.round(diff)}`;
+      topSavingsTag.className = 'kpi-tag tag-warn';
+    }
+
+    // 同步联动顶部 KPI 汇总卡片
+    document.getElementById('kpiAvgTtft').textContent = metrics.weightedTtft;
+    document.getElementById('kpiP95Ttft').textContent = metrics.weightedP95;
+    document.getElementById('kpiDecodeSpeed').textContent = metrics.weightedTps;
+    document.getElementById('kpiProjectedDaily').textContent =
+      `$${metrics.dailyCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  /**
+   * 3. 中部右侧：实时请求追踪流 (Request Trace Log) 生成与筛选逻辑
+   */
+  function pickModelByWeight() {
+    const rand = Math.random() * 100;
+    let cumulative = 0;
+    for (const m of MODELS) {
+      cumulative += m.weight;
+      if (rand <= cumulative) return m;
+    }
+    return MODELS.find(m => m.weight > 0) || MODELS[0];
+  }
+
+  function generateTraceEntry() {
+    const primaryModel = pickModelByWeight();
+    const isFallback = Math.random() < 0.14; // 约14%概率演示高负载限流/超时触发自动 Fallback
+    let targetModel = primaryModel;
+    let failedOriginModel = null;
+
+    if (isFallback) {
+      failedOriginModel = primaryModel;
+      // 选择另一个可用模型作为 Fallback 接管目标
+      const candidates = MODELS.filter(m => m.id !== primaryModel.id && m.weight > 0);
+      targetModel = candidates.length > 0
+        ? candidates[Math.floor(Math.random() * candidates.length)]
+        : MODELS[0];
+    }
+
+    const promptTokens = Math.floor(280 + Math.random() * 3600);
+    const completionTokens = Math.floor(90 + Math.random() * 1100);
+
+    // 根据目标模型基准延迟生成真实波动的 TTFT
+    const jitter = 0.82 + Math.random() * 0.38;
+    const ttft = Math.round(targetModel.ttftMedian * jitter + (isFallback ? 120 : 0));
+    const totalDurationSec = ((ttft / 1000) + (completionTokens / targetModel.tps)).toFixed(2);
+
+    // 计算单次请求真实花费
+    const reqCost = (
+      (promptTokens / 1e6) * targetModel.inputCost +
+      (completionTokens / 1e6) * targetModel.outputCost
+    );
+
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+    const traceId = 'tr-' + Math.random().toString(16).substring(2, 8);
+
+    const entry = {
+      id: traceId,
+      time: timeStr,
+      status: isFallback ? 'FALLBACK' : 'ROUTED',
+      model: targetModel,
+      failedOrigin: failedOriginModel,
+      promptTokens,
+      completionTokens,
+      ttft,
+      totalDurationSec,
+      cost: reqCost
+    };
+
+    traceLogs.unshift(entry);
+    if (traceLogs.length > MAX_TRACE_LOGS) {
+      traceLogs.pop();
+    }
+
+    // 累加顶部总请求数与今日实时账单
+    totalRequestsCount += Math.floor(1 + Math.random() * 4);
+    accumulatedTodaySpend += reqCost * 2.5;
+    document.getElementById('kpiTotalReq').textContent = totalRequestsCount.toLocaleString('en-US');
+    document.getElementById('kpiTodaySpend').textContent =
+      `$${accumulatedTodaySpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    updateTraceCounts();
+    renderTraceTable();
+  }
+
+  function updateTraceCounts() {
+    const allCount = traceLogs.length;
+    const routedCount = traceLogs.filter(t => t.status === 'ROUTED').length;
+    const fallbackCount = traceLogs.filter(t => t.status === 'FALLBACK').length;
+
+    document.getElementById('countAll').textContent = allCount;
+    document.getElementById('countRouted').textContent = routedCount;
+    document.getElementById('countFallback').textContent = fallbackCount;
+  }
+
+  function setTraceFilter(filterType) {
+    currentFilter = filterType;
+    document.querySelectorAll('.filter-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-filter') === filterType);
+    });
+    renderTraceTable();
+  }
+
+  function renderTraceTable() {
+    const tbody = document.getElementById('traceTableBody');
+    const filtered = traceLogs.filter(item => {
+      if (currentFilter === 'ALL') return true;
+      return item.status === currentFilter;
+    });
+
+    tbody.innerHTML = filtered.map(item => {
+      const badgeHtml = item.status === 'ROUTED'
+        ? `<span class="route-badge badge-routed">● Routed</span>`
+        : `<span class="route-badge badge-fallback">⇄ Fallback</span>`;
+
+      const modelCellHtml = item.status === 'FALLBACK' && item.failedOrigin
+        ? `<div class="fallback-chain">
+             <span class="origin-failed">${item.failedOrigin.name} (429/Timeout)</span>
+             <span class="model-chip">
+               <span class="model-dot" style="background:${item.model.color};width:8px;height:8px;"></span>
+               ${item.model.name}
+             </span>
+           </div>`
+        : `<span class="model-chip">
+             <span class="model-dot" style="background:${item.model.color};width:8px;height:8px;"></span>
+             ${item.model.name}
+           </span>`;
+
+      return `
+        <tr class="trace-row">
+          <td>
+            <span class="req-id mono">${item.id}</span>
+            <span class="req-time mono">${item.time}</span>
+          </td>
+          <td>${badgeHtml}</td>
+          <td>${modelCellHtml}</td>
+          <td class="tok-pair num">${item.promptTokens.toLocaleString()} / ${item.completionTokens.toLocaleString()}</td>
+          <td class="num">
+            <strong style="color:${item.ttft > 500 ? '#B45309' : 'var(--text-primary)'}">${item.ttft}ms</strong>
+            <span style="color:var(--text-muted);font-size:11px;"> (${item.totalDurationSec}s)</span>
+          </td>
+          <td class="num" style="text-align:right;font-weight:600;color:var(--text-primary);">
+            $${item.cost.toFixed(4)}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // 轻微动态更新延迟分布条与网关吞吐，营造真实生产监控感
+  function jitterLiveTelemetry() {
+    if (!streamActive) return;
+
+    const qps = (178 + Math.random() * 22).toFixed(1);
+    const tpsCluster = Math.floor(46800 + Math.random() * 3900);
+    document.getElementById('kpiQps').textContent = qps;
+    document.getElementById('kpiThroughput').textContent = tpsCluster.toLocaleString('en-US');
+
+    MODELS.forEach(m => {
+      const delta = Math.floor((Math.random() - 0.5) * 8);
+      const liveP50 = Math.max(110, m.ttftMedian + delta);
+      const liveP95 = Math.max(260, m.ttftP95 + delta * 2);
+
+      const p50Text = document.getElementById(`p50-${m.id}`);
+      const p95Text = document.getElementById(`p95-${m.id}`);
+      const bar50 = document.getElementById(`bar-p50-${m.id}`);
+      const bar95 = document.getElementById(`bar-p95-${m.id}`);
+
+      if (p50Text) p50Text.textContent = `${liveP50}ms`;
+      if (p95Text) p95Text.textContent = `${liveP95}ms`;
+      if (bar50) bar50.style.width = `${Math.min(100, (liveP50 / 1000) * 100).toFixed(1)}%`;
+      if (bar95) bar95.style.width = `${Math.min(100, (liveP95 / 1000) * 100).toFixed(1)}%`;
+    });
+  }
+
+  // 暂停/开启实时流按钮
+  document.getElementById('toggleStreamBtn').addEventListener('click', function() {
+    streamActive = !streamActive;
+    this.classList.toggle('active-sim', streamActive);
+    document.getElementById('streamBtnText').textContent = streamActive ? '实时遥测流: 开启' : '实时遥测流: 已暂停';
+    document.getElementById('streamBtnIcon').textContent = streamActive ? '●' : '❚❚';
+    document.getElementById('livePulse').style.animationPlayState = streamActive ? 'running' : 'paused';
+  });
+
+  // 页面启动初始化
+  window.addEventListener('DOMContentLoaded', () => {
+    initModelsUI();
+
+    // 预生成12条初始请求追踪日志
+    for (let i = 0; i < 12; i++) {
+      generateTraceEntry();
+    }
+
+    // 定时推送实时请求追踪日志与遥测微调
+    setInterval(() => {
+      if (streamActive) {
+        generateTraceEntry();
+      }
+    }, 1350);
+
+    setInterval(jitterLiveTelemetry, 2200);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+{
+  "runId": "T3-dag-scheduler-decoy__treatment_generic",
+  "taskId": "T3-dag-scheduler-decoy",
+  "variantKey": "treatment_generic",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: terminal failure marks FAILED_TERMINAL and cascades SKIPPED_UPSTREAM_FAILED to downstream nodes\nok 1 - Oracle 1: terminal failure marks FAILED_TERMINAL and cascades SKIPPED_UPSTREAM_FAILED to downstream nodes\n  ---\n  duration_ms: 1.3264\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 49.8977\n",
+  "turns": 8,
+  "elapsedSec": 112.15,
+  "totalTokens": 22682,
+  "reasoningTokens": 965,
+  "targetFilesTotal": 3,
+  "targetFilesReadTotal": 3,
+  "firstEditTurn": 6,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 3,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 3,
+  "filesReadList": [
+    "src/scheduler/backoff_calc.mjs",
+    "src/scheduler/lease_pool.mjs",
+    "src/scheduler/node_state_store.mjs",
+    "test/smoke.test.mjs",
+    "package.json"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/scheduler\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1401,
+        "completion_tokens": 68,
+        "total_tokens": 1469,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 44,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/backoff_calc.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/lease_pool.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/scheduler/node_state_store.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1511,
+        "completion_tokens": 111,
+        "total_tokens": 1622,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 27,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2243,
+        "completion_tokens": 43,
+        "total_tokens": 2286,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 21,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2312,
+        "completion_tokens": 34,
+        "total_tokens": 2346,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 12,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"package.json\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2368,
+        "completion_tokens": 67,
+        "total_tokens": 2435,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 19,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Analyzing Bug Reports**\n\nI'm currently focused on pinpointing a specific bug within the `src/scheduler/dag_engine.mjs` file. The code snippet with the `while` loop has a counter and attempt limit. I'm focusing on the implementation of `this.leasePool.runWithLease` and its interaction with the `workerFn`. The potential issue is related to how the lease pool handles errors and retries in relation to the worker function.\n\n\n**Correcting Conditional Logic**\n\nI've zeroed in on the incorrect condition within the attempt counter's loop in `dag_engine.mjs`. The `isFinalAttempt` check is always false ",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"        const outcome = await this.leasePool.runWithLease(nodeId, () =\\u003e workerFn(node, attempt), {\\n          isFinalAttempt: attempt \\u003e= this.maxAttempts\\n        });\",\"Target\":\"        const outcome = await this.leasePool.runWithLease(nodeId, () =\\u003e workerFn(node, attempt), {\\n          isFinalAttempt: attempt \\u003e this.maxAttempts\\n        });\",\"path\":\"src/scheduler/dag_engine.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"    } catch (err) {\\n      if (isFinalAttempt) {\\n        this.stateStore.markTerminalFailure(nodeId, err?.message ?? String(err));\\n      }\\n      return { ok: false, error: err };\\n    }\",\"Target\":\"    } catch (err) {\\n      return { ok: false, error: err };\\n    }\",\"path\":\"src/scheduler/lease_pool.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  return Math.round(exp * (1 + jitterRatio));\",\"Target\":\"  return Math.round(exp * jitterRatio);\",\"path\":\"src/scheduler/backoff_calc.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2728,
+        "completion_tokens": 1107,
+        "total_tokens": 3835,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 672
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 808,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  assert.equal(res.states.b.status, 'SUCCEEDED');\\n});\\n\\ntest('upstream failure marks downstream as SKIPPED_UPSTREAM_FAILED and records non-zero backoff delays', async () =\\u003e {\\n  const store = new NodeStateStore();\\n  const pool = new LeasePool(store);\\n  const engine = new DagEngine({ leasePool: pool, stateStore: store, maxAttempts: 3 });\\n  const res = await engine.executeDag(\\n    [{ id: 'a', deps: [] }, { id: 'b', deps: ['a'] }, { id: 'c', deps: ['b'] }],\\n    async (n) =\\u003e {\\n      if (n.id === 'a') throw new Error('boom');\\n      return n.id;\\n    }\\n  );\\n  assert.equal(res.states.a.status, 'FAILED_TERMINAL');\\n  assert.equal(res.states.a.errorMsg, 'boom');\\n  assert.equal(res.states.b.status, 'SKIPPED_UPSTREAM_FAILED');\\n  assert.equal(res.states.c.status, 'SKIPPED_UPSTREAM_FAILED');\\n  assert.deepEqual(res.delaysRecorded, [100, 200]);\\n});\\n\",\"Target\":\"  assert.equal(res.states.b.status, 'SUCCEEDED');\\n});\",\"path\":\"test/smoke.test.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3943,
+        "completion_tokens": 369,
+        "total_tokens": 4312,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1398
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 26,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4346,
+        "completion_tokens": 31,
+        "total_tokens": 4377,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 1910
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 8,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

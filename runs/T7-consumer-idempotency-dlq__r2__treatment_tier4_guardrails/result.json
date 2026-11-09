@@ -1,0 +1,281 @@
+{
+  "runId": "T7-consumer-idempotency-dlq__r2__treatment_tier4_guardrails",
+  "taskId": "T7-consumer-idempotency-dlq__r2",
+  "variantKey": "treatment_tier4_guardrails",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: commits normal event, deduplicates repeat, and releases lease\nok 1 - Oracle 1: commits normal event, deduplicates repeat, and releases lease\n  ---\n  duration_ms: 0.5449\n  type: 'test'\n  ...\n# Subtest: Oracle 2: routes exhausted retries to DlqWriter.enqueuePoisonMessage and returns DEAD_LETTER\nok 2 - Oracle 2: routes exhausted retries to DlqWriter.enqueuePoisonMessage and returns DEAD_LETTER\n  ---\n  duration_ms: 0.1472\n  type: 'test'\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 2\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 53.2245\n",
+  "turns": 8,
+  "elapsedSec": 170.3,
+  "totalTokens": 28378,
+  "reasoningTokens": 574,
+  "targetFilesTotal": 3,
+  "targetFilesReadTotal": 3,
+  "firstEditTurn": 4,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 3,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 10,
+  "filesReadList": [
+    "src/workers/order_consumer.mjs",
+    "src/infra/dedup_store.mjs",
+    "src/infra/dlq_writer.mjs",
+    "src/infra/lock_manager.mjs",
+    "test/smoke.test.mjs",
+    "package.json"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\".\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/workers/order_consumer.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1433,
+        "completion_tokens": 93,
+        "total_tokens": 1526,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 27,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/infra\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"src/workers\"}"
+        },
+        {
+          "name": "list_dir",
+          "args": "{\"path\":\"test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1894,
+        "completion_tokens": 83,
+        "total_tokens": 1977,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 21,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/infra/dedup_store.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/infra/dlq_writer.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/infra/lock_manager.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"test/smoke.test.mjs\"}"
+        },
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"package.json\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2057,
+        "completion_tokens": 156,
+        "total_tokens": 2213,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 28,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Examining Infra Implementations**\n\nI've been diving into the `src/infra/` directory. Specifically, I'm examining the `DedupStore` and `DlqWriter` implementations. I've noticed a focus on `eventId` for deduping, with methods like `isDuplicate(eventId)` and `commitEvent(eventId)`. It seems these methods replace the conceptually similar but less precise methods. I'm also now looking at the `DlqWriter` details.",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  async consumeOrderEvent(evt) {\\n    if (this.dedupStore.isDuplicate(evt.eventId)) {\\n      return { processed: false, status: 'DUPLICATE_IGNORED' };\\n    }\\n    const acquired = await this.lockManager.tryLease({ resourceKey: evt.orderId, ttlMs: 5000 });\\n    if (!acquired) {\\n      return { processed: false, status: 'LOCK_BUSY' };\\n    }\\n    try {\\n      if (evt.retryCount \\u003e= this.maxRetries) {\\n        await this.dlq.enqueuePoisonMessage({ event: evt, reasonCode: 'MAX_RETRIES_EXCEEDED' });\\n        return { processed: false, status: 'DEAD_LETTER' };\\n      }\\n      this.dedupStore.commitEvent(evt.eventId);\\n      return { processed: true, status: 'COMMITTED', orderId: evt.orderId };\\n    } finally {\\n      await this.lockManager.releaseLease({ resourceKey: evt.orderId });\\n    }\\n  }\",\"Target\":\"  async consumeOrderEvent(evt) {\\n    if (this.dedupStore.hasProcessed(evt.eventId)) {\\n      return { processed: false, status: 'DUPLICATE_IGNORED' };\\n    }\\n    const acquired = await this.lockManager.acquireLock(evt.orderId, 5000);\\n    if (!acquired) {\\n      return { processed: false, status: 'LOCK_BUSY' };\\n    }\\n    try {\\n      if (evt.retryCount \\u003e= this.maxRetries) {\\n        await this.dlq.pushDeadLetter(evt, 'MAX_RETRIES_EXCEEDED');\\n        return { processed: false, status: 'RETRY_LATER' };\\n      }\\n      this.dedupStore.markProcessed(evt.eventId);\\n      return { processed: false, status: 'COMMITTED', orderId: evt.orderId };\\n    } finally {\\n      await this.lockManager.releaseLock(evt.orderId);\\n    }\\n  }\",\"path\":\"src/workers/order_consumer.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2801,
+        "completion_tokens": 913,
+        "total_tokens": 3714,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 403,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\n                  \"command\": \"npm test && node -e \\\"\\nimport assert from 'node:assert/strict';\\nimport { OrderConsumer } from './src/workers/order_consumer.mjs';\\nimport { DedupStore } from './src/infra/dedup_store.mjs';\\nimport { DlqWriter } from './src/infra/dlq_writer.mjs';\\nimport { LockManager } from './src/infra/lock_manager.mjs';\\n\\nconst lockManager = new LockManager();\\nconst dedupStore = new DedupStore();\\nconst dlq = new DlqWriter();\\nconst consumer = new OrderConsumer({ lockManager, dedupStore, dlq, maxRetries: 3 });\\n\\nconst r1 = await consumer.consumeOrderEvent({ eventId: 'e1', orderId: 'o1', retryCount: 0 });\\nassert.deepEqual(r1, { processed: true, status: 'COMMITTED', orderId: 'o1' });\\n\\nconst r2 = await consumer.consumeOrderEvent({ eventId: 'e1', orderId: 'o1', retryCount: 0 });\\nassert.deepEqual(r2, { processed: false, status: 'DUPLICATE_IGNORED' });\\n\\nconst r3 = await consumer.consumeOrderEvent({ eventId: 'e2', orderId: 'o2', retryCount: 3 });\\nassert.deepEqual(r3, { processed: false, status: 'DEAD_LETTER' });\\nassert.equal(dlq.messages.length, 1);\\n\\nawait lockManager.tryLease({ resourceKey: 'o3', ttlMs: 5000 });\\nconst r4 = await consumer.consumeOrderEvent({ eventId: 'e3', orderId: 'o3', retryCount: 0 });\\nassert.deepEqual(r4, { processed: false, status: 'LOCK_BUSY' });\\nconsole.log('ALL VERIFIED');\\n\\\"\"\n                }"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3140,
+        "completion_tokens": 443,
+        "total_tokens": 3583,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"node --input-type=module -e \\\"\\nimport assert from 'node:assert/strict';\\nimport { OrderConsumer } from './src/workers/order_consumer.mjs';\\nimport { DedupStore } from './src/infra/dedup_store.mjs';\\nimport { DlqWriter } from './src/infra/dlq_writer.mjs';\\nimport { LockManager } from './src/infra/lock_manager.mjs';\\n\\nconst lockManager = new LockManager();\\nconst dedupStore = new DedupStore();\\nconst dlq = new DlqWriter();\\nconst consumer = new OrderConsumer({ lockManager, dedupStore, dlq, maxRetries: 3 });\\n\\nconst r1 = await consumer.consumeOrderEvent({ eventId: 'e1', orderId: 'o1', retryCount: 0 });\\nassert.deepEqual(r1, { processed: true, status: 'COMMITTED', orderId: 'o1' });\\n\\nconst r2 = await consumer.consumeOrderEvent({ eventId: 'e1', orderId: 'o1', retryCount: 0 });\\nassert.deepEqual(r2, { processed: false, status: 'DUPLICATE_IGNORED' });\\n\\nconst r3 = await consumer.consumeOrderEvent({ eventId: 'e2', orderId: 'o2', retryCount: 3 });\\nassert.deepEqual(r3, { processed: false, status: 'DEAD_LETTER' });\\nassert.equal(dlq.messages.length, 1);\\n\\nawait lockManager.tryLease({ resourceKey: 'o3', ttlMs: 5000 });\\nconst r4 = await consumer.consumeOrderEvent({ eventId: 'e3', orderId: 'o3', retryCount: 0 });\\nassert.deepEqual(r4, { processed: false, status: 'LOCK_BUSY' });\\nconsole.log('ALL VERIFIED');\\n\\\"\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4346,
+        "completion_tokens": 496,
+        "total_tokens": 4842,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 2215
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 50,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/workers/order_consumer.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4867,
+        "completion_tokens": 64,
+        "total_tokens": 4931,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 2803
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 34,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复 `src/workers/order_consumer.mjs` 中的 `consumeOrderEvent(evt)`：\n\n1. **状态与返回值修复**：\n   - 当 `evt.retryCount >= this.maxRetries` 时，返回 `{ processed: false, status: 'DEAD_LETTER' }`（原为 `'RETRY_LATER'`）。\n   - 正常提交后返回 `{ processed: true, status: 'COMMITTED', orderId: evt.orderId }`（原 `processed` 为 `false`）。\n2. **与 `src/infra/` 底层组件真实接口对齐**：\n   - `DedupStore`：将 `hasProcessed(evt.eventId)` / `markProcessed(evt.eventId)` 修正为真实方法 `isDuplicate(evt.eventId)` / `commitEvent(evt.eventId)`。\n   - `LockManager`：将 `acquireLock(evt.orderId, 5000)` / `releaseLock(evt.orderId)` 修正为真实方法 `tryLease({ resourceKey: evt.orderId, ttlMs: 5000 })` / `releaseLease({ resourceKey: evt.orderId })`。\n   - `DlqWriter`：将 `pushDeadLetter(evt, 'MAX_RETRIES_EXCEEDED')` 修正为真实方法 `enqueuePoisonMessage({ event: evt, reasonCode: 'MAX_RETRIES_EXCEEDED' })`。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 5265,
+        "completion_tokens": 327,
+        "total_tokens": 5592,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 3209
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 11,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ],
+  "baseTaskId": "T7-consumer-idempotency-dlq",
+  "rep": 2
+}

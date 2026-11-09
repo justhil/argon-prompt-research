@@ -1,0 +1,138 @@
+{
+  "runId": "T5-mux-protocol-decoy__treatment_generic",
+  "taskId": "T5-mux-protocol-decoy",
+  "variantKey": "treatment_generic",
+  "effort": "medium",
+  "oraclePassed": true,
+  "oracleOutput": "TAP version 13\n# Subtest: Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\nok 1 - Oracle 1: DRAINING allows ONLY onDataFrame with fin=true; other 3 handlers still reject DRAINING\n  ---\n  duration_ms: 0.4804\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 48.8655\n",
+  "turns": 4,
+  "elapsedSec": 64.58,
+  "totalTokens": 8779,
+  "reasoningTokens": 179,
+  "targetFilesTotal": 1,
+  "targetFilesReadTotal": 1,
+  "firstEditTurn": 2,
+  "blindFirstEdit": false,
+  "targetFilesReadBeforeFirstEdit": 1,
+  "targetReadRatioBeforeEdit": 1,
+  "uncleanToolTurns": 0,
+  "multiReplaceCollisions": 0,
+  "failedEdits": 0,
+  "hallucinatedSymbolInEditsCount": 0,
+  "residualHallucinatedSymbolsCount": 0,
+  "residualHallucinations": [],
+  "proseHallucinations": [],
+  "trueSymbolHitsCount": 1,
+  "filesReadList": [
+    "src/net/frame_wire.mjs"
+  ],
+  "turnTrace": [
+    {
+      "turn": 1,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/net/frame_wire.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1303,
+        "completion_tokens": 47,
+        "total_tokens": 1350,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 17,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "**Refining String Handling**\n\nI'm currently focused on improving how strings are handled in `src/net/frame_wire.mjs`. I've identified an area where string lengths are incorrectly calculated, specifically, the line `const len = str.length;`. I'm going to replace this with `const len = Buffer.byteLength(str, 'utf8');` for accurate byte length calculation, or use a Buffer directly. This is also relevant to `src/net/mux_session.mjs` within the `onDataFrame(frame)` function, to ensure correct processing.",
+      "toolCalls": [
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = Buffer.byteLength(str, 'utf8');\\n  const buf = Buffer.alloc(6 + len);\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"Target\":\"export function encodeWireFrame(channelId, payloadStr) {\\n  const str = String(payloadStr ?? '');\\n  const len = str.length;\\n  const buf = Buffer.alloc(6 + Buffer.byteLength(str, 'utf8'));\\n  buf.writeUInt16BE(channelId, 0);\\n  buf.writeUInt32BE(len, 2);\\n  buf.write(str, 6, 'utf8');\\n  return buf;\\n}\",\"path\":\"src/net/frame_wire.mjs\"}"
+        },
+        {
+          "name": "edit_file",
+          "args": "{\"Replacement\":\"  onDataFrame(frame) {\\n    const canProcess =\\n      this.state === 'ACTIVE' || (this.state === 'DRAINING' \\u0026\\u0026 frame.fin === true);\\n    if (!canProcess) {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\\n    const wire = encodeWireFrame(frame.channelId, frame.payload);\\n    const decoded = decodeWireFrame(wire);\\n    this.metrics.dataBytes += decoded.byteLength;\\n    return { handled: true, payload: decoded.payload, fin: !!frame.fin };\\n  }\",\"Target\":\"  onDataFrame(frame) {\\n    if (this.state !== 'ACTIVE') {\\n      this.metrics.droppedFrames += 1;\\n      return { handled: false, reason: 'SESSION_INACTIVE' };\\n    }\\n    const wire = encodeWireFrame(frame.channelId, frame.payload);\\n    const decoded = decodeWireFrame(wire);\\n    this.metrics.dataBytes += decoded.byteLength;\\n    return { handled: true, payload: decoded.payload, fin: !!frame.fin };\\n  }\",\"path\":\"src/net/mux_session.mjs\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1560,
+        "completion_tokens": 698,
+        "total_tokens": 2258,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 137,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "modelUsed": "gemini-4-argon",
+      "content": "",
+      "reasoningPreview": "",
+      "toolCalls": [
+        {
+          "name": "run_command",
+          "args": "{\"command\":\"npm test\"}"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2332,
+        "completion_tokens": 34,
+        "total_tokens": 2366,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 11,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "modelUsed": "gemini-4-argon",
+      "content": "已修复 `src/net/mux_session.mjs` 与 `src/net/frame_wire.mjs` 中的两个问题：\n\n1. **`DRAINING` 状态尾帧放行（`src/net/mux_session.mjs`）**：\n   - 在 `onDataFrame(frame)` 中，将状态校验更新为允许 `this.state === 'ACTIVE'` 或 `this.state === 'DRAINING' && frame.fin === true` 时继续处理；其余状态及非 `fin === true` 的数据帧仍递增 `droppedFrames` 并返回 `SESSION_INACTIVE`。\n   - `onOpenChannel`、`onWindowUpdate`、`onPingFrame` 保持原有的仅 `ACTIVE` 放行逻辑不变。\n\n2. **多字节 UTF-8 字符截断与字节统计偏小（`src/net/frame_wire.mjs`）**：\n   - `encodeWireFrame` 原先写入帧头长度字段时使用了字符数 `str.length`，导致多字节字符（如中文字符）在 `decodeWireFrame` 按字节长度截取时被截断。现已改为写入 `Buffer.byteLength(str, 'utf8')` 的实际 UTF-8 字节长度。",
+      "reasoningPreview": "",
+      "toolCalls": [],
+      "usage": {
+        "prompt_tokens": 2519,
+        "completion_tokens": 286,
+        "total_tokens": 2805,
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "audio_tokens": 0,
+          "reasoning_tokens": 14,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "t6-node-sqlite-argon",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/smoke.test.mjs"
+  }
+}

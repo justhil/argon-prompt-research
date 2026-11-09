@@ -1,0 +1,41 @@
+{
+  "runKey": "F1-llm-telemetry-console__P2_minimal_mineral_38w",
+  "taskId": "F1-llm-telemetry-console",
+  "taskTitle": "大模型推理网关监控与成本分析台",
+  "styleId": "P2_minimal_mineral_38w",
+  "styleLabel": "P2 · 42字单句色板与字体正负向锚点",
+  "styleCharCount": 42,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 105.36,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 435,
+    "completion_tokens": 13049,
+    "total_tokens": 13484,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 37830,
+    "hasDarkBg": false,
+    "darkHexCount": 2,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": true,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  }
+}

@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zettelkasten & Marginalia Studio — 卢曼卡片盒与文献批注工作室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 瑞士档案网格 + 北欧暖调纸面 + 博朗实体仪器色板 */
+    --bg-canvas: #F3F1EC;
+    --bg-paper: #FAF8F5;
+    --bg-panel: #EBE8E0;
+    --bg-hover: #E4E0D6;
+    --bg-active: #EFECE4;
+    
+    --ink-primary: #181715;
+    --ink-secondary: #52504C;
+    --ink-muted: #85827C;
+    --ink-faint: #B5B1A8;
+
+    --border-hairline: #D5D1C8;
+    --border-strong: #181715;
+
+    /* 实体仪器功能色彩 */
+    --accent-vermilion: #D13B27; /* 永久笔记 / 核心锚点 */
+    --accent-cobalt: #205285;    /* 文献笔记 / 双链引用 */
+    --accent-ochre: #C87D20;     /* 闪念笔记 / 批注标记 */
+    --accent-forest: #2E6F40;    /* 状态指示 */
+
+    --hl-bg: rgba(200, 125, 32, 0.14);
+    --hl-bg-active: rgba(209, 59, 39, 0.18);
+    --hl-border: #C87D20;
+    --hl-border-active: #D13B27;
+
+    --font-serif: 'Newsreader', 'Noto Serif SC', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 顶部瑞士网格仪器栏 */
+  .topbar {
+    height: 42px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-strong);
+    display: grid;
+    grid-template-columns: 320px 1fr 340px;
+    align-items: center;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .brand-cell {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-right: 1px solid var(--border-hairline);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    gap: 10px;
+  }
+
+  .brand-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-vermilion);
+    display: inline-block;
+  }
+
+  .breadcrumb-cell {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-right: 1px solid var(--border-hairline);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .crumb-trail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .crumb-sep {
+    color: var(--ink-faint);
+  }
+
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn-instrument {
+    background: var(--bg-paper);
+    border: 1px solid var(--border-hairline);
+    color: var(--ink-primary);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: all 0.12s ease;
+  }
+
+  .btn-instrument:hover {
+    border-color: var(--ink-primary);
+    background: var(--bg-canvas);
+  }
+
+  .btn-instrument.active {
+    background: var(--ink-primary);
+    color: var(--bg-paper);
+    border-color: var(--ink-primary);
+  }
+
+  .telemetry-cell {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 主体三栏工作区 */
+  .studio-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 320px 1fr 340px;
+    height: calc(100vh - 42px);
+    overflow: hidden;
+  }
+
+  /* ==================== 左侧：卡片盒索引流 ==================== */
+  .pane-left {
+    background-color: var(--bg-canvas);
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .pane-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-hairline);
+    background-color: var(--bg-panel);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .search-box {
+    width: 100%;
+    background: var(--bg-paper);
+    border: 1px solid var(--border-hairline);
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-primary);
+    outline: none;
+    margin-bottom: 10px;
+  }
+
+  .search-box:focus {
+    border-color: var(--ink-primary);
+  }
+
+  /* 实体分段开关 */
+  .filter-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-paper);
+  }
+
+  .filter-tab {
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border-hairline);
+    padding: 5px 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .filter-tab:last-child {
+    border-right: none;
+  }
+
+  .filter-tab:hover {
+    background: var(--bg-hover);
+  }
+
+  .filter-tab.active {
+    background: var(--ink-primary);
+    color: var(--bg-paper);
+    font-weight: 500;
+  }
+
+  .tag-strip {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: var(--bg-canvas);
+  }
+
+  .tag-chip {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-paper);
+    color: var(--ink-secondary);
+    cursor: pointer;
+  }
+
+  .tag-chip:hover {
+    border-color: var(--ink-secondary);
+  }
+
+  .tag-chip.active {
+    border-color: var(--accent-vermilion);
+    color: var(--accent-vermilion);
+    background: rgba(209, 59, 39, 0.06);
+  }
+
+  .card-stream {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .zettel-card {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-hairline);
+    cursor: pointer;
+    background: var(--bg-canvas);
+    transition: background 0.12s ease;
+    position: relative;
+  }
+
+  .zettel-card:hover {
+    background: var(--bg-hover);
+  }
+
+  .zettel-card.active {
+    background: var(--bg-paper);
+  }
+
+  .zettel-card.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent-vermilion);
+  }
+
+  .card-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .folgezettel-id {
+    font-weight: 600;
+    color: var(--ink-primary);
+    letter-spacing: 0.02em;
+  }
+
+  .type-badge {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 1px 5px;
+    border: 1px solid;
+  }
+
+  .type-permanent {
+    color: var(--accent-vermilion);
+    border-color: rgba(209, 59, 39, 0.4);
+    background: rgba(209, 59, 39, 0.05);
+  }
+
+  .type-literature {
+    color: var(--accent-cobalt);
+    border-color: rgba(32, 82, 133, 0.4);
+    background: rgba(32, 82, 133, 0.05);
+  }
+
+  .type-fleeting {
+    color: var(--accent-ochre);
+    border-color: rgba(200, 125, 32, 0.4);
+    background: rgba(200, 125, 32, 0.05);
+  }
+
+  .card-title {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    margin-bottom: 5px;
+    line-height: 1.35;
+  }
+
+  .card-excerpt {
+    font-size: 12px;
+    color: var(--ink-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 8px;
+    line-height: 1.45;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ==================== 中部：主阅读与边注工作室 ==================== */
+  .pane-center {
+    background-color: var(--bg-paper);
+    overflow-y: auto;
+    height: 100%;
+    position: relative;
+  }
+
+  /* 纸面顶部档案头 */
+  .manuscript-header {
+    padding: 36px 48px 28px 48px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 36px;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .doc-id-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    margin-bottom: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .doc-id-code {
+    background: var(--ink-primary);
+    color: var(--bg-paper);
+    padding: 2px 8px;
+    font-weight: 600;
+  }
+
+  .doc-title {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink-primary);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .doc-subtitle {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-secondary);
+    line-height: 1.4;
+  }
+
+  /* 档案规格表 (Swiss Spec Table) */
+  .archive-spec-table {
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-canvas);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    align-self: start;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .spec-row {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .spec-row:last-child {
+    border-bottom: none;
+  }
+
+  .spec-key {
+    padding: 5px 8px;
+    color: var(--ink-muted);
+    border-right: 1px solid var(--border-hairline);
+    text-transform: uppercase;
+  }
+
+  .spec-val {
+    padding: 5px 8px;
+    color: var(--ink-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 稿件双栏网格：左正文 + 右边注栏 (Marginalia) */
+  .manuscript-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 36px;
+    padding: 32px 48px 96px 48px;
+    max-width: 1120px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .prose-column {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.82;
+    color: var(--ink-primary);
+  }
+
+  .prose-block {
+    position: relative;
+    margin-bottom: 24px;
+    padding-left: 4px;
+  }
+
+  .para-num {
+    position: absolute;
+    left: -34px;
+    top: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prose-block blockquote {
+    border-left: 2px solid var(--ink-primary);
+    padding-left: 18px;
+    margin: 20px 0;
+    font-style: italic;
+    color: var(--ink-secondary);
+  }
+
+  /* 行间批注高亮 */
+  .hl-span {
+    background-color: var(--hl-bg);
+    border-bottom: 1.5px solid var(--hl-border);
+    padding: 1px 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    position: relative;
+  }
+
+  .hl-span sup {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-vermilion);
+    margin-left: 2px;
+    user-select: none;
+  }
+
+  .hl-span:hover,
+  .hl-span.active {
+    background-color: var(--hl-bg-active);
+    border-bottom-color: var(--hl-border-active);
+  }
+
+  /* 内联双链 Wiki-link */
+  .wikilink {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-cobalt);
+    background: rgba(32, 82, 133, 0.06);
+    border: 1px solid rgba(32, 82, 133, 0.25);
+    padding: 1px 6px;
+    margin: 0 2px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-baseline;
+    transition: all 0.12s ease;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wikilink:hover {
+    background: var(--accent-cobalt);
+    color: var(--bg-paper);
+    border-color: var(--accent-cobalt);
+  }
+
+  /* 侧边批注栏 (Marginalia Column) */
+  .marginalia-column {
+    border-left: 1px solid var(--border-hairline);
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .marginalia-header {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .margin-note {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-hairline);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .margin-note::before {
+    content: "";
+    position: absolute;
+    left: -21px;
+    top: 14px;
+    width: 20px;
+    height: 1px;
+    background: var(--border-hairline);
+    transition: background 0.15s ease;
+  }
+
+  .margin-note:hover,
+  .margin-note.active {
+    border-color: var(--accent-vermilion);
+    background: var(--bg-paper);
+    transform: translateX(-3px);
+  }
+
+  .margin-note:hover::before,
+  .margin-note.active::before {
+    background: var(--accent-vermilion);
+    height: 1.5px;
+  }
+
+  .mn-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mn-badge {
+    color: var(--accent-vermilion);
+    font-weight: 600;
+  }
+
+  .mn-quote {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 11px;
+    color: var(--ink-muted);
+    border-left: 2px solid var(--border-hairline);
+    padding-left: 6px;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .mn-text {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ink-primary);
+  }
+
+  /* 新增批注表单 */
+  .add-marginalia-box {
+    margin-top: 20px;
+    border: 1px dashed var(--border-hairline);
+    padding: 10px;
+    background: rgba(235, 232, 224, 0.4);
+  }
+
+  .add-marginalia-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .mn-input {
+    width: 100%;
+    border: 1px solid var(--border-hairline);
+    background: var(--bg-paper);
+    padding: 6px 8px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    resize: vertical;
+    min-height: 54px;
+    outline: none;
+    margin-bottom: 6px;
+  }
+
+  .mn-input:focus {
+    border-color: var(--ink-primary);
+  }
+
+  /* ==================== 右侧：双链关系小图谱与反向引用 ==================== */
+  .pane-right {
+    background-color: var(--bg-canvas);
+    border-left: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .graph-container {
+    height: 280px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-paper);
+    flex-shrink: 0;
+  }
+
+  .graph-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-hairline);
+    background: var(--bg-panel);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+  }
+
+  .graph-legend {
+    display: flex;
+    gap: 10px;
+    font-size: 9px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .svg-viewport {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(var(--border-hairline) 1px, transparent 1px);
+    background-size: 16px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #network-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .graph-node {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .graph-node text {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    fill: var(--ink-primary);
+    pointer-events: none;
+  }
+
+  .graph-link {
+    stroke: var(--ink-faint);
+    stroke-width: 1px;
+  }
+
+  .graph-link.active-edge {
+    stroke: var(--ink-primary);
+    stroke-width: 1.5px;
+  }
+
+  /* 反向链接与出链列表区 */
+  .connections-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+  }
+
+  .conn-section {
+    margin-bottom: 24px;
+  }
+
+  .conn-header {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-hairline);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .backlink-card {
+    background: var(--bg-paper);
+    border: 1px solid var(--border-hairline);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s;
+  }
+
+  .backlink-card:hover {
+    border-color: var(--ink-primary);
+    background: var(--bg-active);
+  }
+
+  .bl-top {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bl-id {
+    font-weight: 600;
+    color: var(--accent-cobalt);
+  }
+
+  .bl-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-primary);
+    margin-bottom: 4px;
+  }
+
+  .bl-context {
+    font-size: 11px;
+    color: var(--ink-secondary);
+    line-height: 1.45;
+    background: var(--bg-canvas);
+    padding: 6px 8px;
+    border-left: 2px solid var(--accent-cobalt);
+    font-family: var(--font-serif);
+  }
+
+  /* 选中文字浮动工具条 */
+  #selection-popover {
+    position: fixed;
+    display: none;
+    background: var(--ink-primary);
+    color: var(--bg-paper);
+    border: 1px solid var(--ink-primary);
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    z-index: 1000;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  #selection-popover:hover {
+    background: var(--accent-vermilion);
+    border-color: var(--accent-vermilion);
+  }
+
+  /* 滚动条微调 */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-hairline);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-muted);
+  }
+</style>
+</head>
+<body>
+
+  <!-- 顶部瑞士档案仪器控制栏 -->
+  <header class="topbar">
+    <div class="brand-cell">
+      <span class="brand-dot"></span>
+      <span>ZETTELKASTEN // ARCHIVE STUDIO II</span>
+    </div>
+    <div class="breadcrumb-cell">
+      <div class="crumb-trail" id="topbar-crumb">
+        <span>KASTEN_02</span>
+        <span class="crumb-sep">/</span>
+        <span id="crumb-type">PERMANENT</span>
+        <span class="crumb-sep">/</span>
+        <strong id="crumb-id" style="color: var(--ink-primary);">ZK-12/4a</strong>
+      </div>
+      <div class="toolbar-actions">
+        <button class="btn-instrument active" id="btn-toggle-hl" title="切换高亮显示">HIGHLIGHTS: ON</button>
+        <button class="btn-instrument" id="btn-random-note" title="随机漫游卡片">RANDOM DRIFT [R]</button>
+      </div>
+    </div>
+    <div class="telemetry-cell">
+      <span id="telemetry-stats">CARDS: 07 | EDGES: 14</span>
+      <span>REV. 1968–2025</span>
+    </div>
+  </header>
+
+  <!-- 三栏核心工作区 -->
+  <main class="studio-grid">
+    
+    <!-- 左侧栏：卡片索引流 -->
+    <aside class="pane-left">
+      <div class="pane-header">
+        <div class="section-label">
+          <span>01 / SLIP-BOX INDEX</span>
+          <span id="index-count">7 ENTRIES</span>
+        </div>
+        <input type="text" id="search-input" class="search-box" placeholder="检索编码、标题或正文关键词...">
+        <div class="filter-tabs" id="type-filters">
+          <button class="filter-tab active" data-type="all">全部 (7)</button>
+          <button class="filter-tab" data-type="permanent">永久 (4)</button>
+          <button class="filter-tab" data-type="literature">文献 (2)</button>
+          <button class="filter-tab" data-type="fleeting">闪念 (1)</button>
+        </div>
+      </div>
+
+      <div class="tag-strip" id="tag-strip">
+        <!-- 动态渲染标签筛选器 -->
+      </div>
+
+      <div class="card-stream" id="card-stream">
+        <!-- 动态渲染卡片流 -->
+      </div>
+    </aside>
+
+    <!-- 中间栏：主阅读与排版区 + 侧边批注栏 -->
+    <section class="pane-center" id="manuscript-scroll">
+      <div class="manuscript-header" id="manuscript-header">
+        <!-- 动态渲染文稿头部与档案参数表 -->
+      </div>
+
+      <div class="manuscript-body">
+        <article class="prose-column" id="prose-column">
+          <!-- 动态渲染带编号段落、行间高亮与双链的正文 -->
+        </article>
+
+        <aside class="marginalia-column">
+          <div class="marginalia-header">
+            <span>MARGINALIA / 侧边批注</span>
+            <span id="marginalia-count">03</span>
+          </div>
+          <div id="marginalia-list">
+            <!-- 动态渲染侧边栏批注卡片 -->
+          </div>
+
+          <div class="add-marginalia-box">
+            <div class="add-marginalia-title">+ 追加当前卡片批注</div>
+            <textarea id="new-mn-input" class="mn-input" placeholder="输入针对本卡片的学术批注或批判性思考（亦可在左侧正文划词批注）..."></textarea>
+            <button class="btn-instrument" id="btn-add-mn" style="width:100%; padding: 5px 0;">RECORD MARGINALIA</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 右侧栏：双向链接关系小图谱与反向引用列表 -->
+    <aside class="pane-right">
+      <div class="graph-container">
+        <div class="graph-header">
+          <span>02 / TOPOLOGY GRAPH</span>
+          <div class="graph-legend">
+            <span class="legend-item"><i class="legend-dot" style="background:var(--accent-vermilion)"></i>永久</span>
+            <span class="legend-item"><i class="legend-dot" style="background:var(--accent-cobalt)"></i>文献</span>
+            <span class="legend-item"><i class="legend-dot" style="background:var(--accent-ochre)"></i>闪念</span>
+          </div>
+        </div>
+        <div class="svg-viewport">
+          <svg id="network-svg" viewBox="0 0 340 240" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+      </div>
+
+      <div class="connections-scroll">
+        <div class="conn-section">
+          <div class="conn-header">
+            <span>INCOMING BACKLINKS / 反向引用</span>
+            <span id="backlink-count">0</span>
+          </div>
+          <div id="backlinks-list">
+            <!-- 动态渲染反向链接卡片及上下文 -->
+          </div>
+        </div>
+
+        <div class="conn-section">
+          <div class="conn-header">
+            <span>OUTGOING LINKS / 正向引用</span>
+            <span id="outlink-count">0</span>
+          </div>
+          <div id="outlinks-list">
+            <!-- 动态渲染出链列表 -->
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- 划词高亮批注浮动按钮 -->
+  <div id="selection-popover">+ 批注选中文本 [M]</div>
+
+<script>
+/**
+ * 卢曼卡片盒双链笔记与文献批注数据集
+ * 包含永久笔记 (permanent)、文献笔记 (literature)、闪念笔记 (fleeting)
+ */
+const ZETTEL_DATA = [
+  {
+    id: "ZK-12/4a",
+    type: "permanent",
+    typeName: "永久笔记",
+    title: "外化记忆与思考的拓扑结构：卡片盒作为第二自我",
+    subtitle: "为什么线性目录树会扼杀跨学科的偶然发现（Serendipity）",
+    date: "2025-02-14",
+    source: "Luhmann (1981) / 自研综合",
+    tags: ["#知识拓扑", "#卢曼系统", "#偶发演进"],
+    excerpt: "卡片盒不是静态的储藏容器，而是一个通过内部链接不断产生结构变异的对话伙伴。",
+    paragraphs: [
+      `在传统的科层制分类法中，一条笔记在诞生之初就被迫归入某个预设的抽屉。这种顶层分类先于思考发生，导致知识被固化在既有的学科边界内。<span class="hl-span" data-hl="m1">尼克拉斯·卢曼（Niklas Luhmann）之所以拒绝按主题分卷，是因为他意识到知识的增长不是填补空白表格，而是网络局部的非线性分岔<sup>[m1]</sup></span>。参见文献批注 <a class="wikilink" data-target="LIT-81/Luhmann">[[LIT-81/Luhmann]]</a>。`,
+      `当我们将一条思考浓缩在单一尺幅的索引卡片上，并赋予它一个固定的接续编码（Folgezettel），它便获得了脱离原始语境的自主性。通过与 <a class="wikilink" data-target="ZK-12/4b">[[ZK-12/4b]]</a> 中探讨的“笔记原子化”原则结合，每一张卡片都成为网络中的独立神经元。`,
+      `<blockquote>“如果不写下来，人们就无法思考；而如果仅仅按顺序写下来，人们就只能重复已知的偏见。” —— 档案室手稿摘录</blockquote>`,
+      `<span class="hl-span" data-hl="m2">真正的创造性并非源自大脑内部的苦思冥想，而是源自与外化介质之间高摩擦力的往复质询<sup>[m2]</sup></span>。这也解释了为什么古籍边栏上的批注（Marginalia，详见 <a class="wikilink" data-target="ZK-15/1">[[ZK-15/1]]</a>）往往比正文更具思想穿透力——它是两个时空的心智在1px边界上的短兵相接。`,
+      `在数字界面设计中，我们应当警惕无限画布带来的认知失重，回归如 <a class="wikilink" data-target="LIT-45/Bush">[[LIT-45/Bush]]</a> 设想的机械式关联轨迹，保持索引的紧致与可回溯性。`
+    ],
+    marginalia: [
+      {
+        id: "m1",
+        refText: "尼克拉斯·卢曼之所以拒绝按主题分卷，是因为他意识到知识的增长不是填补空白表格...",
+        author: "ARCHIVIST_LIN",
+        timestamp: "14:20",
+        comment: "对比杜威十进制分类法（DDC）：树状结构适合图书馆管理员寻书，但网状结构（Folgezettel）才适合研究者生产新假说。"
+      },
+      {
+        id: "m2",
+        refText: "真正的创造性并非源自大脑内部的苦思冥想，而是源自与外化介质之间高摩擦力的往复质询",
+        author: "ARCHIVIST_LIN",
+        timestamp: "16:05",
+        comment: "延展心智理论（Extended Mind Thesis, Clark & Chalmers 1998）的先声。纸张与双链构成了认知回路的外部硬件。"
+      }
+    ]
+  },
+  {
+    id: "ZK-12/4b",
+    type: "permanent",
+    typeName: "永久笔记",
+    title: "笔记原子化（Atomicity）与低耦合高内聚的跨语境重用",
+    subtitle: "论单一卡片的颗粒度边界与链接指向的精确度",
+    date: "2025-02-16",
+    source: "卡片盒方法论核心公理",
+    tags: ["#原子化", "#知识拓扑", "#认知负荷"],
+    excerpt: "如果一张卡片包含三个论点，那么指向它的链接就会产生语义歧义，网络信噪比将急剧劣化。",
+    paragraphs: [
+      `软件工程中的“单一职责原则”同样适用于知识管理。<span class="hl-span" data-hl="m201">所谓原子化（Atomicity），是指每张永久笔记只完整阐述一个不可再分的论证单元，使其能够在完全不同的论述上下文中被无缝嵌入<sup>[m201]</sup></span>。它是对 <a class="wikilink" data-target="ZK-12/4a">[[ZK-12/4a]]</a> 所论述的网络拓扑的微观保障。`,
+      `当我们在阅读长篇专著时，常常倾向于制作冗长的读书大纲。然而，大纲将论点捆绑在原作者的叙事线性轴上。正确的做法是先在 <a class="wikilink" data-target="LIT-81/Luhmann">[[LIT-81/Luhmann]]</a> 这类文献笔记中提炼锚点，再将其拆解并重铸为属于自己话语体系的原子卡片。`,
+      `<span class="hl-span" data-hl="m202">一旦卡片颗粒度过粗，双向链接就会退化为模糊的“相关文章推荐”，丧失严密的逻辑指涉能力<sup>[m202]</sup></span>。这也是近期闪念笔记 <a class="wikilink" data-target="FLT-2025/09">[[FLT-2025/09]]</a> 中观察到的许多数字笔记软件走向崩溃的根本原因。`
+    ],
+    marginalia: [
+      {
+        id: "m201",
+        refText: "所谓原子化（Atomicity），是指每张永久笔记只完整阐述一个不可再分的论证单元...",
+        author: "ARCHIVIST_LIN",
+        timestamp: "09:12",
+        comment: "实体A6卡片的物理面积限制（约150-200字）天然强迫卢曼进行高密度的语言蒸馏，数字界面需通过排版克制来模拟这种边界感。"
+      },
+      {
+        id: "m202",
+        refText: "一旦卡片颗粒度过粗，双向链接就会退化为模糊的“相关文章推荐”...",
+        author: "ARCHIVIST_LIN",
+        timestamp: "11:40",
+        comment: "精确的引用应当是命题对命题（Proposition-to-Proposition），而非文档对文档。"
+      }
+    ]
+  },
+  {
+    id: "LIT-81/Luhmann",
+    type: "literature",
+    typeName: "文献笔记",
+    title: "Kommunikation mit Zettelkästen (与卡片盒的交流经验)",
+    subtitle: "Niklas Luhmann (1981), 收录于《Universität als Milieu》, pp. 53–61",
+    date: "2025-01-28",
+    source: "Bielefeld University Archive",
+    tags: ["#卢曼系统", "#原始文献", "#社会学档案"],
+    excerpt: "卢曼亲述其耗费三十年构建的90,000张纸质卡片系统如何通过内部指涉实现学术高产。",
+    paragraphs: [
+      `本文是卢曼唯一一篇专门剖析其私人卡片盒运作机制的方法论随笔。卢曼指出，卡片盒的核心秘密不在于物理木盒，而在于其独特的编码分支系统（Folgezettel）与高密度的交叉引用（Verweise）。这一机制直接启发了永久笔记 <a class="wikilink" data-target="ZK-12/4a">[[ZK-12/4a]]</a>。`,
+      `<span class="hl-span" data-hl="m301">“卡片盒给我的回应总是超出我存入它时的预期。”（Der Zettelkasten gibt mir mehr zurück, als ich hineingesteckt habe.）<sup>[m301]</sup></span> 卢曼将之视为控制论意义上的二阶观察伙伴。`,
+      `文中详细记述了三种索引机制：一是数字与字母交替的局部树状衍生（如 21/3a1p5）；二是集线器卡片（Hub Notes），专门汇总某一核心概念的分岔入口；三是全域关键词索引（Register）。关于卡片颗粒度的要求，可印证 <a class="wikilink" data-target="ZK-12/4b">[[ZK-12/4b]]</a> 的形式化推演。`,
+      `<span class="hl-span" data-hl="m302">值得注意的是，卢曼从不在原始书籍上大面积涂画，而是仅在纸条背面记下页码与极简提要<sup>[m302]</sup></span>，这种克制与 <a class="wikilink" data-target="ZK-15/1">[[ZK-15/1]]</a> 所考证的文艺复兴学者重度边注传统形成了耐人寻味的对比。`
+    ],
+    marginalia: [
+      {
+        id: "m301",
+        refText: "“卡片盒给我的回应总是超出我存入它时的预期。”",
+        author: "TRANS_NOTE",
+        timestamp: "1981/2025",
+        comment: "控制论中的涌现（Emergence）现象：当节点与边超过临界规模（Critical Mass），系统内部产生自组织的语义簇。"
+      },
+      {
+        id: "m302",
+        refText: "卢曼从不在原始书籍上大面积涂画，而是仅在纸条背面记下页码与极简提要",
+        author: "ARCHIVIST_LIN",
+        timestamp: "21:15",
+        comment: "因为许多书籍借自比勒费尔德大学图书馆，这一客观限制反而催生了独立的文献卡片（Literature Notes）层。"
+      }
+    ]
+  },
+  {
+    id: "ZK-15/1",
+    type: "permanent",
+    typeName: "永久笔记",
+    title: "页边批注（Marginalia）的认知考古学：从经院注释到数字双链",
+    subtitle: "留白并非版面的浪费，而是预留给未来读者的思想演武场",
+    date: "2025-02-19",
+    source: "书籍史与排版研究",
+    tags: ["#页边批注", "#排版网格", "#媒介考古"],
+    excerpt: "从《塔木德》的同心圆排版到现代学术手稿的宽阔侧栏，批注一直是撬动正文权威的支点。",
+    paragraphs: [
+      `在中世纪手抄本与早期摇篮本（Incunabula）中，页面的留白比例往往高达40%以上。这并非出于审美的奢侈，而是因为书籍被设计为一种未完成的对话界面。<span class="hl-span" data-hl="m401">读者在侧边栏写下的 Scholia（古注）与 Glossa（舌注），在随后的传抄中往往会侵入正文，形成多声部的知识复调<sup>[m401]</sup></span>。`,
+      `正如 <a class="wikilink" data-target="ZK-12/4a">[[ZK-12/4a]]</a> 所言，高摩擦力的阅读要求手眼协同。当我们在正文中划出一条精确的下划线，并在右侧 Marginalia 栏位写下反驳或引申时，被动的信息消费即刻转化为积极的文本干预。`,
+      `现代电子阅读器将边注隐藏在需要多次点击的弹窗背后，彻底破坏了“正文—批注”共时性并置的视觉张力。我们在 <a class="wikilink" data-target="ZK-18/2">[[ZK-18/2]]</a> 中提出的瑞士网格排版方案，正是为了在屏幕介质上复兴这种左右互搏的平行视野。同时可参看万尼瓦尔·布什在 <a class="wikilink" data-target="LIT-45/Bush">[[LIT-45/Bush]]</a> 中对微缩胶片边栏涂写的早期设想。`
+    ],
+    marginalia: [
+      {
+        id: "m401",
+        refText: "读者在侧边栏写下的 Scholia（古注）与 Glossa（舌注），在随后的传抄中往往会侵入正文...",
+        author: "HIST_REF",
+        timestamp: "10:30",
+        comment: "典型案例如费马大定理：皮埃尔·德·费马于1637年左右在丢番图《算术》页边写下的那句著名的‘我确信已发现一种美妙证法，可惜这里空白太小，写不下’。"
+      }
+    ]
+  },
+  {
+    id: "LIT-45/Bush",
+    type: "literature",
+    typeName: "文献笔记",
+    title: "As We May Think (诚如所思：Memex 与关联轨迹)",
+    subtitle: "Vannevar Bush (1945), The Atlantic Monthly, July 1945",
+    date: "2025-01-15",
+    source: "The Atlantic Archive",
+    tags: ["#媒介考古", "#原始文献", "#超文本先驱"],
+    excerpt: "人类心智并非按照字母表索引运作，而是通过联想（Association）在记忆痕迹间跳跃。",
+    paragraphs: [
+      `1945年二战行将结束之际，万尼瓦尔·布什发表了这篇奠定现代超文本与个人知识库基石的雄文。他尖锐地指出，科学文献的爆炸式增长已远超人类利用传统树状索引（分类法）进行检索的能力极限——这一诊断与三十六年后的 <a class="wikilink" data-target="LIT-81/Luhmann">[[LIT-81/Luhmann]]</a> 不谋而合。`,
+      `<span class="hl-span" data-hl="m501">布什构想了一种名为 Memex 的办公桌式机电仪器：学者可以同时并排投影两份微缩胶片文献，并在底部的干法摄影区手写边注，进而用机械编码将两个原本毫无关联的页面永久装订为一条“联想轨迹”（Associative Trail）<sup>[m501]</sup></span>。`,
+      `不同于永不消逝的外部链接，布什强调这些轨迹本身可以被复制并分享给同侪，成为一种全新的百科全书形式。这直接启发了 <a class="wikilink" data-target="ZK-12/4a">[[ZK-12/4a]]</a> 对思维拓扑的界定，以及 <a class="wikilink" data-target="ZK-15/1">[[ZK-15/1]]</a> 对并排批注空间的坚持。`
+    ],
+    marginalia: [
+      {
+        id: "m501",
+        refText: "布什构想了一种名为 Memex 的办公桌式机电仪器：学者可以同时并排投影两份微缩胶片文献...",
+        author: "INSTRUMENT_LAB",
+        timestamp: "15:48",
+        comment: "注意 Memex 的实体交互美学：拨杆、光学微缩投影、电报式代码输入。它不是虚拟的云，而是具有物理阻尼感的精密仪器。"
+      }
+    ]
+  },
+  {
+    id: "ZK-18/2",
+    type: "permanent",
+    typeName: "永久笔记",
+    title: "精密仪器美学与排版网格中的“认知摩擦力”",
+    subtitle: "为何知识工具应当效仿博朗（Braun）仪器与瑞士制表，而非消费级娱乐流",
+    date: "2025-02-22",
+    source: "界面认识论札记",
+    tags: ["#排版网格", "#认知负荷", "#仪器美学"],
+    excerpt: "适度的视觉克制与1px实线网格能够锚定注意力，消除流式界面带来的思维涣散。",
+    paragraphs: [
+      `现代软件工业崇尚“零摩擦”（Frictionless）体验，试图让信息像泥石流一样滑过视网膜。然而，严肃的学术研究与卡片盒构建恰恰需要良性的“认知摩擦力”（Desirable Difficulty）。`,
+      `<span class="hl-span" data-hl="m601">当界面采用高对比度的纸面暖灰、清晰的 1px 档案分割线以及严格的等宽数字编号（Tabular Numerals）时，工具向使用者传递出一种审慎、精确的心理暗示<sup>[m601]</sup></span>。这与迪特·拉姆斯（Dieter Rams）在博朗仪器设计中贯彻的“少，但更好”一脉相承。`,
+      `在排版层面，我们将 <a class="wikilink" data-target="ZK-15/1">[[ZK-15/1]]</a> 探讨的古典手稿边注比例与约瑟夫·米勒-布罗克曼（Josef Müller-Brockmann）的瑞士国际主义网格相结合，使得 <a class="wikilink" data-target="ZK-12/4b">[[ZK-12/4b]]</a> 所要求的原子卡片在视觉上也具备严整的工业模块感。`
+    ],
+    marginalia: [
+      {
+        id: "m601",
+        refText: "当界面采用高对比度的纸面暖灰、清晰的 1px 档案分割线以及严格的等宽数字编号...",
+        author: "DESIGN_SPEC",
+        timestamp: "18:02",
+        comment: "拒绝紫青霓虹暗黑风与过度圆角毛玻璃：知识档案室需要的是恒温恒湿的白昼自然光感。"
+      }
+    ]
+  },
+  {
+    id: "FLT-2025/09",
+    type: "fleeting",
+    typeName: "闪念笔记",
+    title: "警惕“收藏家谬误”与没有上下文说明的孤立双链",
+    subtitle: "凌晨阅读卡片盒网络图谱时的反思速记（待整理并入 ZK-12 分支）",
+    date: "2025-02-24",
+    source: "随身速记本 P.42",
+    tags: ["#认知负荷", "#偶发演进"],
+    excerpt: "把链接连起来不等于完成了思考；如果不写下“为什么要连接这两张卡”，三个月后这根连线就是死路。",
+    paragraphs: [
+      `今天在检视知识图谱时发现一个危险信号：许多节点虽然拥有密集的连线，但当我点击过去时，却完全想不起当初为什么要将它们关联在一起。基督教神学概念与控制论反馈回路之间那条裸露的 \`[[]]\` 究竟意味着类比、反驳还是同源？`,
+      `<span class="hl-span" data-hl="m701">克里斯蒂安·蒂茨（Christian Tietze）曾警告过“收藏家谬误”（Collector's Fallacy）：囤积文献与机械打标签会分泌廉价的多巴胺，制造出“我已经掌握了这些知识”的幻觉<sup>[m701]</sup></span>。`,
+      `改进方案：每一处双链引用（如指向 <a class="wikilink" data-target="ZK-12/4b">[[ZK-12/4b]]</a> 或 <a class="wikilink" data-target="ZK-12/4a">[[ZK-12/4a]]</a>），必须在所在句子的上下文中明确交代连接谓词（因由、转折或例证）。本周内需将此条闪念提炼并入永久卡片序列。`
+    ],
+    marginalia: [
+      {
+        id: "m701",
+        refText: "克里斯蒂安·蒂茨曾警告过“收藏家谬误”（Collector's Fallacy）...",
+        author: "SELF_CRITIQUE",
+        timestamp: "01:15",
+        comment: "行动项：清理所有只放了一个孤立 Wiki-link 而无论述句的卡片底部。"
+      }
+    ]
+  }
+];
+
+// 应用状态管理
+const state = {
+  activeNoteId: "ZK-12/4a",
+  filterType: "all",
+  activeTag: null,
+  searchQuery: "",
+  activeHighlightId: null,
+  showHighlights: true
+};
+
+// 工具函数：解析所有卡片的双向链接关系
+function buildLinkGraph() {
+  const outgoingMap = {};
+  const incomingMap = {};
+  const edgeList = [];
+
+  ZETTEL_DATA.forEach(note => {
+    outgoingMap[note.id] = [];
+    incomingMap[note.id] = [];
+  });
+
+  const linkRegex = /data-target="([^"]+)"/g;
+
+  ZETTEL_DATA.forEach(sourceNote => {
+    sourceNote.paragraphs.forEach((para, pIdx) => {
+      let match;
+      while ((match = linkRegex.exec(para)) !== null) {
+        const targetId = match[1];
+        if (outgoingMap[sourceNote.id] && !outgoingMap[sourceNote.id].some(item => item.id === targetId)) {
+          outgoingMap[sourceNote.id].push({
+            id: targetId,
+            contextPara: stripHtml(para)
+          });
+        }
+        if (incomingMap[targetId] && !incomingMap[targetId].some(item => item.id === sourceNote.id)) {
+          incomingMap[targetId].push({
+            id: sourceNote.id,
+            contextPara: stripHtml(para),
+            paraIndex: pIdx + 1
+          });
+        }
+        // 记录无向边用于图谱绘制
+        const edgeKey = [sourceNote.id, targetId].sort().join("--");
+        if (!edgeList.some(e => e.key === edgeKey)) {
+          edgeList.push({ key: edgeKey, source: sourceNote.id, target: targetId });
+        }
+      }
+    });
+  });
+
+  return { outgoingMap, incomingMap, edgeList };
+}
+
+function stripHtml(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
+}
+
+function getTypeBadgeClass(type) {
+  if (type === "permanent") return "type-permanent";
+  if (type === "literature") return "type-literature";
+  return "type-fleeting";
+}
+
+function getTypeColor(type) {
+  if (type === "permanent") return "#D13B27";
+  if (type === "literature") return "#205285";
+  return "#C87D20";
+}
+
+// 1. 渲染左侧标签栏
+function renderTagStrip() {
+  const tagSet = new Set();
+  ZETTEL_DATA.forEach(n => n.tags.forEach(t => tagSet.add(t)));
+  const strip = document.getElementById("tag-strip");
+  strip.innerHTML = "";
+
+  const allChip = document.createElement("span");
+  allChip.className = `tag-chip ${state.activeTag === null ? "active" : ""}`;
+  allChip.textContent = "ALL_TAGS";
+  allChip.onclick = () => {
+    state.activeTag = null;
+    renderTagStrip();
+    renderCardStream();
+  };
+  strip.appendChild(allChip);
+
+  Array.from(tagSet).forEach(tag => {
+    const chip = document.createElement("span");
+    chip.className = `tag-chip ${state.activeTag === tag ? "active" : ""}`;
+    chip.textContent = tag;
+    chip.onclick = () => {
+      state.activeTag = state.activeTag === tag ? null : tag;
+      renderTagStrip();
+      renderCardStream();
+    };
+    strip.appendChild(chip);
+  });
+}
+
+// 2. 渲染左侧卡片索引流
+function renderCardStream() {
+  const container = document.getElementById("card-stream");
+  const { incomingMap, outgoingMap } = buildLinkGraph();
+
+  const filtered = ZETTEL_DATA.filter(note => {
+    const matchType = state.filterType === "all" || note.type === state.filterType;
+    const matchTag = !state.activeTag || note.tags.includes(state.activeTag);
+    const q = state.searchQuery.trim().toLowerCase();
+    const matchSearch = !q || 
+      note.id.toLowerCase().includes(q) ||
+      note.title.toLowerCase().includes(q) ||
+      note.excerpt.toLowerCase().includes(q) ||
+      note.paragraphs.join(" ").toLowerCase().includes(q);
+    return matchType && matchTag && matchSearch;
+  });
+
+  document.getElementById("index-count").textContent = `${filtered.length} ENTRIES`;
+  container.innerHTML = "";
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="padding: 24px 16px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">[NO MATCHING CARDS IN SLIP-BOX]</div>`;
+    return;
+  }
+
+  filtered.forEach(note => {
+    const card = document.createElement("div");
+    card.className = `zettel-card ${note.id === state.activeNoteId ? "active" : ""}`;
+    const inCount = incomingMap[note.id]?.length || 0;
+    const outCount = outgoingMap[note.id]?.length || 0;
+
+    card.innerHTML = `
+      <div class="card-meta-row">
+        <span class="folgezettel-id">${note.id}</span>
+        <span class="type-badge ${getTypeBadgeClass(note.type)}">${note.typeName}</span>
+      </div>
+      <div class="card-title">${note.title}</div>
+      <div class="card-excerpt">${note.excerpt}</div>
+      <div class="card-footer">
+        <span>${note.tags.slice(0, 2).join(" ")}</span>
+        <span>⇄ ${inCount + outCount} · ✎ ${note.marginalia.length}</span>
+      </div>
+    `;
+
+    card.onclick = () => selectNote(note.id);
+    container.appendChild(card);
+  });
+}
+
+// 3. 渲染中部主阅读区与侧边批注栏
+function renderManuscript() {
+  const note = ZETTEL_DATA.find(n => n.id === state.activeNoteId);
+  if (!note) return;
+
+  // 更新顶部面包屑
+  document.getElementById("crumb-type").textContent = note.type.toUpperCase();
+  document.getElementById("crumb-id").textContent = note.id;
+
+  // 渲染文稿头部与瑞士规格表
+  const headerEl = document.getElementById("manuscript-header");
+  headerEl.innerHTML = `
+    <div>
+      <div class="doc-id-bar">
+        <span class="doc-id-code">${note.id}</span>
+        <span class="type-badge ${getTypeBadgeClass(note.type)}">${note.typeName} / ${note.type.toUpperCase()}</span>
+        <span style="color: var(--ink-muted);">${note.tags.join("  ")}</span>
+      </div>
+      <h1 class="doc-title">${note.title}</h1>
+      <div class="doc-subtitle">${note.subtitle}</div>
+    </div>
+    <div class="archive-spec-table">
+      <div class="spec-row">
+        <div class="spec-key">FOLGE-ID</div>
+        <div class="spec-val">${note.id}</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">ARCHIVED</div>
+        <div class="spec-val">${note.date}</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">SOURCE</div>
+        <div class="spec-val" title="${note.source}">${note.source}</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-key">MARGINALIA</div>
+        <div class="spec-val">${String(note.marginalia.length).padStart(2, '0')} ANNOTATIONS</div>
+      </div>
+    </div>
+  `;
+
+  // 渲染正文段落
+  const proseEl = document.getElementById("prose-column");
+  proseEl.innerHTML = "";
+
+  note.paragraphs.forEach((paraHtml, idx) => {
+    const block = document.createElement("div");
+    block.className = "prose-block";
+    const pNum = String(idx + 1).padStart(2, "0");
+    block.innerHTML = `<span class="para-num">§${pNum}</span>${paraHtml}`;
+    proseEl.appendChild(block);
+  });
+
+  // 处理高亮显示状态
+  if (!state.showHighlights) {
+    proseEl.querySelectorAll(".hl-span").forEach(el => {
+      el.style.backgroundColor = "transparent";
+      el.style.borderBottomColor = "transparent";
+    });
+  }
+
+  // 绑定正文中内联双链点击事件
+  proseEl.querySelectorAll(".wikilink").forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const targetId = link.getAttribute("data-target");
+      if (targetId) selectNote(targetId);
+    });
+  });
+
+  // 绑定正文中行间高亮点击/悬停事件
+  proseEl.querySelectorAll(".hl-span").forEach(span => {
+    const hlId = span.getAttribute("data-hl");
+    span.addEventListener("click", (e) => {
+      e.stopPropagation();
+      activateHighlight(hlId);
+    });
+    span.addEventListener("mouseenter", () => highlightPairHover(hlId, true));
+    span.addEventListener("mouseleave", () => highlightPairHover(hlId, false));
+  });
+
+  // 渲染侧边批注栏 Marginalia
+  renderMarginalia(note);
+}
+
+function renderMarginalia(note) {
+  const listEl = document.getElementById("marginalia-list");
+  document.getElementById("marginalia-count").textContent = String(note.marginalia.length).padStart(2, "0");
+  listEl.innerHTML = "";
+
+  note.marginalia.forEach(mn => {
+    const item = document.createElement("div");
+    item.className = `margin-note ${state.activeHighlightId === mn.id ? "active" : ""}`;
+    item.setAttribute("data-mn-id", mn.id);
+    item.innerHTML = `
+      <div class="mn-meta">
+        <span class="mn-badge">[${mn.id}] ${mn.author}</span>
+        <span>${mn.timestamp}</span>
+      </div>
+      <div class="mn-quote">“${mn.refText}”</div>
+      <div class="mn-text">${mn.comment}</div>
+    `;
+
+    item.addEventListener("click", () => activateHighlight(mn.id));
+    item.addEventListener("mouseenter", () => highlightPairHover(mn.id, true));

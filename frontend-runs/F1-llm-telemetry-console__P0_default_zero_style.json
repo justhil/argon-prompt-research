@@ -1,0 +1,44 @@
+{
+  "runKey": "F1-llm-telemetry-console__P0_default_zero_style",
+  "taskId": "F1-llm-telemetry-console",
+  "taskTitle": "大模型推理网关监控与成本分析台",
+  "styleId": "P0_default_zero_style",
+  "styleLabel": "P0 · 零风格引导 (Argon 默认审美)",
+  "styleCharCount": 0,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 87.81,
+  "reasoningPreview": "",
+  "usage": {
+    "prompt_tokens": 347,
+    "completion_tokens": 10100,
+    "total_tokens": 10447,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "audio_tokens": 0,
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "metrics": {
+    "htmlBytes": 28473,
+    "hasDarkBg": true,
+    "darkHexCount": 8,
+    "neonColorHits": 4,
+    "neonColorSamples": [
+      "#06b6d4",
+      "#8b5cf6"
+    ],
+    "linearGradientCount": 2,
+    "neonGlowShadowCount": 1,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": false,
+    "hasSerifFont": true,
+    "slopScore": 68
+  }
+}

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实验二：前端审美双批次实证 (第一次固定纸面 12 场 + 第二次开放自由演化 22 场) — Argon 实验室</title>
+  <link rel="stylesheet" href="assets/editorial.css" />
+  <style>
+    .swatch-strip {
+      display: flex;
+      gap: 4px;
+      margin-top: 5px;
+    }
+    .swatch-chip {
+      height: 14px;
+      flex: 1;
+      border-radius: 3px;
+      border: 1px solid rgba(20, 20, 19, 0.18);
+    }
+    .dual-iframe-stage {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .iframe-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .iframe-bar {
+      padding: 10px 14px;
+      background: var(--bg-elev);
+      border-bottom: 1px solid var(--line-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+    .iframe-card iframe {
+      width: 100%;
+      height: 550px;
+      border: 0;
+      background: #fff;
+    }
+    .prompt-copy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .prompt-recipe-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: transform 200ms var(--ease-out);
+    }
+    .prompt-recipe-card:hover {
+      transform: translateY(-2px);
+    }
+    @media (max-width: 1060px) {
+      .dual-iframe-stage, .prompt-copy-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="brand-group">
+        <span class="brand-dot"></span>
+        <span class="brand-title">Gemini 4 Argon 实证研究实验室</span>
+        <span class="brand-sub">Sub-Page 02 · 12 Fixed + 22 Open = 34 Web Apps</span>
+      </div>
+      <nav class="nav-pills">
+        <a class="nav-pill" href="index.html"><span class="pill-num">00</span>总览与三大舞台</a>
+        <a class="nav-pill" href="lab-hallucination.html"><span class="pill-num">01</span>编码幻觉子页 (32+72场)</a>
+        <a class="nav-pill active" href="lab-aesthetics.html"><span class="pill-num">02</span>前端审美子页 (12+22场)</a>
+        <a class="nav-pill" href="lab-completeness.html"><span class="pill-num">03</span>防偷懒完成度子页 (33场)</a>
+      </nav>
+    </div>
+    <div class="scroll-progress-track">
+      <div class="scroll-progress-bar" id="global-progress-bar"></div>
+    </div>
+  </header>
+
+  <div class="floating-chapter-pill">
+    <span class="floating-chapter-dot"></span>
+    <span id="floating-chapter-text">实验二：前端审美双批次实证 · 0%</span>
+  </div>
+
+  <main class="page-wrap">
+    <!-- Split Hero -->
+    <section class="split-hero" id="sec-hero">
+      <div class="hero-canvas-box grid-surface feather-mask">
+        <canvas id="aes-canvas"></canvas>
+        <div class="canvas-overlay-badges">
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--clay-ink);"></span>
+            <span>第一次测试 P0 · 100% #090d16 蓝紫青霓虹 (Slop 72.3)</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--cerulean-ink);"></span>
+            <span>第一次测试 P2/P3 · 0 霓虹，但固定为 #FAF9F5 纸面风</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--moss-ink);"></span>
+            <span>第二次测试 O5/O6 · 破除暖米白聚拢 · 100% 独特流派演化</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <div class="eyebrow reveal" style="--delay: 0ms;">Experiment 02 · Batch 1 (12 Fixed Runs) + Batch 2 (22 Open-Ended Runs) = 34 Apps</div>
+        <h1 class="hero-title reveal" style="--delay: 60ms;">前端审美倒退与开放自由引导实证：从第一批固定矿物纸面到第二批破除“暖米白聚拢”</h1>
+        <p class="hero-lead reveal" style="--delay: 120ms;">
+          本页完整收录两次前端审美对照实验：<strong>第一次测试（<code>F1–F3 × P0–P3 = 12 场</code>）</strong>量化测试了多短的提示词能把 Argon 默认的 <code>#090d16</code> 暗黑蓝紫霓虹拉回干净的出版物纸面；<strong>第二次测试（<code>W1–W4 × O1–O6 = 22 场</code>）</strong>则致力于解决“固定色值会把风格锁死”的问题——我们在实测中发现普通开放提示词（<code>O1–O4</code>）有 75% 概率再次聚拢于 <code>#F3F1EC</code> 暖米白，并据此研制出 <code>O5</code>（物理载体映射）与 <code>O6/O7</code>（四象限自哈希分流）两套真正自由多元的高审美提示词。
+        </p>
+
+        <div class="hero-kpis reveal" style="--delay: 180ms;">
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">第一次测试 (12场 · P0→P2)</div>
+            <div class="kpi-mini-val" style="color: var(--cerulean-ink);">72.3 <span style="font-size:12.5px;color:var(--ink-muted)">→ 0.0 Slop</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">O1–O4 暖米白聚拢率</div>
+            <div class="kpi-mini-val" style="color: var(--ochre-ink);">75.0% <span style="font-size:12.5px;color:var(--ink-muted)">(12/16撞色)</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">O5/O6 跨任务独特底色率</div>
+            <div class="kpi-mini-val" style="color: var(--moss-ink);">100% <span style="font-size:12.5px;color:var(--ink-muted)">(8/8不重样)</span></div>
+          </div>
+        </div>
+
+        <div class="hero-actions reveal" style="--delay: 240ms;">
+          <a class="btn-pill primary" href="#sec-live-gallery">体验全部 34 页实时双栏预览画廊 ↓</a>
+          <a class="btn-pill" href="#sec-batch1-table">查看第一次测试 12 场账本 ↓</a>
+          <a class="btn-pill" href="#sec-batch2-table">查看第二次测试 22 场账本 ↓</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         STAGE: 5-Phase Aesthetic Evolution Sticky Scrollytelling
+         ===================================================================== -->
+    <section class="sec-block" id="stage-aes">
+      <div class="scrolly-section" id="aes-scrolly">
+        <div class="scrolly-steps">
+          <article class="step-card active" data-step="0">
+            <div class="step-badge">Phase 01 / 05 · 第一次测试基线 (P0 零引导 · 3 场)</div>
+            <h3>零风格引导 (P0)：监控台、代码图谱与评测报告 100% 生成深蓝黑配紫青霓虹</h3>
+            <p>
+              在第一次测试中，我们对 <code>F1</code>（大模型推理监控台）、<code>F2</code>（代码库架构图谱）与 <code>F3</code>（长上下文评测报告）执行零风格引导生成。提取出的 <code>:root</code> 变量几乎完全一致：背景锁定在 <code>#070b14 ~ #0b0e14</code>，主强调色锁定在 <code>#06b6d4 / #38bdf8</code>（荧光青）与 <code>#8b5cf6 / #a78bfa</code>（电光紫），平均 AI Slop 指数高达 <strong>72.3</strong>。
+            </p>
+            <div class="step-meta">点击右侧第 1 个色块可查看 P0 在 F1/F2/F3 上的真实 CSS 变量与指标。</div>
+          </article>
+
+          <article class="step-card" data-step="1">
+            <div class="step-badge">Phase 02 / 05 · 第一次测试反向禁令 (P1 · 18 字 · 3 场)</div>
+            <h3>只写“不要用暗黑科技AI风，改用浅色背景”，仍会滑向电光紫发光 SaaS 模板</h3>
+            <p>
+              在 <code>P1</code>（18字纯反向禁令）下，模型虽然将主背景改为了浅灰白（<code>#f8fafc</code>），但在 <code>F1</code> 与 <code>F2</code> 中依然习惯性使用了 <code>#7c3aed</code>（电光紫）、<code>#2563eb</code>（高饱和皇家蓝）与发光阴影（<code>glows=1~2</code>），且在 <code>F1</code> 左侧保留了刺眼的深蓝黑侧边栏（Slop=54）。
+            </p>
+            <div class="step-meta">实测证明：只给反向禁令、不给正向审美方向，无法摆脱廉价模板感。</div>
+          </article>
+
+          <article class="step-card" data-step="2">
+            <div class="step-badge">Phase 03 / 05 · 第一次测试矿物纸面锚点 (P2 42字 / P3 68字 · 6 场)</div>
+            <h3>42 字矿物纸面锚点将 Slop 降至 0.0，但把所有页面锁死在同一种 #FAF9F5 纸面风</h3>
+            <p>
+              在 <code>P2</code>（42字）与 <code>P3</code>（68字）中，通过指定暖象牙纸面 <code>#FAF9F5</code> 与陶土红/鼠尾草绿/石青蓝矿物色，<code>F1/F2/F3</code> 共 6 个页面的霓虹色与发光阴影全部归 <strong>0</strong>（Slop=0.0）。但因为色值被写死在提示词里，所有产品都长成了同一种出版物纸面风格。
+            </p>
+            <div class="step-meta">这直接驱动了我们的第二次测试：寻找不写死色值、开放自由随机的高审美提示词。</div>
+          </article>
+
+          <article class="step-card" data-step="3">
+            <div class="step-badge">Phase 04 / 05 · 第二次测试发现 (O1–O4 开放提示词的暖米白聚拢 · 14 场)</div>
+            <h3>为什么不指定色值、让模型“自由构思高级定制色板”时，75% 又撞色于 #F3F1EC？</h3>
+            <p>
+              我们在第二次测试中构建了 4 类题材差异极大的任务（<code>W1</code> 16步进合成器、<code>W2</code> 量化回测终端、<code>W3</code> 双链卡片盒笔记、<code>W4</code> 网关监控台），测试了不带固定色值的开放提示词 <code>O1</code>（28字）、<code>O2</code>（54字）、<code>O3</code>（66字）与 <code>O4</code>（62字）。
+            </p>
+            <p>
+              结果发现：除 <code>W1</code> 合成器演化出 <code>#CCC9C0</code> 博朗铝灰与 <code>#2B2927</code> 复古炭黑外，在其余场次中，<strong>16 场里有 12 场（75.0%）不约而同选了 <code>#F3F1EC / #F4F1EA</code> 暖米白底色</strong>（连 <code>W4</code> 的 <code>r1</code> 与 <code>r2</code> 两次重复也完全一样）！
+            </p>
+            <div class="step-meta">观测事实：当仅禁掉“深黑蓝紫霓虹”并要求“高级色板”时，通用暖米白 (#F3F1EC) 成了模型最容易滑入的安全区。</div>
+          </article>
+
+          <article class="step-card" data-step="4">
+            <div class="step-badge">Phase 05 / 05 · 第二次测试破局 (O5 物理映射 &amp; O6/O7 四象限 · 8 场)</div>
+            <h3>49 字同时排除“深蓝霓虹+通用米白”，8 场生成演化出 8 套互不重样的大师级色板</h3>
+            <p>
+              • <strong><code>O5</code>（49字双封堵 + 物理载体映射）</strong>：显式声明 <code>严禁深蓝黑配紫青霓虹的AI模板，也勿落入千篇一律的通用暖米白(#F3F1EC/#F4F1EA)；请从当前主题的真实物理或行业载体中提炼高辨识度的专属色相</code> → 4 个任务 100% 演化出军规橄榄石墨灰（<code>#2B2D2A</code>）、松烟墨绿（<code>#141917</code>）、古典深石板配黄铜（<code>#31342E</code>）、工业冷银灰（<code>#DCE0E3</code>）；<br>
+              • <strong><code>O6/O7</code>（思维链自哈希四象限轮转）</strong>：按需求首行字数 <code>N mod 4</code> 自动分流至瑞士冷白（<code>#F4F6F9</code>）、徕卡碳黑（<code>#141517</code>）、青瓷雾绿（<code>#E6EFE9</code>）与博朗铝灰（<code>#D4D7DC</code>）。
+            </p>
+            <div class="step-meta">点击右侧任意色块，下方抽屉将带过渡动画展示对应的真实 CSS 变量与指标。</div>
+          </article>
+        </div>
+
+        <!-- Sticky Stage Right -->
+        <div class="sticky-stage grid-surface">
+          <div class="stage-topbar">
+            <div class="stage-title-group">
+              <span class="stage-step-indicator" id="aes-step-badge">PHASE 01 / 05</span>
+              <span class="stage-heading" id="aes-step-title">前端色板分布与坍缩度实时透视</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-muted);">Slop: <strong id="aes-slop-num" style="color:var(--clay-ink);font-size:14px;" data-current-val="72.3">72.3</strong></span>
+              <span class="stage-counter-pill">跨任务色相分化率：<strong id="aes-div-num" data-current-val="0">0</strong>%</span>
+            </div>
+          </div>
+
+          <div class="step-dots-bar" id="aes-dots"></div>
+
+          <div class="prop-bar-wrap">
+            <div class="prop-bar-labels">
+              <span id="aes-bar-l">暗黑蓝紫霓虹占比</span>
+              <span id="aes-bar-r">单一米白安全区占比 vs 多元独立色相占比</span>
+            </div>
+            <div class="prop-bar-track">
+              <div class="prop-seg" id="aes-seg-neon" style="width: 100%; background: var(--clay-dot);"></div>
+              <div class="prop-seg" id="aes-seg-beige" style="width: 0%; background: var(--ochre-dot);"></div>
+              <div class="prop-seg" id="aes-seg-open" style="width: 0%; background: var(--moss-dot);"></div>
+            </div>
+          </div>
+
+          <div class="stage-grid-4x3" id="aes-swatch-grid"></div>
+
+          <div class="stage-drawer" id="aes-drawer">
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--clay-ink);" id="aes-dl-title">真实生成 HTML 的 :root 色板变量</span>
+                <span class="badge cerulean" id="aes-dl-tag">CSS Variables</span>
+              </div>
+              <pre class="drawer-code" id="aes-dl-code"></pre>
+            </div>
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--moss-ink);" id="aes-dr-title">模型内部 Thinking 审美决策与实测指标</span>
+                <span class="badge moss" id="aes-dr-tag">Metrics &amp; Trace</span>
+              </div>
+              <pre class="drawer-code" id="aes-dr-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 2: Batch 1 Full Table (12 Runs) & Batch 2 Full Table (22 Runs)
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-batch1-table">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Batch 1 Quantitative Ledger · 第一次前端测试完整账本 (12 场)</div>
+          <h2 class="sec-title">表 2A · 第一次测试：3 类工程页面 (F1–F3) × 4 级提示词梯度 (P0–P3) 完整结果</h2>
+          <p class="sec-desc">数据直接读取自 <code>frontend_matrix_results.json</code>，展示从 0 字默认态到 68 字出版物编排的各项量化指标。</p>
+        </div>
+        <span class="badge cerulean">frontend_matrix_results.json (12 Apps)</span>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>任务编号与名称</th>
+              <th>提示词梯度与字数</th>
+              <th>主背景特征</th>
+              <th>蓝紫青霓虹命中</th>
+              <th>发光阴影 / 毛玻璃</th>
+              <th>tabular-nums 等宽</th>
+              <th>AI Slop 指数</th>
+            </tr>
+          </thead>
+          <tbody id="fe-batch1-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sec-block reveal" id="sec-batch2-table">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Batch 2 Quantitative Ledger · 第二次开放前端测试完整账本 (22 场)</div>
+          <h2 class="sec-title">表 2B · 第二次测试：4 类跨领域任务 (W1–W4) × 6 组开放式审美提示词 (O1–O6) 完整结果</h2>
+          <p class="sec-desc">数据直接读取自 <code>open-taste-runs/*.json</code>（含 W4 的 <code>rep=1, 2</code> 重复实验），完整呈现从 <code>O1–O4</code> 暖米白聚拢到 <code>O5/O6</code> 100% 独立色相演化的全过程。</p>
+        </div>
+        <span class="badge moss">open-taste-runs/*.json (22 Apps)</span>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>任务与领域</th>
+              <th>开放提示词变体</th>
+              <th>实测生成主背景色与色板前 5 色</th>
+              <th>霓虹色命中</th>
+              <th>AI Slop</th>
+              <th>Thinking 审美构思摘要</th>
+            </tr>
+          </thead>
+          <tbody id="fe-batch2-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 3: 3 Ready-to-Use Open Aesthetic Prompt Recipes
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-open-recipes">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Open-Ended Aesthetic Prompts · 三套即拿即用的开放审美提示词</div>
+          <h2 class="sec-title">不锁死单一风格：按需复制粘在前端需求末尾或 System Prompt 中</h2>
+        </div>
+      </div>
+
+      <div class="prompt-copy-grid">
+        <div class="prompt-recipe-card">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="badge moss">公式一 · O5 物理材质原生映射 (49字)</span>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">最适合特定产品/工具</span>
+            </div>
+            <h3 style="font-family:var(--font-serif);font-size:18px;margin:8px 0 6px;">双封堵 + 行业物理载体自寻址</h3>
+            <pre class="drawer-code" id="recipe-o5" style="height:155px;">视觉要求：严禁深蓝黑配紫青霓虹的AI模板，也勿落入千篇一律的通用暖米白(#F3F1EC/#F4F1EA)；请从当前主题的真实物理或行业载体中提炼高辨识度的专属色相、独特版式骨架与字体张力，做出独立设计工作室级作品。</pre>
+          </div>
+          <button class="btn-pill" onclick="copyText('recipe-o5', this)">复制 O5 开放物理映射口令</button>
+        </div>
+
+        <div class="prompt-recipe-card">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="badge ochre">公式二 · O7 思维链自哈希四象限 (78字)</span>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">最适合全局 System Prompt</span>
+            </div>
+            <h3 style="font-family:var(--font-serif);font-size:18px;margin:8px 0 6px;">利用标题字数 mod 4 触发正交色温轮转</h3>
+            <pre class="drawer-code" id="recipe-o7" style="height:155px;">视觉要求：严禁AI默认的「深蓝黑底+紫青荧光渐变+发光毛玻璃」套路，也勿落入千篇一律的暖米白。请先在思考中统计用户需求首行字数N，按 N mod 4 自动锁定本轮专属美学象限（余0:冷调瑞士建筑白#F4F6F9配钴蓝与朱红; 余1:徕卡哑光碳黑#141517配琥珀信号橙; 余2:青瓷植物雾绿#E6EFE9配深林墨绿; 余3:博朗阳极氧化铝灰#D4D7DC实体仪器风），大胆拉开版式与字体层次。</pre>
+          </div>
+          <button class="btn-pill" onclick="copyText('recipe-o7', this)">复制 O7 自哈希四象限口令</button>
+        </div>
+
+        <div class="prompt-recipe-card">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="badge cerulean">公式三 · P2 固定矿物纸面锚点 (42字)</span>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">适合研究报告/文档站</span>
+            </div>
+            <h3 style="font-family:var(--font-serif);font-size:18px;margin:8px 0 6px;">稳定输出 Anthropic 出版物暖纸质感</h3>
+            <pre class="drawer-code" id="recipe-p2" style="height:155px;">视觉要求：采用暖象牙纸面背景(#FAF9F5)与深炭墨字(#141413)，配陶土红(#B04636)、鼠尾草绿(#2F6142)、石青蓝(#285D7B)矿物色与衬线标题+tabular-nums等宽数字；严禁蓝紫渐变、发光阴影与Emoji图标。</pre>
+          </div>
+          <button class="btn-pill" onclick="copyText('recipe-p2', this)">复制 P2 矿物纸面口令</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: Live Dual-Iframe Gallery (All 34 Generated Pages)
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-live-gallery">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Live Dual-Iframe Sandbox · 全部 34 个真实生成单页应用同屏对比台</div>
+          <h2 class="sec-title">同屏实时交互：左侧可切换任意基线/对照页，右侧可自由浏览全部 34 个生成网页</h2>
+          <p class="sec-desc">下拉菜单完整收录第一次测试（12页 <code>frontend-runs/*.html</code>）与第二次开放测试（22页 <code>open-taste-runs/*.html</code>）。</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;background:var(--bg-card);padding:14px 18px;border-radius:12px;border:1px solid var(--line-strong);">
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <label style="font-family:var(--font-mono);font-size:11.5px;font-weight:600;color:var(--clay-ink);">左侧对照预览窗口 (默认 P0 暗黑霓虹 / 可任意切换):</label>
+          <select id="left-gallery-select" style="padding:7px 10px;border-radius:8px;border:1px solid var(--line-strong);background:var(--bg-white-soft);font-family:var(--font-mono);font-size:12px;"></select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <label style="font-family:var(--font-mono);font-size:11.5px;font-weight:600;color:var(--moss-ink);">右侧实验预览窗口 (共 34 个真实生成网页):</label>
+          <select id="right-gallery-select" style="padding:7px 10px;border-radius:8px;border:1px solid var(--line-strong);background:var(--bg-white-soft);font-family:var(--font-mono);font-size:12px;"></select>
+        </div>
+      </div>
+
+      <div class="dual-iframe-stage">
+        <div class="iframe-card">
+          <div class="iframe-bar">
+            <span style="color:var(--clay-ink);font-weight:600;" id="left-frame-label">左侧预览</span>
+            <a id="left-frame-link" href="frontend-runs/F1-llm-telemetry-console__P0_default_zero_style.html" target="_blank">新窗口全屏打开 ↗</a>
+          </div>
+          <iframe id="left-frame" src="frontend-runs/F1-llm-telemetry-console__P0_default_zero_style.html"></iframe>
+        </div>
+
+        <div class="iframe-card">
+          <div class="iframe-bar">
+            <span style="color:var(--moss-ink);font-weight:600;" id="right-frame-label">右侧预览</span>
+            <a id="right-frame-link" href="open-taste-runs/W1-synth-sequencer__O5_anti_beige_material_49w.html" target="_blank">新窗口全屏打开 ↗</a>
+          </div>
+          <iframe id="right-frame" src="open-taste-runs/W1-synth-sequencer__O5_anti_beige_material_49w.html"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <a href="lab-hallucination.html" style="color:var(--ink-body);">← 上一篇：实验一 · 编码幻觉双批次实证 (104场)</a>
+      <a href="lab-completeness.html" style="color:var(--moss-ink);font-weight:600;">下一篇：实验三 · 防偷懒与模糊许愿完成度 (33场) →</a>
+    </footer>
+  </main>
+
+  <script src="assets/study-data.js"></script>
+  <script src="assets/editorial-common.js"></script>
+  <script>
+    (function () {
+      const UI = window.EditorialUI;
+      const data = window.ARGON_STUDY_DATA || { feFixed12: [], feOpenRuns: [] };
+
+      UI.initGlobalChoreography([
+        { id: 'sec-hero', label: '前端审美双批次总览' },
+        { id: 'stage-aes', label: '5步色板演化交互舞台' },
+        { id: 'sec-batch1-table', label: '第一次测试：12场固定审美账本' },
+        { id: 'sec-batch2-table', label: '第二次测试：22场开放审美账本' },
+        { id: 'sec-live-gallery', label: '34页双栏实时预览画廊' }
+      ]);
+
+      UI.initParticleStreamCanvas('aes-canvas', { count: 980 });
+
+      window.copyText = function (id, btn) {
+        const txt = document.getElementById(id).textContent;
+        navigator.clipboard.writeText(txt);
+        const old = btn.textContent;
+        btn.textContent = '✔ 已复制';
+        setTimeout(() => { btn.textContent = old; }, 1500);
+      };
+
+      // Sticky Stage 12 Swatch Tiles
+      const SWATCH_TILES = [
+        { name: 'Batch1 · F1-F3 (P0)', stat: 'Slop 72.3', state: 'clay', sub: '0字引导：#090d16 蓝紫青霓虹', colors: ['#090d16', '#111827', '#06b6d4', '#8b5cf6'],
+          css: `/* 第一次测试 P0 (零引导) 真实 :root 变量 */\nF1: --bg-base: #090d16; --accent-cyan: #06b6d4; --accent-purple: #8b5cf6;\nF2: --bg-base: #0b0e14; --border-focus: #3b82f6; --cat-rpc: #a78bfa;\nF3: --bg-primary: #070b14; --border-highlight: rgba(56, 189, 248, 0.45);`,
+          meta: `[第一次测试 P0 指标汇总]\n- F1 监控台: 霓虹色 7 处, 发光阴影 1 处, 渐变 4 处, Slop = 68\n- F2 代码图谱: 霓虹色 10 处, 发光阴影 1 处, Slop = 64\n- F3 评测报告: 霓虹色 11 处, 发光阴影 2 处, 渐变 4 处, Slop = 85` },
+        { name: 'Batch1 · F1-F3 (P1)', stat: 'Slop 24.3', state: 'ochre', sub: '18字仅禁暗黑：残留 #7c3aed', colors: ['#f8fafc', '#0f172a', '#2563eb', '#7c3aed'],
+          css: `/* 第一次测试 P1 ("不要用暗黑科技AI风，改用浅色背景") */\nF1: --bg-main: #f8fafc; --bg-sidebar: #0f172a; --brand-purple: #7c3aed;\nF2: --c-rpc: #7c3aed; --c-rpc-bg: #f5f3ff;`,
+          meta: `[第一次测试 P1 指标汇总]\n- F1 监控台: 侧边栏仍为深黑 #0f172a, 霓虹色 5 处, 发光阴影 1 处, Slop = 54\n- F2 代码图谱: 霓虹色 2 处 (#7c3aed), 发光阴影 2 处, Slop = 10` },
+        { name: 'Batch1 · F1-F3 (P2/P3)', stat: 'Slop 0.0', state: 'cerulean', sub: '42/68字固定纸面：#FAF9F5', colors: ['#faf9f5', '#f2efe6', '#b04636', '#2f6142'],
+          css: `/* 第一次测试 P2 (42字) & P3 (68字) */\n--bg-paper: #FAF9F5; --bg-card: #F2EFE6; --ink: #141413;\n--clay: #B04636; --moss: #2F6142; --cerulean: #285D7B;`,
+          meta: `[第一次测试 P2/P3 指标汇总]\n- F1/F2/F3 共 6 场测试中: 霓虹色 = 0, 发光阴影 = 0, 渐变 = 0, Emoji = 0, AI Slop = 0.0。\n- 局限: 所有任务均被固定在 #FAF9F5 纸面色板上。` },
+        { name: 'Batch2 · O1-O4 米白聚拢', stat: '75% 撞色', state: 'ochre', sub: '开放提示词聚拢于 #F3F1EC', colors: ['#f3f1ec', '#eae6df', '#1c1b18', '#b84a27'],
+          css: `/* 第二次测试 O1–O4 在 W2/W3/W4 上的真实主背景色 */\nW2 (O1/O2/O3): #f4f1ea / #F3F1EC / #F4F1EA\nW3 (O1/O2/O3): #f4f1ea / #f6f4f0 / #f4f1ea\nW4 (O1/O2/O3 r1&r2): 连续 6 场全为 #F3F1EC / #F4F1EA!`,
+          meta: `[第二次测试发现：暖米白安全区聚拢]\n当提示词仅禁掉暗黑霓虹并要求“自由构思高级定制色板”时，除 W1 合成器外，其余 12 场全部自动收敛到 #F3F1EC/#F4F1EA 暖米白。` },
+        { name: 'W1 合成器 · O3 硬件风', stat: 'Slop 0.0', state: 'moss', sub: '#CCC9C0 博朗阳极氧化铝灰', colors: ['#ccc9c0', '#e6e4df', '#ff4f00', '#1c1d1f'],
+          css: `/* W1-synth-sequencer__O3_stochastic_movement_66w.html */\n--chassis-bg: #ccc9c0; --module-bg: #e6e4df;\n--accent-orange: #ff4f00; --lcd-bg: #1c1d1f;`,
+          meta: `[W1 · O3 实测]\n生成耗时 87.3s，0 霓虹，演化出博朗 / Teenage Engineering 阳极氧化铝硬件面板配工业信号橙。` },
+        { name: 'W1 合成器 · O5 军规灰', stat: 'Slop 0.0', state: 'moss', sub: 'O5：#2B2D2A 橄榄石墨机壳', colors: ['#2b2d2a', '#c5c7c4', '#1c1e1b', '#d96b27'],
+          css: `/* W1-synth-sequencer__O5_anti_beige_material_49w.html */\n--bg-chassis: #2b2d2a; --panel-alu: #c5c7c4;\n--crt-phosphor: #ffb000; --led-amber: #d96b27;`,
+          meta: `[W1 · O5 开放物理映射]\n49 字同时排除深蓝霓虹与通用暖米白后，提炼出军规级橄榄石墨机壳配拉丝铝模块与琥珀指示灯。` },
+        { name: 'W2 量化台 · O5 松烟墨', stat: 'Slop 0.0', state: 'moss', sub: 'O5：#141917 深林墨绿 + 冷石', colors: ['#e6e3dc', '#141917', '#1f5c3f', '#a63429'],
+          css: `/* W2-quant-risk-terminal__O5_anti_beige_material_49w.html */\n--bg-stone: #e6e3dc; --ink-pine: #141917;\n--forest-long: #1f5c3f; --carmine-short: #a63429;`,
+          meta: `[W2 · O5 开放物理映射]\n提炼出松烟墨绿与亚麻冷石色，彻底跳出通用米白，具备极高的数据密度与金融印刷质感。` },
+        { name: 'W3 笔记室 · O5 石板铜', stat: 'Slop 0.0', state: 'moss', sub: 'O5：#31342E 古典石板 + 黄铜', colors: ['#31342e', '#242622', '#d5c7a9', '#b58938'],
+          css: `/* W3-zettelkasten-reading-room__O5_anti_beige_material_49w.html */\n--bg-slate: #31342e; --bg-well: #242622;\n--vellum-gold: #d5c7a9; --brass-accent: #b58938;`,
+          meta: `[W3 · O5 开放物理映射]\n提炼出古典档案室的深橄榄石板底色配羊皮卷黄铜色标，0 蓝紫霓虹，展现出高級深色系质感。` },
+        { name: 'W4 监控台 · O5 冷银灰', stat: 'Slop 0.0', state: 'moss', sub: 'O5：#DCE0E3 工业控制室银灰', colors: ['#dce0e3', '#eef1f3', '#14171a', '#005a8d'],
+          css: `/* W4-telemetry-gateway-console__O5_anti_beige_material_49w.html */\n--bg-console: #dce0e3; --bg-module: #eef1f3;\n--ink-steel: #14171a; --cobalt-signal: #005a8d;`,
+          meta: `[W4 · O5 开放物理映射]\n提炼出电力/航空主控室的冷调拉丝银灰面板配钢黑刻度与钴蓝信号色。` },
+        { name: 'W1 合成器 · O6 瑞士白', stat: 'Slop 0.0', state: 'moss', sub: 'O6 象限#0：#F4F6F9 + 钴蓝朱红', colors: ['#f4f6f9', '#1d4ed8', '#e11d48', '#0f172a'],
+          css: `/* W1-synth-sequencer__O6_entropy_hash_roulette_72w.html */\n--bg-swiss: #f4f6f9; --cobalt: #1d4ed8;\n--vermilion: #e11d48; --ink-heavy: #0f172a;`,
+          meta: `[W1 · O6 自哈希象限 #0]\n冷调瑞士国际主义网格：建筑冷白配钴蓝与朱红高对比几何色块。` },
+        { name: 'W2 量化台 · O6 徕卡黑', stat: 'Slop 0.0', state: 'moss', sub: 'O6 象限#1：#141517 + 琥珀橙', colors: ['#141517', '#1c1e21', '#e07a2e', '#3b7a57'],
+          css: `/* W2-quant-risk-terminal__O6_entropy_hash_roulette_72w.html */\n--bg-carbon: #141517; --bg-panel: #1c1e21;\n--amber-signal: #e07a2e; --sage-pos: #3b7a57;`,
+          meta: `[W2 · O6 自哈希象限 #1]\n徕卡哑光碳黑配琥珀信号橙与暖灰刻度，0 处蓝紫霓虹，完美诠释高级暗色终端。` },
+        { name: 'W3 笔记室 · O6 青瓷绿', stat: 'Slop 0.0', state: 'moss', sub: 'O6 象限#2：#E6EFE9 + 深林墨绿', colors: ['#e6efe9', '#f2f7f4', '#13261c', '#2d6a4f'],
+          css: `/* W3-zettelkasten-reading-room__O6_entropy_hash_roulette_72w.html */\n--bg-celadon: #e6efe9; --bg-card: #f2f7f4;\n--ink-forest: #13261c; --botanical-green: #2d6a4f;`,
+          meta: `[W3 · O6 自哈希象限 #2]\n青瓷植物雾绿配深林墨色衬线排版，宁静通透且极具辨识度。` }
+      ];
+
+      let curSwatchIdx = 5;
+      const swatchGrid = document.getElementById('aes-swatch-grid');
+      swatchGrid.innerHTML = SWATCH_TILES.map((t, i) => `
+        <div class="slot-tile state-${t.state} ${i === curSwatchIdx ? 'selected' : ''}" data-sw="${i}">
+          <div class="slot-tile-head"><span>${t.name}</span><span>${t.stat}</span></div>
+          <div class="slot-tile-sub">${t.sub}</div>
+          <div class="swatch-strip">${t.colors.map(c => `<span class="swatch-chip" style="background:${c}"></span>`).join('')}</div>
+        </div>
+      `).join('');
+
+      function renderSwatchDetail(idx, animate) {
+        curSwatchIdx = idx;
+        const t = SWATCH_TILES[idx] || SWATCH_TILES[0];
+        swatchGrid.querySelectorAll('.slot-tile').forEach((el, i) => el.classList.toggle('selected', i === idx));
+        if (animate) UI.pulseDrawer('aes-drawer');
+        document.getElementById('aes-dl-title').textContent = `${t.name} · 真实 :root 色板变量`;
+        document.getElementById('aes-dl-code').textContent = t.css;
+        document.getElementById('aes-dr-title').textContent = `${t.name} · 实测指标与审美分析`;
+        document.getElementById('aes-dr-code').textContent = t.meta;
+      }
+
+      swatchGrid.querySelectorAll('.slot-tile').forEach((el, i) => {
+        el.addEventListener('click', () => renderSwatchDetail(i, true));
+      });
+
+      const AES_STEPS = [
+        { badge: 'PHASE 01 / 05', title: '第一次测试基线 (P0 零引导)：100% 暗黑蓝紫霓虹', slop: 72.3, div: 0, wNeon: 100, wBeige: 0, wOpen: 0, focus: [0], tile: 0 },
+        { badge: 'PHASE 02 / 05', title: '第一次测试反向禁令 (P1 18字)：电光紫发光残留', slop: 24.3, div: 15, wNeon: 55, wBeige: 45, wOpen: 0, focus: [1], tile: 1 },
+        { badge: 'PHASE 03 / 05', title: '第一次测试矿物纸面 (P2/P3)：0 Slop 但固定单一纸面', slop: 0.0, div: 25, wNeon: 0, wBeige: 100, wOpen: 0, focus: [2], tile: 2 },
+        { badge: 'PHASE 04 / 05', title: '第二次测试发现：O1–O4 开放提示词 75% 聚拢于暖米白', slop: 0.0, div: 25, wNeon: 0, wBeige: 75, wOpen: 25, focus: [3, 4], tile: 3 },
+        { badge: 'PHASE 05 / 05', title: '第二次测试破局：O5 物理映射与 O6 四象限 100% 独立分化', slop: 0.0, div: 100, wNeon: 0, wBeige: 0, wOpen: 100, focus: [4, 5, 6, 7, 8, 9, 10, 11], tile: 5 }
+      ];
+
+      UI.bindScrollyStage({
+        sectionId: 'aes-scrolly',
+        dotsId: 'aes-dots',
+        drawerId: 'aes-drawer',
+        onStepChange: (idx) => {
+          const s = AES_STEPS[idx] || AES_STEPS[0];
+          document.getElementById('aes-step-badge').textContent = s.badge;
+          document.getElementById('aes-step-title').textContent = s.title;
+          UI.animateNumber(document.getElementById('aes-slop-num'), s.slop, (v) => v.toFixed(1));
+          UI.animateNumber(document.getElementById('aes-div-num'), s.div, (v) => String(Math.round(v)));
+
+          document.getElementById('aes-seg-neon').style.width = s.wNeon + '%';
+          document.getElementById('aes-seg-beige').style.width = s.wBeige + '%';
+          document.getElementById('aes-seg-open').style.width = s.wOpen + '%';
+
+          swatchGrid.querySelectorAll('.slot-tile').forEach((el, i) => {
+            const f = s.focus.includes(i);
+            el.classList.toggle('focused', f);
+            el.classList.toggle('dimmed', !f);
+          });
+
+          renderSwatchDetail(s.tile, false);
+        }
+      });
+
+      // Populate Table 2A (Batch 1: 12 Fixed Runs)
+      const b1Tbody = document.getElementById('fe-batch1-tbody');
+      b1Tbody.innerHTML = (data.feFixed12 || []).map(r => {
+        const m = r.metrics || {};
+        const slopCls = m.slopScore === 0 ? 'moss' : (m.slopScore < 30 ? 'ochre' : 'clay');
+        return `<tr>
+          <td><strong>${r.taskId}</strong><div style="font-size:11.5px;color:var(--ink-muted);">${r.taskTitle}</div></td>
+          <td><strong>${r.styleLabel}</strong></td>
+          <td><span class="badge ${m.hasDarkNeonRoot ? 'clay' : (m.hasWarmPaperRoot ? 'moss' : 'taupe')}">${m.hasDarkNeonRoot ? '深黑底 (#070b14~#0b0e14)' : (m.hasWarmPaperRoot ? '暖象牙纸面 (#FAF9F5)' : '普通浅灰白 (#F8FAFC)')}</span></td>
+          <td style="font-family:var(--font-mono);color:${m.neonColorHits > 0 ? 'var(--clay-ink)' : 'var(--moss-ink)'};font-weight:600;">${m.neonColorHits} 处</td>
+          <td style="font-family:var(--font-mono);">发光:${m.neonGlowShadowCount} · 渐变:${m.gradientCount}</td>
+          <td>${m.hasTabularNums ? '<span class="badge moss">✔ 已启用</span>' : '<span class="badge taupe">未启用</span>'}</td>
+          <td><span class="badge ${slopCls}">Slop: ${m.slopScore}</span></td>
+        </tr>`;
+      }).join('');
+
+      // Populate Table 2B (Batch 2: 22 Open Runs)
+      const b2Tbody = document.getElementById('fe-batch2-tbody');
+      b2Tbody.innerHTML = (data.feOpenRuns || []).map(r => {
+        const m = r.metrics || {};
+        const p = r.palette || {};
+        const hexes = p.allHex || [];
+        const isBeigeCollapse = /^#f[346]f[14]e[ac0]/i.test(p.primaryBg || '');
+        const bgBadgeCls = isBeigeCollapse ? 'ochre' : 'moss';
+        const note = (p.themeNote || p.reasoning || '').replace(/\s+/g, ' ').slice(0, 120);
+        return `<tr>
+          <td><strong>${r.taskId}</strong>${r.rep > 1 ? ` <span class="badge taupe">r${r.rep}</span>` : ''}</td>
+          <td><span style="font-family:var(--font-mono);font-size:11.5px;font-weight:600;">${r.styleId}</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="badge ${bgBadgeCls}">主底色: ${p.primaryBg}</span>
+              <div style="display:inline-flex;gap:3px;">
+                ${hexes.slice(0, 5).map(h => `<span title="${h}" style="width:14px;height:14px;border-radius:3px;background:${h};border:1px solid rgba(0,0,0,0.2);display:inline-block;"></span>`).join('')}
+              </div>
+            </div>
+          </td>
+          <td style="font-family:var(--font-mono);color:var(--moss-ink);font-weight:600;">${m.neonColorHits || 0} 处</td>
+          <td><span class="badge moss">Slop: ${m.slopScore || 0}</span></td>
+          <td style="max-width:340px;font-size:12px;color:var(--ink-body);">${note.replace(/</g, '&lt;')}...</td>
+        </tr>`;
+      }).join('');
+
+      // Populate All 34 Generated Pages into Left & Right Gallery Selects
+      const allPages = [];
+      for (const r of (data.feOpenRuns || [])) {
+        allPages.push({
+          url: `open-taste-runs/${r.runKey}.html`,
+          label: `[二批开放] ${r.taskId} · ${r.styleId}${r.rep > 1 ? ` (r${r.rep})` : ''} — 主底色 ${r.palette?.primaryBg} (Slop ${r.metrics?.slopScore || 0})`
+        });
+      }
+      for (const r of (data.feFixed12 || [])) {
+        allPages.push({
+          url: `frontend-runs/${r.taskId}__${r.styleId}.html`,
+          label: `[一批固定] ${r.taskId} · ${r.styleId} — Slop ${r.metrics?.slopScore}`
+        });
+      }
+
+      const leftSel = document.getElementById('left-gallery-select');
+      const rightSel = document.getElementById('right-gallery-select');
+
+      leftSel.innerHTML = allPages.map((p, i) => `<option value="${i}">${p.label}</option>`).join('');
+      rightSel.innerHTML = allPages.map((p, i) => `<option value="${i}">${p.label}</option>`).join('');
+
+      // Default Left = F1 P0 (index of F1 P0), Default Right = W1 O5
+      const f1p0Idx = allPages.findIndex(p => p.url.includes('F1-llm-telemetry-console__P0'));
+      const w1o5Idx = allPages.findIndex(p => p.url.includes('W1-synth-sequencer__O5'));
+      leftSel.value = String(f1p0Idx >= 0 ? f1p0Idx : 0);
+      rightSel.value = String(w1o5Idx >= 0 ? w1o5Idx : 0);
+
+      function syncGallery() {
+        const lItem = allPages[Number(leftSel.value)] || allPages[0];
+        const rItem = allPages[Number(rightSel.value)] || allPages[0];
+        document.getElementById('left-frame').src = lItem.url;
+        document.getElementById('left-frame-link').href = lItem.url;
+        document.getElementById('left-frame-label').textContent = lItem.label.slice(0, 58);
+
+        document.getElementById('right-frame').src = rItem.url;
+        document.getElementById('right-frame-link').href = rItem.url;
+        document.getElementById('right-frame-label').textContent = rItem.label.slice(0, 58);
+      }
+
+      leftSel.addEventListener('change', syncGallery);
+      rightSel.addEventListener('change', syncGallery);
+      syncGallery();
+    })();
+  </script>
+</body>
+</html>

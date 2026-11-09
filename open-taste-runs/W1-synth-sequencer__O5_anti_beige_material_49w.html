@@ -1,0 +1,1600 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KRAFTER-16 // 16-Step Modular Synthesizer & Drum Sequencer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;1,700&family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Industrial Aluminum & Bakelite Palette (Teenage Engineering / Braun / Buchla inspired) */
+    --chassis-bg: #C5C7C4;
+    --chassis-border: #9FA29E;
+    --module-face: #D6D8D5;
+    --module-shadow: #A8ABA7;
+    --module-highlight: #EBECEB;
+    --well-dark: #181917;
+    --well-inner: #10110F;
+    --ink-black: #1A1B19;
+    --ink-muted: #5A5D58;
+    --ink-sub: #787B76;
+    
+    /* Signal & Hardware Accents */
+    --signal-orange: #FF4F00;
+    --signal-orange-glow: rgba(255, 79, 0, 0.45);
+    --amber-led: #FFB000;
+    --amber-glow: rgba(255, 176, 0, 0.5);
+    --red-led: #E62E25;
+    --green-phosphor: #28E070;
+    --cobalt-cap: #1D56C9;
+    --yellow-cap: #E5A900;
+    --pad-off: #272926;
+    --pad-off-top: #323531;
+    --pad-border: #121311;
+
+    --font-display: 'Chakra Petch', sans-serif;
+    --font-sans: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    min-height: 100vh;
+    background-color: #2B2D2A;
+    background-image: 
+      radial-gradient(#383A36 1px, transparent 1px),
+      linear-gradient(180deg, #252724 0%, #1C1D1B 100%);
+    background-size: 16px 16px, 100% 100%;
+    font-family: var(--font-sans);
+    color: var(--ink-black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: auto;
+  }
+
+  /* Main Eurorack Skiff Case */
+  .synth-case {
+    width: 1240px;
+    min-width: 1120px;
+    background: var(--chassis-bg);
+    border-radius: 8px;
+    padding: 14px;
+    box-shadow: 
+      0 28px 60px rgba(0, 0, 0, 0.65),
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      inset 0 2px 1px var(--module-highlight),
+      inset 0 -3px 4px #8D908C;
+    border: 2px solid #4A4C49;
+    position: relative;
+  }
+
+  /* Brushed Aluminum Texture Overlay */
+  .synth-case::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    border-radius: 6px;
+    z-index: 10;
+  }
+
+  /* Mounting Rails */
+  .rail-bar {
+    height: 12px;
+    background: linear-gradient(180deg, #8B8E8A 0%, #B2B5B1 50%, #7A7D79 100%);
+    border-top: 1px solid #636662;
+    border-bottom: 1px solid #525451;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 2px;
+  }
+
+  .screw {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #E0E2DF, #7C7F7B);
+    border: 1px solid #494B48;
+    position: relative;
+    box-shadow: 0 1px 1px rgba(255,255,255,0.4);
+  }
+  .screw::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 1px;
+    width: 4px;
+    height: 1.2px;
+    background: #3B3D3A;
+    transform: rotate(35deg);
+  }
+
+  /* Header Bar */
+  .header-module {
+    background: var(--module-face);
+    margin: 6px 0;
+    padding: 12px 20px;
+    border: 1px solid var(--chassis-border);
+    box-shadow: inset 0 1px 0 var(--module-highlight);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  .brand-block {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .brand-logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: 0.06em;
+    background: var(--ink-black);
+    color: var(--module-face);
+    padding: 3px 10px 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .brand-logo span {
+    color: var(--signal-orange);
+    font-style: italic;
+  }
+
+  .brand-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .preset-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #C2C5C1;
+    padding: 4px;
+    border-radius: 3px;
+    border: 1px solid #A3A6A2;
+  }
+
+  .preset-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 0 6px;
+    color: var(--ink-muted);
+  }
+
+  .hw-btn-sm {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    background: #E2E4E1;
+    color: var(--ink-black);
+    border: 1px solid #7C7F7B;
+    border-bottom: 2px solid #585A57;
+    padding: 4px 9px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.06s ease;
+    text-transform: uppercase;
+  }
+  .hw-btn-sm:hover {
+    background: #F0F2EF;
+  }
+  .hw-btn-sm:active, .hw-btn-sm.active {
+    transform: translateY(1px);
+    border-bottom-width: 1px;
+    background: var(--signal-orange);
+    color: #FFF;
+    border-color: #9E3100;
+  }
+
+  /* Upper Control Deck */
+  .upper-deck {
+    display: grid;
+    grid-template-columns: 280px 250px 1fr 220px;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .module {
+    background: var(--module-face);
+    border: 1px solid var(--chassis-border);
+    box-shadow: inset 0 1px 0 var(--module-highlight);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid var(--ink-black);
+    padding-bottom: 5px;
+    margin-bottom: 12px;
+  }
+
+  .module-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-black);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .module-title::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--signal-orange);
+  }
+
+  .module-id {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-sub);
+    font-weight: 600;
+  }
+
+  /* 01: Transport & Clock */
+  .led-display-well {
+    background: var(--well-dark);
+    border: 2px solid #8E918D;
+    border-top-color: #555754;
+    border-left-color: #555754;
+    border-radius: 3px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.8);
+    margin-bottom: 12px;
+  }
+
+  .bpm-readout-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .well-sublabel {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: #767A74;
+    letter-spacing: 0.1em;
+  }
+
+  .bpm-digits {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--signal-orange);
+    text-shadow: 0 0 12px var(--signal-orange-glow);
+    line-height: 1;
+    letter-spacing: 0.06em;
+  }
+
+  .step-counter-box {
+    text-align: right;
+  }
+
+  .step-digits {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--amber-led);
+    text-shadow: 0 0 8px var(--amber-glow);
+  }
+
+  .bpm-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .hw-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: var(--well-dark);
+    border: 1px solid #6E706D;
+    border-radius: 2px;
+    outline: none;
+  }
+
+  .hw-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 22px;
+    background: linear-gradient(180deg, #FAFAFA 0%, #C8CAC7 50%, #9A9D99 100%);
+    border: 1.5px solid var(--ink-black);
+    border-radius: 2px;
+    cursor: ew-resize;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+    position: relative;
+  }
+
+  .transport-btns {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 8px;
+  }
+
+  .btn-transport {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 12px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-transform: uppercase;
+    transition: all 0.08s ease;
+    border: 1.5px solid var(--ink-black);
+  }
+
+  .btn-play {
+    background: var(--signal-orange);
+    color: #FFF;
+    box-shadow: 
+      inset 0 1px 0 rgba(255,255,255,0.35),
+      0 3px 0 #8F2C00,
+      0 4px 6px rgba(0,0,0,0.25);
+  }
+
+  .btn-play:active, .btn-play.playing {
+    transform: translateY(2px);
+    box-shadow: 
+      inset 0 2px 5px rgba(0,0,0,0.4),
+      0 1px 0 #8F2C00,
+      0 0 16px var(--signal-orange-glow);
+    background: #FF621A;
+  }
+
+  .btn-stop {
+    background: #B8BBB6;
+    color: var(--ink-black);
+    box-shadow: 
+      inset 0 1px 0 rgba(255,255,255,0.5),
+      0 3px 0 #686A66,
+      0 4px 6px rgba(0,0,0,0.2);
+  }
+
+  .btn-stop:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #686A66;
+  }
+
+  .led-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #471B08;
+    border: 1px solid rgba(0,0,0,0.5);
+  }
+
+  .btn-play.playing .led-dot {
+    background: #FFF7D6;
+    box-shadow: 0 0 8px #FFF, 0 0 14px var(--amber-led);
+  }
+
+  /* 02: Waveform Selector */
+  .wave-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .wave-btn {
+    background: #C8CBC6;
+    border: 1.5px solid #6E716D;
+    border-bottom: 3px solid #4A4C49;
+    border-radius: 3px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    position: relative;
+    transition: all 0.08s ease;
+  }
+
+  .wave-btn:hover {
+    background: #D2D5D0;
+  }
+
+  .wave-btn.active {
+    background: var(--well-dark);
+    border-color: var(--ink-black);
+    border-bottom-width: 1.5px;
+    transform: translateY(1.5px);
+  }
+
+  .wave-btn svg {
+    width: 34px;
+    height: 18px;
+    stroke: var(--ink-black);
+    stroke-width: 2.2;
+    fill: none;
+    stroke-linecap: square;
+  }
+
+  .wave-btn.active svg {
+    stroke: var(--amber-led);
+    filter: drop-shadow(0 0 4px var(--amber-glow));
+  }
+
+  .wave-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ink-black);
+  }
+
+  .wave-btn.active .wave-name {
+    color: #EAECE9;
+  }
+
+  .wave-led {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #7A7D78;
+  }
+
+  .wave-btn.active .wave-led {
+    background: var(--signal-orange);
+    box-shadow: 0 0 6px var(--signal-orange);
+  }
+
+  /* 03: Rotary Knobs (VCF & ENV) */
+  .knobs-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    align-items: center;
+    flex: 1;
+    padding-top: 4px;
+  }
+
+  .knob-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .knob-Housing {
+    width: 68px;
+    height: 68px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: ns-resize;
+  }
+
+  .knob-ticks {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .knob-body {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #3F423E, #181917 75%);
+    border: 2px solid #0E0F0D;
+    box-shadow: 
+      0 5px 10px rgba(0,0,0,0.45),
+      inset 0 1px 1px rgba(255,255,255,0.2);
+    position: relative;
+    transform: rotate(0deg);
+  }
+
+  /* Colored center cap */
+  .knob-body::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border-radius: 50%;
+    background: var(--cap-color, #2E302D);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.35), 0 1px 2px rgba(0,0,0,0.6);
+  }
+
+  /* Indicator line */
+  .knob-wiper {
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 14px;
+    background: #FFFFFF;
+    border-radius: 1px;
+    z-index: 2;
+    box-shadow: 0 0 3px rgba(0,0,0,0.6);
+  }
+
+  .knob-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ink-black);
+    text-transform: uppercase;
+  }
+
+  .knob-val-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--amber-led);
+    background: var(--well-dark);
+    padding: 2px 7px;
+    border-radius: 2px;
+    min-width: 56px;
+    text-align: center;
+    border: 1px solid #6E716D;
+  }
+
+  /* 04: Oscilloscope CRT */
+  .crt-well {
+    background: var(--well-inner);
+    border: 2px solid #7C7F7B;
+    border-top-color: #454744;
+    border-left-color: #454744;
+    border-radius: 4px;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 18px rgba(0,0,0,0.95);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* CRT Graticule Grid */
+  .crt-well::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255, 176, 0, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 176, 0, 0.12) 1px, transparent 1px);
+    background-size: 18px 18px;
+    pointer-events: none;
+  }
+
+  #scopeCanvas {
+    width: 100%;
+    height: 112px;
+    display: block;
+  }
+
+  .crt-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    background: #1B1D1A;
+    border-top: 1px solid #333632;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-sub);
+  }
+
+  /* Sequencer Matrix Deck */
+  .sequencer-module {
+    background: var(--module-face);
+    border: 1px solid var(--chassis-border);
+    box-shadow: inset 0 1px 0 var(--module-highlight);
+    padding: 16px 18px;
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  .seq-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid var(--ink-black);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+
+  .seq-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* Matrix Layout: Left Track Header + 16 Step Columns */
+  .matrix-container {
+    position: relative;
+  }
+
+  .step-ruler {
+    display: grid;
+    grid-template-columns: 185px repeat(16, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  .ruler-corner {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+    padding-left: 6px;
+  }
+
+  .ruler-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 0;
+    background: #C7CAC5;
+    border-radius: 2px;
+    border: 1px solid #B0B3AE;
+  }
+
+  .ruler-cell.beat-anchor {
+    background: #B8BBB6;
+    border-color: #969994;
+  }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-black);
+  }
+
+  .playhead-led {
+    width: 14px;
+    height: 4px;
+    background: #353834;
+    border-radius: 1px;
+    transition: all 0.04s ease;
+  }
+
+  .ruler-cell.current-step {
+    background: var(--ink-black);
+    border-color: var(--ink-black);
+  }
+
+  .ruler-cell.current-step .step-num {
+    color: #FFF;
+  }
+
+  .ruler-cell.current-step .playhead-led {
+    background: var(--signal-orange);
+    box-shadow: 0 0 8px var(--signal-orange), 0 0 14px var(--amber-led);
+  }
+
+  /* Track Rows */
+  .tracks-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+
+  .track-row {
+    display: grid;
+    grid-template-columns: 185px repeat(16, 1fr);
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .track-info-card {
+    background: #C4C7C2;
+    border: 1.5px solid #8E918C;
+    border-left: 5px solid var(--track-color, var(--signal-orange));
+    border-radius: 3px;
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .track-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .track-name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--ink-black);
+    text-transform: uppercase;
+  }
+
+  .track-synth-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ink-muted);
+  }
+
+  .track-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .trig-lamp {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #3E403D;
+    border: 1px solid #1F211E;
+  }
+
+  .trig-lamp.flash {
+    background: var(--amber-led);
+    box-shadow: 0 0 8px var(--amber-led);
+  }
+
+  .mute-btn {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    border: 1px solid #5E615D;
+    background: #D8DBD6;
+    color: var(--ink-black);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mute-btn.muted {
+    background: var(--red-led);
+    color: #FFF;
+    border-color: #7D120D;
+    box-shadow: 0 0 8px rgba(230, 46, 37, 0.5);
+  }
+
+  /* Tactile Step Pad Button */
+  .step-pad {
+    height: 54px;
+    background: var(--pad-off);
+    border: 1.5px solid var(--pad-border);
+    border-top: 2px solid #474B45;
+    border-bottom: 4px solid #0C0D0B;
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.05s ease, background-color 0.08s ease;
+  }
+
+  /* Group of 4 visual differentiation */
+  .step-pad.group-alt {
+    background: #2F322E;
+    border-top-color: #525650;
+  }
+
+  .step-pad:hover {
+    background: #393C37;
+  }
+
+  /* LED Window inside Pad */
+  .pad-led {
+    width: 65%;
+    height: 5px;
+    background: #141513;
+    border-radius: 1px;
+    border: 1px solid rgba(0,0,0,0.6);
+    transition: all 0.06s ease;
+  }
+
+  .pad-note-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: #737771;
+    letter-spacing: 0.02em;
+  }
+
+  /* Active Step State */
+  .step-pad.active {
+    background: #3A2618;
+    border-top-color: var(--signal-orange);
+    border-bottom-width: 2px;
+    transform: translateY(1px);
+  }
+
+  .step-pad.active .pad-led {
+    background: var(--signal-orange);
+    border-color: #FFA375;
+    box-shadow: 
+      0 0 8px var(--signal-orange),
+      0 0 14px var(--signal-orange-glow);
+  }
+
+  .step-pad.active .pad-note-badge {
+    color: var(--amber-led);
+  }
+
+  /* Bass Track Custom LED Color */
+  .track-row[data-track="bass"] .step-pad.active {
+    background: #382D12;
+    border-top-color: var(--amber-led);
+  }
+
+  .track-row[data-track="bass"] .step-pad.active .pad-led {
+    background: var(--amber-led);
+    border-color: #FFF0B3;
+    box-shadow: 
+      0 0 8px var(--amber-led),
+      0 0 14px var(--amber-glow);
+  }
+
+  /* Playhead scanning over step pad */
+  .step-pad.scanning {
+    outline: 2px solid rgba(255, 176, 0, 0.85);
+    outline-offset: -1px;
+    z-index: 2;
+  }
+
+  .step-pad.active.scanning {
+    background: var(--signal-orange);
+    box-shadow: 0 0 18px var(--signal-orange-glow);
+  }
+
+  .step-pad.active.scanning .pad-led {
+    background: #FFFFFF;
+    box-shadow: 0 0 12px #FFFFFF;
+  }
+
+  .step-pad.active.scanning .pad-note-badge {
+    color: #FFFFFF;
+  }
+
+  /* Vertical Optical Scanline Bar */
+  .scanline-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: calc((100% - 191px) / 16 - 5px);
+    left: 191px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 79, 0, 0.18) 0%,
+      rgba(255, 176, 0, 0.08) 50%,
+      rgba(255, 79, 0, 0.18) 100%
+    );
+    border-left: 1.5px solid rgba(255, 95, 20, 0.75);
+    border-right: 1.5px solid rgba(255, 95, 20, 0.75);
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    transition: transform 0.04s linear, opacity 0.15s ease;
+  }
+
+  .scanline-bar.visible {
+    opacity: 1;
+  }
+
+  /* Footer Patch Bay & Specs */
+  .footer-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #B8BBB6;
+    border: 1px solid #969994;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+  }
+
+  .cv-jacks {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .jack-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 9px;
+    color: var(--ink-black);
+  }
+
+  .jack-socket {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #0B0C0B 38%, #8F928E 42%, #D4D7D3 58%, #5F615E 100%);
+    border: 1px solid #3E403D;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+</style>
+</head>
+<body>
+
+<main class="synth-case">
+  <!-- Top Eurorack Rail -->
+  <div class="rail-bar">
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+  </div>
+
+  <!-- Brand & Pattern Bank Header -->
+  <header class="header-module">
+    <div class="brand-block">
+      <div class="brand-logo">KRAFTER<span>-16</span></div>
+      <div class="brand-sub">TACTILE ANALOG PERCUSSION &amp; ACID MATRIX WORKSTATION // REV 2.4</div>
+    </div>
+
+    <div class="header-right">
+      <div class="preset-group">
+        <span class="preset-label">PATTERN BANK:</span>
+        <button class="hw-btn-sm active" data-preset="warehouse">A1: WAREHOUSE</button>
+        <button class="hw-btn-sm" data-preset="electro">A2: KRAFT-ELEKTRO</button>
+        <button class="hw-btn-sm" data-preset="minimal">B1: BERLIN 134</button>
+        <button class="hw-btn-sm" id="btnRandom">RND</button>
+        <button class="hw-btn-sm" id="btnClear">CLR</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Upper Synth Modules -->
+  <section class="upper-deck">
+    <!-- Module 01: Master Clock & Transport -->
+    <div class="module">
+      <div class="module-header">
+        <span class="module-title">01 / MASTER CLOCK</span>
+        <span class="module-id">CLK-GEN</span>
+      </div>
+
+      <div class="led-display-well">
+        <div class="bpm-readout-wrap">
+          <span class="well-sublabel">TEMPO (BPM)</span>
+          <div class="bpm-digits" id="bpmDisplay">128</div>
+        </div>
+        <div class="step-counter-box">
+          <span class="well-sublabel">POS</span>
+          <div class="step-digits" id="stepDisplay">01/16</div>
+        </div>
+      </div>
+
+      <div class="bpm-slider-row">
+        <span style="font-family:var(--font-mono);font-size:9px;font-weight:700;">60</span>
+        <input type="range" id="bpmSlider" class="hw-range" min="60" max="180" value="128">
+        <span style="font-family:var(--font-mono);font-size:9px;font-weight:700;">180</span>
+      </div>
+
+      <div class="transport-btns">
+        <button class="btn-transport btn-play" id="btnPlay">
+          <span class="led-dot"></span>
+          <span id="playText">PLAY / RUN</span>
+        </button>
+        <button class="btn-transport btn-stop" id="btnStop">
+          STOP / RST
+        </button>
+      </div>
+    </div>
+
+    <!-- Module 02: VCO Waveform Generator -->
+    <div class="module">
+      <div class="module-header">
+        <span class="module-title">02 / VCO WAVEFORM</span>
+        <span class="module-id">OSC-303</span>
+      </div>
+
+      <div class="wave-grid" id="waveSelector">
+        <button class="wave-btn" data-wave="sine">
+          <span class="wave-led"></span>
+          <svg viewBox="0 0 36 20">
+            <path d="M 2 10 Q 10 -4, 18 10 T 34 10" />
+          </svg>
+          <span class="wave-name">SINE</span>
+        </button>
+
+        <button class="wave-btn active" data-wave="sawtooth">
+          <span class="wave-led"></span>
+          <svg viewBox="0 0 36 20">
+            <path d="M 2 16 L 18 4 L 18 16 L 34 4 L 34 16" />
+          </svg>
+          <span class="wave-name">SAWTOOTH</span>
+        </button>
+
+        <button class="wave-btn" data-wave="square">
+          <span class="wave-led"></span>
+          <svg viewBox="0 0 36 20">
+            <path d="M 2 15 L 2 5 L 18 5 L 18 15 L 34 15 L 34 5" />
+          </svg>
+          <span class="wave-name">SQUARE</span>
+        </button>
+
+        <button class="wave-btn" data-wave="noise">
+          <span class="wave-led"></span>
+          <svg viewBox="0 0 36 20">
+            <path d="M 2 10 L 6 3 L 10 16 L 14 6 L 18 15 L 22 4 L 26 17 L 30 7 L 34 12" />
+          </svg>
+          <span class="wave-name">NOISE</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Module 03: VCF Filter & Envelope Contour -->
+    <div class="module">
+      <div class="module-header">
+        <span class="module-title">03 / RESONANT VCF &amp; ENVELOPE CONTOUR</span>
+        <span class="module-id">24dB LADDER</span>
+      </div>
+
+      <div class="knobs-row">
+        <!-- Cutoff Knob -->
+        <div class="knob-unit">
+          <div class="knob-Housing" data-param="cutoff" data-min="80" data-max="5200" data-val="1150" data-unit="Hz">
+            <svg class="knob-ticks" viewBox="0 0 68 68">
+              <circle cx="34" cy="34" r="29" fill="none" stroke="#8C8F8A" stroke-width="2" stroke-dasharray="2 5.6" />
+            </svg>
+            <div class="knob-body" style="--cap-color: var(--signal-orange);">
+              <div class="knob-wiper"></div>
+            </div>
+          </div>
+          <span class="knob-label">CUTOFF</span>
+          <span class="knob-val-pill" id="val-cutoff">1150 Hz</span>
+        </div>
+
+        <!-- Resonance Knob -->
+        <div class="knob-unit">
+          <div class="knob-Housing" data-param="resonance" data-min="0.5" data-max="18" data-val="7.5" data-step="0.1" data-unit="Q">
+            <svg class="knob-ticks" viewBox="0 0 68 68">
+              <circle cx="34" cy="34" r="29" fill="none" stroke="#8C8F8A" stroke-width="2" stroke-dasharray="2 5.6" />
+            </svg>
+            <div class="knob-body" style="--cap-color: var(--yellow-cap);">
+              <div class="knob-wiper"></div>
+            </div>
+          </div>
+          <span class="knob-label">RESONANCE</span>
+          <span class="knob-val-pill" id="val-resonance">7.5 Q</span>
+        </div>
+
+        <!-- Attack Knob -->
+        <div class="knob-unit">
+          <div class="knob-Housing" data-param="attack" data-min="2" data-max="220" data-val="8" data-unit="ms">
+            <svg class="knob-ticks" viewBox="0 0 68 68">
+              <circle cx="34" cy="34" r="29" fill="none" stroke="#8C8F8A" stroke-width="2" stroke-dasharray="2 5.6" />
+            </svg>
+            <div class="knob-body" style="--cap-color: var(--cobalt-cap);">
+              <div class="knob-wiper"></div>
+            </div>
+          </div>
+          <span class="knob-label">ATTACK</span>
+          <span class="knob-val-pill" id="val-attack">8 ms</span>
+        </div>
+
+        <!-- Decay Knob -->
+        <div class="knob-unit">
+          <div class="knob-Housing" data-param="decay" data-min="50" data-max="750" data-val="260" data-unit="ms">
+            <svg class="knob-ticks" viewBox="0 0 68 68">
+              <circle cx="34" cy="34" r="29" fill="none" stroke="#8C8F8A" stroke-width="2" stroke-dasharray="2 5.6" />
+            </svg>
+            <div class="knob-body" style="--cap-color: #4E524D;">
+              <div class="knob-wiper"></div>
+            </div>
+          </div>
+          <span class="knob-label">DECAY</span>
+          <span class="knob-val-pill" id="val-decay">260 ms</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module 04: Amber CRT Signal Monitor -->
+    <div class="module">
+      <div class="module-header">
+        <span class="module-title">04 / CRT MONITOR</span>
+        <span class="module-id">OUT-BUS</span>
+      </div>
+
+      <div class="crt-well">
+        <canvas id="scopeCanvas" width="200" height="112"></canvas>
+        <div class="crt-footer">
+          <span>DRAG KNOBS UP/DN</span>
+          <span id="audioStatus" style="color:var(--amber-led);">READY</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16-Step Matrix Sequencer Module -->
+  <section class="sequencer-module">
+    <div class="seq-top-bar">
+      <span class="module-title">05 / 4-CHANNEL × 16-STEP TRIGGER &amp; ACID MATRIX</span>
+      <div class="seq-legend">
+        <div class="legend-item">
+          <span class="legend-swatch" style="background:var(--signal-orange);"></span>
+          <span>STEP ACTIVE (L-CLICK)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch" style="background:var(--amber-led);"></span>
+          <span>RIGHT-CLICK BASS PAD: CYCLE NOTE</span>
+        </div>
+        <div class="legend-item">
+          <span>SPACEBAR: PLAY/STOP</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="matrix-container">
+      <!-- 16-Step Ruler Header -->
+      <div class="step-ruler" id="stepRuler">
+        <div class="ruler-corner">TRACK // STEP</div>
+        <!-- 16 step ruler headers injected via JS -->
+      </div>
+
+      <!-- 4 Track Rows -->
+      <div class="tracks-stack" id="tracksContainer">
+        <div class="scanline-bar" id="scanlineBar"></div>
+        <!-- Track rows injected via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Hardware Patch Bay Footer -->
+  <footer class="footer-bar">
+    <div>DESIGNED FOR PURE WEB AUDIO SYNTHESIS // ZERO EXTERNAL SAMPLES</div>
+    <div class="cv-jacks">
+      <div class="jack-item"><span class="jack-socket"></span>CLOCK OUT</div>
+      <div class="jack-item"><span class="jack-socket"></span>CV PITCH</div>
+      <div class="jack-item"><span class="jack-socket"></span>GATE TRIG</div>
+      <div class="jack-item"><span class="jack-socket"></span>MAIN L/R</div>
+    </div>
+  </footer>
+
+  <!-- Bottom Eurorack Rail -->
+  <div class="rail-bar" style="margin-top:6px;">
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+    <div class="screw"></div>
+  </div>
+</main>
+
+<script>
+(() => {
+  /* ==========================================================================
+     STATE & PRESET DEFINITIONS
+     ========================================================================== */
+  const TRACK_DEFS = [
+    { id: 'kick',  name: 'KICK 909',  tag: 'ANALOG BD',  color: '#FF4F00' },
+    { id: 'snare', name: 'SNARE',     tag: 'NOISE + SNAP', color: '#E5A900' },
+    { id: 'hihat', name: 'HI-HAT',    tag: 'METAL 6-OSC', color: '#28A86B' },
+    { id: 'bass',  name: 'ACID BASS', tag: 'VCO + 24dB VCF', color: '#FFB000' }
+  ];
+
+  // Acid Bass selectable notes (Hz + Label)
+  const BASS_NOTES = [
+    { name: 'C2',  freq: 65.41 },
+    { name: 'D#2', freq: 77.78 },
+    { name: 'F2',  freq: 87.31 },
+    { name: 'G2',  freq: 98.00 },
+    { name: 'A#2', freq: 116.54 },
+    { name: 'C3',  freq: 130.81 }
+  ];
+
+  const PRESETS = {
+    warehouse: {
+      bpm: 128,
+      wave: 'sawtooth',
+      cutoff: 1150,
+      resonance: 7.5,
+      attack: 8,
+      decay: 260,
+      steps: {
+        kick:  [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,1,0],
+        snare: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0],
+        hihat: [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,1],
+        bass:  [1,0,1,1, 0,1,0,1, 1,0,1,0, 0,1,1,0]
+      },
+      bassNotes: [0,0,5,1, 0,2,0,3, 0,0,4,0, 0,5,3,0]
+    },
+    electro: {
+      bpm: 132,
+      wave: 'square',
+      cutoff: 1650,
+      resonance: 9.2,
+      attack: 5,
+      decay: 190,
+      steps: {
+        kick:  [1,0,0,1, 0,0,1,0, 0,0,1,0, 0,1,0,0],
+        snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,1],
+        hihat: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
+        bass:  [1,1,0,1, 0,1,1,0, 1,0,1,1, 0,1,0,1]
+      },
+      bassNotes: [0,5,0,2, 0,1,3,0, 0,0,4,5, 0,3,0,1]
+    },
+    minimal: {
+      bpm: 134,
+      wave: 'sawtooth',
+      cutoff: 780,
+      resonance: 11.5,
+      attack: 12,
+      decay: 320,
+      steps: {
+        kick:  [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+        snare: [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],
+        hihat: [0,0,1,1, 0,0,1,0, 0,0,1,1, 0,1,1,0],
+        bass:  [0,1,1,0, 0,1,0,1, 0,1,1,0, 1,0,1,1]
+      },
+      bassNotes: [0,0,0,0, 0,1,0,5, 0,0,0,0, 3,0,4,5]
+    }
+  };
+
+  const state = {
+    isPlaying: false,
+    currentStep: 0,
+    bpm: 128,
+    waveform: 'sawtooth',
+    cutoff: 1150,
+    resonance: 7.5,
+    attack: 8,    // ms
+    decay: 260,   // ms
+    muted: { kick: false, snare: false, hihat: false, bass: false },
+    steps: JSON.parse(JSON.stringify(PRESETS.warehouse.steps)),
+    bassNotes: [...PRESETS.warehouse.bassNotes]
+  };
+
+  /* ==========================================================================
+     WEB AUDIO API SYNTHESIZER ENGINE
+     ========================================================================== */
+  let audioCtx = null;
+  let masterGain = null;
+  let analyser = null;
+  let noiseBuffer = null;
+
+  function initAudioEngine() {
+    if (audioCtx) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return;
+    }
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+
+    // Master Compressor + Gain + Analyser
+    const compressor = audioCtx.createDynamicsCompressor();
+    compressor.threshold.setValueAtTime(-12, audioCtx.currentTime);
+    compressor.knee.setValueAtTime(10, audioCtx.currentTime);
+    compressor.ratio.setValueAtTime(6, audioCtx.currentTime);
+    compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
+    compressor.release.setValueAtTime(0.15, audioCtx.currentTime);
+
+    masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.85, audioCtx.currentTime);
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+
+    masterGain.connect(compressor);
+    compressor.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    // Pre-generate 2 seconds of white noise buffer
+    const bufferSize = audioCtx.sampleRate * 2;
+    noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+
+    document.getElementById('audioStatus').textContent = 'ONLINE 48kHz';
+  }
+
+  // 1. KICK DRUM (909-style Pitch Envelope + Sub Punch + Click)
+  function triggerKick(time) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(155, time);
+    osc.frequency.exponentialRampToValueAtTime(48, time + 0.065);
+    osc.frequency.exponentialRampToValueAtTime(32, time + 0.36);
+
+    gain.gain.setValueAtTime(1.1, time);
+    gain.gain.exponentialRampToValueAtTime(0.75, time + 0.07);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.38);
+
+    // Transient click
+    const clickOsc = audioCtx.createOscillator();
+    const clickGain = audioCtx.createGain();
+    clickOsc.type = 'triangle';
+    clickOsc.frequency.setValueAtTime(720, time);
+    clickOsc.frequency.exponentialRampToValueAtTime(80, time + 0.02);
+
+    clickGain.gain.setValueAtTime(0.45, time);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.022);
+
+    osc.connect(gain);
+    gain.connect(masterGain);
+
+    clickOsc.connect(clickGain);
+    clickGain.connect(masterGain);
+
+    osc.start(time);
+    osc.stop(time + 0.4);
+    clickOsc.start(time);
+    clickOsc.stop(time + 0.025);
+  }
+
+  // 2. SNARE DRUM (Body Tonal + Filtered White Noise Snap)
+  function triggerSnare(time) {
+    // Tonal body
+    const bodyOsc = audioCtx.createOscillator();
+    const bodyGain = audioCtx.createGain();
+    bodyOsc.type = 'triangle';
+    bodyOsc.frequency.setValueAtTime(210, time);
+    bodyOsc.frequency.exponentialRampToValueAtTime(110, time + 0.11);
+
+    bodyGain.gain.setValueAtTime(0.65, time);
+    bodyGain.gain.exponentialRampToValueAtTime(0.001, time + 0.14);
+
+    bodyOsc.connect(bodyGain);
+    bodyGain.connect(masterGain);
+    bodyOsc.start(time);
+    bodyOsc.stop(time + 0.15);
+
+    // Snare wires noise routed through user's VCF cutoff influence
+    const noiseSrc = audioCtx.createBufferSource();
+    noiseSrc.buffer = noiseBuffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(Math.max(450, state.cutoff * 0.65), time);
+
+    const noiseGain = audioCtx.createGain();
+    const snareDecay = Math.min(0.32, Math.max(0.12, state.decay / 1200));
+    noiseGain.gain.setValueAtTime(0.65, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, time + snareDecay);
+
+    noiseSrc.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+
+    noiseSrc.start(time);
+    noiseSrc.stop(time + snareDecay + 0.02);
+  }
+
+  // 3. HI-HAT (Crisp High-Pass Metallic Noise + Ring)
+  function triggerHiHat(time) {
+    const noiseSrc = audioCtx.createBufferSource();
+    noiseSrc.buffer = noiseBuffer;
+
+    const bandpass = audioCtx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.setValueAtTime(8800, time);
+    bandpass.Q.setValueAtTime(1.8, time);
+
+    const highpass = audioCtx.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.setValueAtTime(6500, time);
+
+    const hatGain = audioCtx.createGain();
+    const hatDecay = 0.045 + (state.decay / 6000);
+    hatGain.gain.setValueAtTime(0.42, time);
+    hatGain.gain.exponentialRampToValueAtTime(0.001, time + hatDecay);
+
+    noiseSrc.connect(bandpass);
+    bandpass.connect(highpass);
+    highpass.connect(hatGain);
+    hatGain.connect(masterGain);
+
+    noiseSrc.start(time);
+    noiseSrc.stop(time + hatDecay + 0.01);
+  }
+
+  // 4. ACID BASS SYNTHESIZER (Controlled by Waveform + Cutoff + Resonance + Attack + Decay)
+  function triggerAcidBass(time, stepIndex) {
+    const noteObj = BASS_NOTES[state.bassNotes[stepIndex] % BASS_NOTES.length];
+    const baseFreq = noteObj.freq;
+
+    const attackSec = Math.max(0.002, state.attack / 1000);
+    const decaySec = Math.max(0.05, state.decay / 1000);
+    const totalDur = attackSec + decaySec;
+
+    // Filter (24dB style cascaded or high-Q lowpass)
+    const vcf = audioCtx.createBiquadFilter();
+    vcf.type = 'lowpass';
+    vcf.Q.setValueAtTime(state.resonance, time);
+
+    // Classic 303 Filter Envelope sweep
+    const minCutoff = Math.max(60, state.cutoff * 0.28);
+    const peakCutoff = Math.min(10000, state.cutoff * 2.4);
+    vcf.frequency.setValueAtTime(minCutoff, time);
+    vcf.frequency.exponentialRampToValueAtTime(peakCutoff, time + attackSec);
+    vcf.frequency.exponentialRampToValueAtTime(minCutoff, time + totalDur);
+
+    // VCA Amplitude Envelope
+    const vca = audioCtx.createGain();
+    vca.gain.setValueAtTime(0.0001, time);
+    vca.gain.linearRampToValueAtTime(0.68, time + attackSec);
+    vca.gain.exponentialRampToValueAtTime(0.0001, time + totalDur);
+
+    if (state.waveform === 'noise') {
+      // Tuned Resonant Noise Synth
+      const noiseSrc = audioCtx.createBufferSource();
+      noiseSrc.buffer = noiseBuffer;
+      
+      // Sub-oscillator underneath noise so bass line retains pitch foundation
+      const subOsc = audioCtx.createOscillator();
+      const subGain = audioCtx.createGain();
+      subOsc.type = 'triangle';
+      subOsc.frequency.setValueAtTime(baseFreq, time);
+      subGain.gain.setValueAtTime(0.55, time);
+
+      noiseSrc.connect(vcf);
+      subOsc.connect(subGain);
+      subGain.connect(vcf);
+
+      vcf.connect(vca);
+      vca.connect(masterGain);
+
+      noiseSrc.start(time);
+      noiseSrc.stop(time + totalDur + 0.02);
+      subOsc.start(time);
+      subOsc.stop(time + totalDur + 0.02);
+    } else {
+      const vco = audioCtx.createOscillator();
+      vco.type = state.waveform;
+      // Slight pitch glide feel
+      vco.frequency.setValueAtTime(baseFreq * 1.01, time);
+      vco.frequency.exponentialRampToValueAtTime(baseFreq, time + 0.025);
+
+      vco.connect(vcf);
+      vcf.connect(vca);
+      vca.connect(masterGain);
+
+      vco.start(time);
+      vco.stop(time + totalDur + 0.02);
+    }
+  }
+
+  /* ==========================================================================
+     UI CONSTRUCTION: 16-STEP MATRIX
+     ========================================================================== */
+  const stepRuler = document.getElementById('stepRuler');
+  const tracksContainer = document.getElementById('tracksContainer');
+  const scanlineBar = document.getElementById('scanlineBar');
+
+  function buildMatrixUI() {
+    // 1. Build 16 Ruler Cells
+    for (let s = 0; s < 16; s++) {
+      const cell = document.createElement('div');
+      cell.className = 'ruler-cell' + (s % 4 === 0 ? ' beat-anchor' : '');
+      cell.dataset.step = s;
+      cell.innerHTML = `
+        <span class="step-num">${String(s + 1).padStart(2, '0')}</span>
+        <div class="playhead-led"></div>
+      `;
+      stepRuler.appendChild(cell);
+    }
+
+    // 2. Build 4 Track Rows
+    TRACK_DEFS.forEach((track) => {
+      const row = document.createElement('div');
+      row.className = 'track-row';
+      row.dataset.track = track.id;
+
+      // Left Track Header Card
+      const infoCard = document.createElement('div');
+      infoCard.className = 'track-info-card';
+      infoCard.style.setProperty('--track-color', track.color);
+      infoCard.innerHTML = `
+        <div class="track-meta">
+          <span class="track-name">${track.name}</span>
+          <span class="track-synth-tag">${track.tag}</span>
+        </div>
+        <div class="track-controls">
+          <div class="trig-lamp" id="lamp-${track.id}"></div>
+          <button class="mute-btn" data-mute="${track.id}" title="Mute Track">M</button>
+        </div>
+      `;
+      row.appendChild(infoCard);
+
+      // 16 Step Pads
+      for (let s = 0; s < 16; s++) {
+        const pad = document.createElement('button');
+        const isGroupAlt = Math.floor(s / 4) % 2 === 1;
+        pad.className = 'step-pad'

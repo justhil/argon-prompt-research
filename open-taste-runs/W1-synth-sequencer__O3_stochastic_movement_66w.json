@@ -1,0 +1,40 @@
+{
+  "runKey": "W1-synth-sequencer__O3_stochastic_movement_66w",
+  "taskId": "W1-synth-sequencer",
+  "taskTitle": "模块化步进音序器与合成器控制面板 (Tactile Audio Synth & Sequencer)",
+  "styleId": "O3_stochastic_movement_66w",
+  "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 114.93,
+  "metrics": {
+    "htmlBytes": 39867,
+    "hasDarkBg": false,
+    "darkHexCount": 3,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  },
+  "palette": {
+    "primaryBg": "#CCC9C0",
+    "allHex": [
+      "#e6e4df",
+      "#f2f0ec",
+      "#d8d5ce",
+      "#141615",
+      "#e8eae6",
+      "#484e4b",
+      "#1a1918",
+      "#6e6b65"
+    ],
+    "rootCss": "--chassis: #E6E4DF; --panel: #F2F0EC; --panel-dark: #D8D5CE; --lcd-bg: #141615; --lcd-fg: #E8EAE6; --lcd-dim: #484E4B; --ink: #1A1918; --ink-muted: #6E6B65; --border-hard: #1A1918; --border-soft: #C7C4BC; --accent-orange: #FF4F00; --accent-yellow: #E5A900; --accent-blue: #005A9C; --accent-green: #1E7E48; --font-sans: 'Helvetica Neue', -ap",
+    "themeNote": ""
+  }
+}

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实验三：攻克 Argon 偷懒早停与提升模糊许愿完成度 (三批次 33 场实证) — Argon 实验室</title>
+  <link rel="stylesheet" href="assets/editorial.css" />
+  <style>
+    .probe-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .probe-item {
+      background: var(--bg-card);
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      padding: 8px 11px;
+      font-family: var(--font-mono);
+      font-size: 11.2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+    .code-diff-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .code-pane {
+      background: var(--bg-card);
+      border: 1px solid var(--line-soft);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+    .code-pane pre {
+      background: var(--bg-white-soft);
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 11.3px;
+      line-height: 1.55;
+      height: 410px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    @media (max-width: 1060px) {
+      .probe-list, .code-diff-split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="brand-group">
+        <span class="brand-dot"></span>
+        <span class="brand-title">Gemini 4 Argon 实证研究实验室</span>
+        <span class="brand-sub">Sub-Page 03 · 33 Anti-Laziness Sessions</span>
+      </div>
+      <nav class="nav-pills">
+        <a class="nav-pill" href="index.html"><span class="pill-num">00</span>总览与三大舞台</a>
+        <a class="nav-pill" href="lab-hallucination.html"><span class="pill-num">01</span>编码幻觉子页 (32+72场)</a>
+        <a class="nav-pill" href="lab-aesthetics.html"><span class="pill-num">02</span>前端审美子页 (12+22场)</a>
+        <a class="nav-pill active" href="lab-completeness.html"><span class="pill-num">03</span>防偷懒完成度子页 (33场)</a>
+      </nav>
+    </div>
+    <div class="scroll-progress-track">
+      <div class="scroll-progress-bar" id="global-progress-bar"></div>
+    </div>
+  </header>
+
+  <div class="floating-chapter-pill">
+    <span class="floating-chapter-dot"></span>
+    <span id="floating-chapter-text">实验三：防偷懒与模糊许愿完成度 · 0%</span>
+  </div>
+
+  <main class="page-wrap">
+    <!-- Split Hero -->
+    <section class="split-hero" id="sec-hero">
+      <div class="hero-canvas-box grid-surface feather-mask">
+        <canvas id="lazy-canvas"></canvas>
+        <div class="canvas-overlay-badges">
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--clay-ink);"></span>
+            <span>仅最小改动 (Surgical Only) · 0/8 满分 (32/48 · 均 83 行)</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--ochre-ink);"></span>
+            <span>默认原版 (Control Stock) · 4/8 满分 (38/48 · 均 176 行)</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--moss-ink);"></span>
+            <span>自适应分流 (Holistic Wish) · 8/8 满分 (48/48 · 均 401 行)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <div class="eyebrow reveal" style="--delay: 0ms;">Experiment 03 · 3 Experimental Batches · 33 Total Sessions</div>
+        <h1 class="hero-title reveal" style="--delay: 60ms;">为什么 Argon 相比 Opus 倾向提前收尾？三批次实验解剖“模糊许愿”下的高完成度提示词</h1>
+        <p class="hero-lead reveal" style="--delay: 120ms;">
+          当用户只给出一句 10~15 字的模糊工程意图（如“帮我给下单接口加个防重复提交和限流”“把数据库迁移器完善一下”）时，默认状态下的 Argon 往往只写最表层的几行代码便匆忙交差。我们通过<strong>三批递进实验（批次一 `L1–L4` 从零构建、批次二 `M1–M3` 简陋模块升级、批次三 `V1–V4` 纯动态运行时压力探针 `k=2` 共 24 场）</strong>，不仅证实了<strong>单向强调“最小改动原则”会严重误伤模糊许愿任务（0/8 满分）</strong>，更确立了实现 <strong>48/48 (100%) 探针全通</strong> 的自适应意图分流契约。
+        </p>
+
+        <div class="hero-kpis reveal" style="--delay: 180ms;">
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">Surgical 组满分率 (8场)</div>
+            <div class="kpi-mini-val" style="color: var(--clay-ink);">0 / 8 <span style="font-size:12.5px;color:var(--ink-muted)">(66.7%)</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">Holistic 组探针通过率</div>
+            <div class="kpi-mini-val" style="color: var(--moss-ink);">48 / 48 <span style="font-size:12.5px;color:var(--ink-muted)">(100%)</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">平均交付代码深度</div>
+            <div class="kpi-mini-val" style="color: var(--cerulean-ink);">401 行 <span style="font-size:12.5px;color:var(--ink-muted)">vs 83行</span></div>
+          </div>
+        </div>
+
+        <div class="hero-actions reveal" style="--delay: 240ms;">
+          <a class="btn-pill primary" href="#sec-code-inspector">对比 4 大领域真实生成源码与探针 ↓</a>
+          <a class="btn-pill" href="#sec-lazy-tables">查看三批次完整测试数据账本 ↓</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         STAGE: 4-Step Sticky Scrollytelling Stage
+         ===================================================================== -->
+    <section class="sec-block" id="stage-lazy">
+      <div class="scrolly-section" id="lazy-scrolly">
+        <div class="scrolly-steps">
+          <article class="step-card active" data-step="0">
+            <div class="step-badge">Insight 01 / 04 · 批次一 (L1–L4) 与批次二 (M1–M3) 的关键发现</div>
+            <h3>踩坑实录：为什么写“写代码前先展开成完整规格书”会导致模型在 Turn 1 不调工具直接停机？</h3>
+            <p>
+              在第一批（<code>L1–L4</code>：日志分析 CLI、持久化任务队列、RBAC 审计网关、SQLite 时光机存储）与第二批（<code>M1–M3</code>）实验中，我们发现在题目里把子功能点列得越细，对照组也能照单抓药拿到 9/10 分；但一旦改成 15 字的模糊许愿，并在提示词里写 <code>Before writing code, proactively expand the user's brief wish into a complete engineering specification</code>，Argon 就会在 Turn 1 输出一篇长篇 Markdown 设计方案，然后 <strong><code>tool_calls=[]</code> 直接停止运行等待用户批准</strong>！
+            </p>
+            <div class="step-meta">修正准则：必须显式规定 `In your internal thinking (never stop to ask permission in chat)` 静默推演隐含工程契约，并立即发出写文件与测试工具调用。</div>
+          </article>
+
+          <article class="step-card" data-step="1">
+            <div class="step-badge">Insight 02 / 04 · “最小改动原则 (Surgical Scope)”的回旋镖</div>
+            <h3>在全局提示词里单向写死“Smallest Change”，会让模型在模糊许愿上直接罢工</h3>
+            <p>
+              在第三批正式实验（<code>V1–V4 × 3变体 × k=2 = 24场</code>）中，仅含 <code>Surgical Scope: Make the smallest correct change. Touch the fewest lines necessary and do only what is explicitly requested</code> 的提示词组（<code>tier4_surgical_only</code>）在 <code>V1</code>（“帮我给下单接口加个防重复提交和限流”）的 <code>r1</code> 与 <code>r2</code> 两次独立运行中，读完文件后因束缚于“只做显式要求的事、改动越少越好”，<strong>连续两次 1 行代码都不改直接结束对话（得分 1/6，保留原样 13 行）</strong>！
+            </p>
+            <div class="step-meta">在全部 8 场测试中，tier4_surgical_only 0 次拿到满分 (0/8)，探针通过率仅 66.7% (32/48)，平均代码量仅 83 行。</div>
+          </article>
+
+          <article class="step-card" data-step="2">
+            <div class="step-badge">Insight 03 / 04 · 默认原版 (Control Stock) 的典型工程短板</div>
+            <h3>只做字面 Happy-Path，普遍遗漏并发竞态锁、载荷篡改冲突与 SQL 校验和</h3>
+            <p>
+              <code>control_stock</code>（默认原版）在 8 场中拿到 <strong>38/48 (79.2%)</strong>，满分率 <strong>4/8 (50.0%)</strong>，平均代码量 176 行。它在动态压力探针下暴露出三大典型盲区：<br>
+              1. <strong>同 Key 载荷篡改未拦截</strong>：在 <code>V1</code> 中，当攻击者复用同一个 <code>idempotencyKey</code> 但把金额从 100 篡改为 9999 时，未校验请求指纹直接返回旧收据；<br>
+              2. <strong>已执行迁移 SQL 篡改无感知</strong>：在 <code>V2</code>（SQLite 迁移器）的 <code>r1</code> (3/6) 与 <code>r2</code> (5/6) 中，均未记录或校验已执行迁移脚本的 SHA-256 哈希；<br>
+              3. <strong>偶发早停</strong>：在 <code>V1 (r2)</code> 中同样发生第 4 轮未改代码提前结束。
+            </p>
+            <div class="step-meta">点击右侧舞台的 12 个探针状态块，可查看各题在三组提示词下的具体得分差异。</div>
+          </article>
+
+          <article class="step-card" data-step="3">
+            <div class="step-badge">Insight 04 / 04 · 自适应意图分流契约 (Tier 4 Holistic Wish)</div>
+            <h3>窄域排障走最小改动，模糊许愿自动补齐并发/回滚/防篡改/算法深度，48/48 全通</h3>
+            <p>
+              采用「自适应意图分流（<code>tier4_holistic_wish</code>）」后，模型在全部 4 个非前端领域的 8 场测试（<code>k=2</code>）中达成 <strong>48/48 (100.0%) 动态运行时探针满分、8/8 (100.0%) 场次满分，0 次早停，平均交付代码深度达 401 行</strong>，且每场均主动通过 <code>run_command</code> 运行多场景自测闭环。
+            </p>
+            <div class="step-meta">下方源码对比台可直接并排检视三组提示词生成的真实 JavaScript 源码。</div>
+          </article>
+        </div>
+
+        <!-- Sticky Stage Right -->
+        <div class="sticky-stage grid-surface">
+          <div class="stage-topbar">
+            <div class="stage-title-group">
+              <span class="stage-step-indicator" id="lazy-step-badge">INSIGHT 01 / 04</span>
+              <span class="stage-heading" id="lazy-step-title">模糊许愿完成度 X-Ray 解剖与 48 项探针透视</span>
+            </div>
+            <span class="stage-counter-pill">探针通过率：<strong id="lazy-score-num" data-current-val="66.7">66.7</strong>%</span>
+          </div>
+
+          <div class="step-dots-bar" id="lazy-dots"></div>
+
+          <div class="cmeter-group">
+            <div class="cmeter-row">
+              <span>Tier4 Surgical (仅最小改动)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:66.7%;background:var(--clay-dot);"></div></div>
+              <span style="color:var(--clay-ink);font-weight:600;">32/48 (66.7%) · 0/8 满分 · 均 83 行</span>
+            </div>
+            <div class="cmeter-row">
+              <span>Control Stock (默认原版)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:79.2%;background:var(--ochre-dot);"></div></div>
+              <span style="color:var(--ochre-ink);font-weight:600;">38/48 (79.2%) · 4/8 满分 · 均 176 行</span>
+            </div>
+            <div class="cmeter-row">
+              <span>Tier4 Holistic (自适应分流)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:100%;background:var(--moss-dot);"></div></div>
+              <span style="color:var(--moss-ink);font-weight:600;">48/48 (100.0%) · 8/8 满分 · 均 401 行</span>
+            </div>
+          </div>
+
+          <div class="stage-grid-4x3" id="lazy-grid"></div>
+
+          <div class="stage-drawer" id="lazy-drawer">
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--clay-ink);" id="lazy-dl-title">❌ 偷懒早停 / 单向最小改动组表现</span>
+                <span class="badge clay">Lazy / Incomplete</span>
+              </div>
+              <pre class="drawer-code" id="lazy-dl-code"></pre>
+            </div>
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--moss-ink);" id="lazy-dr-title">✔ 自适应意图分流组 (Holistic Wish) 表现</span>
+                <span class="badge moss">Opus-Grade Completeness</span>
+              </div>
+              <pre class="drawer-code" id="lazy-dr-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 2: Complete All-Batches Tables (Batch 3 24 Runs + Batch 1/2 9 Runs)
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-lazy-tables">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">All Anti-Laziness Batches Ledger · 三批次共 33 场防偷懒实验完整数据表</div>
+          <h2 class="sec-title">表 3A · 批次三正式实验：4 大非前端模糊许愿任务 × 3 变体 × k=2 重复 (24 场纯动态探针)</h2>
+          <p class="sec-desc">每道题均通过 6 项独立运行时压力测试探针（满分 6/6）与真实代码行数进行客观评估。</p>
+        </div>
+        <span class="badge moss">anti_lazy_v3_results.json (24 Runs)</span>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>模糊许愿任务 (11~12字简短指令)</th>
+              <th>6 项纯动态运行时验收探针 (Runtime Probes)</th>
+              <th>Control Stock (默认原版 · r1 | r2)</th>
+              <th>Tier4 Surgical Only (仅最小改动 · r1 | r2)</th>
+              <th>Tier4 Holistic Wish (自适应分流 · r1 | r2)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>V1 · 下单接口防重与限流</strong><br><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">src/checkout.mjs (初始 13 行)</span></td>
+              <td style="font-size:12.5px;">①顺序幂等 ②<code>Promise.all</code>并发竞态只扣1次 ③下游报错后允许重试 ④同Key篡改金额报409 ⑤限流拦截与窗口恢复 ⑥负数/空参校验</td>
+              <td><span class="badge ochre">r1: 5/6 (132L)</span> <span class="badge clay">r2: 1/6 (13L 早停)</span></td>
+              <td><span class="badge clay">r1: 1/6 (13L 早停)</span> <span class="badge clay">r2: 1/6 (13L 早停)</span></td>
+              <td><span class="badge moss">r1: 6/6 (188L)</span> <span class="badge moss">r2: 6/6 (205L)</span></td>
+            </tr>
+            <tr>
+              <td><strong>V2 · SQLite 数据库迁移器</strong><br><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">src/migrator.mjs (初始 16 行)</span></td>
+              <td style="font-size:12.5px;">①重复运行幂等跳过 ②乱序版本号自动排序 ③单条失败事务原子回滚 ④<strong>已执行SQL被篡改SHA-256报警</strong> ⑤支持Down回滚 ⑥支持Status/DryRun</td>
+              <td><span class="badge clay">r1: 3/6 (118L)</span> <span class="badge ochre">r2: 5/6 (190L)</span></td>
+              <td><span class="badge ochre">r1: 5/6 (86L)</span> <span class="badge ochre">r2: 5/6 (86L)</span></td>
+              <td><span class="badge moss">r1: 6/6 (480L)</span> <span class="badge moss">r2: 6/6 (455L)</span></td>
+            </tr>
+            <tr>
+              <td><strong>V3 · 本地文章检索引擎</strong><br><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">src/article_search.mjs (初始 15 行)</span></td>
+              <td style="font-size:12.5px;">①多词非相邻匹配 ②相关性打分与标题权重优先 ③<strong>前缀与编辑距离拼写容错(consesus)</strong> ④正则特殊字符安全 ⑤标签过滤 ⑥同ID更新去重</td>
+              <td><span class="badge moss">r1: 6/6 (311L)</span> <span class="badge moss">r2: 6/6 (283L)</span></td>
+              <td><span class="badge ochre">r1: 5/6 (158L)</span> <span class="badge ochre">r2: 5/6 (117L)</span></td>
+              <td><span class="badge moss">r1: 6/6 (660L)</span> <span class="badge moss">r2: 6/6 (613L)</span></td>
+            </tr>
+            <tr>
+              <td><strong>V4 · 配置深合并加载器</strong><br><span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">src/config_loader.mjs (初始 18 行)</span></td>
+              <td style="font-size:12.5px;">①深层嵌套合并保留兄弟属性 ②深拷贝不污染<code>DEFAULT_CONFIG</code> ③<strong>拦截<code>__proto__</code>原型污染攻击</strong> ④环境变量覆盖与数字/布尔强转 ⑤数组替换 ⑥非法端口校验/冻结</td>
+              <td><span class="badge moss">r1: 6/6 (189L)</span> <span class="badge moss">r2: 6/6 (175L)</span></td>
+              <td><span class="badge ochre">r1: 5/6 (101L)</span> <span class="badge ochre">r2: 5/6 (91L)</span></td>
+              <td><span class="badge moss">r1: 6/6 (303L)</span> <span class="badge moss">r2: 6/6 (303L)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table 3B: Batch 1 (L1-L4) & Batch 2 (M1-M3) Exploratory Runs -->
+      <div class="data-table-wrap" style="margin-top: 22px;">
+        <div style="padding:12px 16px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+          <span>表 3B · 批次一 (L1–L4 从零构建) 与批次二 (M1–M3 简陋模块升级) 先导实验记录 (共 9 场)</span>
+          <span class="badge ochre">Exploratory Calibration Runs</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>批次与运行 ID</th>
+              <th>领域与任务目标</th>
+              <th>提示词变体</th>
+              <th>探针得分与代码行数</th>
+              <th>该轮次揭示的关键实验现象</th>
+            </tr>
+          </thead>
+          <tbody id="lazy-early-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 3: Interactive Source Code & Probe Diff Workbench
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-code-inspector">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Source Code &amp; Probe Diff Workbench · 真实生成源码与探针并排对比台</div>
+          <h2 class="sec-title">点击切换 4 大模糊许愿任务，直观对比“敷衍实现”与“Holistic 完整实现”的源码差距</h2>
+          <p class="sec-desc">下方代码直接提取自各场实验工作区落盘的真实 <code>.mjs</code> 源码文件。</p>
+        </div>
+      </div>
+
+      <div class="explorer-grid">
+        <div class="explorer-sidebar" id="lazy-task-selector"></div>
+        <div class="explorer-main">
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-soft);padding-bottom:10px;">
+            <div>
+              <h3 style="font-family:var(--font-serif);font-size:19px;" id="lazy-insp-title"></h3>
+              <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-muted);" id="lazy-insp-sub"></div>
+            </div>
+            <span class="badge moss" id="lazy-insp-badge">6/6 Probes Passed</span>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:11.5px;font-weight:600;color:var(--ink-body);">6 项运行时探针对比 (左：Surgical/Control 缺失项 vs 右：Holistic Wish 全通):</div>
+            <div class="probe-list" id="lazy-probe-grid"></div>
+          </div>
+
+          <div class="code-diff-split">
+            <div class="code-pane">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:11.5px;">
+                <strong style="color:var(--clay-ink);" id="lazy-left-code-title">❌ 对照组代码实现</strong>
+                <span class="badge clay" id="lazy-left-lines"></span>
+              </div>
+              <pre id="lazy-left-code-box"></pre>
+            </div>
+
+            <div class="code-pane">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:11.5px;">
+                <strong style="color:var(--moss-ink);" id="lazy-right-code-title">✔ Tier4 Holistic Wish 代码实现</strong>
+                <span class="badge moss" id="lazy-right-lines"></span>
+              </div>
+              <pre id="lazy-right-code-box"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <a href="lab-aesthetics.html" style="color:var(--ink-body);">← 上一篇：实验二 · 前端审美双批次实证 (34场)</a>
+      <a href="index.html" style="color:var(--moss-ink);font-weight:600;">返回总览主站与提示词合成台 ↺</a>
+    </footer>
+  </main>
+
+  <script src="assets/study-data.js"></script>
+  <script src="assets/editorial-common.js"></script>
+  <script>
+    (function () {
+      const UI = window.EditorialUI;
+      const studyData = window.ARGON_STUDY_DATA || { lazyV1: [], lazyV2: [], lazy24: [], lazyCodeSamples: {} };
+
+      UI.initGlobalChoreography([
+        { id: 'sec-hero', label: '防偷懒三批次总览' },
+        { id: 'stage-lazy', label: '模糊许愿完成度交互舞台' },
+        { id: 'sec-lazy-tables', label: '三批次 33 场完整数据账本' },
+        { id: 'sec-code-inspector', label: '真实生成源码并排对比台' }
+      ]);
+
+      UI.initParticleStreamCanvas('lazy-canvas', { count: 960 });
+
+      // Sticky Stage 12 Tiles
+      const LAZY_TILES = [
+        { name: 'V1 · Surgical (r1/r2)', stat: '1/6 · 13L', state: 'clay', sub: '连续两次 0 修改直接早停',
+          bad: `[V1-wish-checkout-guard · tier4_surgical_only]\nr1 (4轮) 与 r2 (5轮) 均只调用了 read_file / grep_search，未调用 edit_file 修改任何一行代码，保留初始 13 行直接退出（得分 1/6）。`,
+          good: `[对比原因]\n在 12 字模糊许愿下，"Make the smallest correct change and do only what is explicitly requested" 让模型陷入保守罢工。` },
+        { name: 'V1 · Control (r1/r2)', stat: '5/6 & 1/6', state: 'ochre', sub: 'r2 早停；r1 漏掉载荷篡改冲突',
+          bad: `[V1-wish-checkout-guard · control_stock]\n- r1 (132行 · 5/6): 未检测相同 idempotencyKey 下篡改金额的冲突 (t4 = false)；\n- r2 (13行 · 1/6): 第 4 轮未改代码直接早停。`,
+          good: `[V1 · tier4_holistic_wish (r1=188L, r2=205L, 均 6/6)]\n实现 In-Flight 并发 Promise 锁 + 下游报错释放锁 + 载荷 SHA-256 指纹冲突拦截 (409)。` },
+        { name: 'V1 · Holistic (r1/r2)', stat: '6/6 · 197L', state: 'moss', sub: '并发锁+失败重试+409冲突全通',
+          bad: `对照组平均得分仅 3.0/6 (Control) 与 1.0/6 (Surgical)。`,
+          good: `Holistic 组在 r1 与 r2 两次独立实验中均达成 6/6 满分，且主动执行 node -e 脚本验证并发与恢复。` },
+        { name: 'V2 · Control (r1/r2)', stat: '3/6 & 5/6', state: 'ochre', sub: '漏掉已执行 SQL 篡改校验',
+          bad: `[V2-wish-sqlite-migrator · control_stock]\n- r1 (118行 · 3/6): 漏掉乱序版本号排序、down 回滚与 SHA-256 校验和；\n- r2 (190行 · 5/6): 漏掉已执行迁移 SQL 被篡改时的 SHA-256 校验报警 (t4 = false)。`,
+          good: `[V2 · tier4_holistic_wish (r1=480L, r2=455L, 均 6/6)]\n自动为 _migrations 表设计 checksum 字段，每次迁移前比对已应用版本的 SHA-256，发现篡改立即抛错拦截。` },
+        { name: 'V2 · Surgical (r1/r2)', stat: '5/6 · 86L', state: 'ochre', sub: '两次均仅 86 行，无篡改校验',
+          bad: `[V2-wish-sqlite-migrator · tier4_surgical_only]\nr1 (86行 · 5/6) 与 r2 (86行 · 5/6) 均只写了最简迁移表，0 次实现 SHA-256 校验和防篡改 (t4 = false)。`,
+          good: `Holistic 组代码深度达 468 行，涵盖版本排序、事务回滚、SHA-256 防篡改、down 回滚、dryRun 与 status 查询。` },
+        { name: 'V2 · Holistic (r1/r2)', stat: '6/6 · 468L', state: 'moss', sub: 'SHA-256 防篡改+回滚+dryRun',
+          bad: `Control 与 Surgical 在 V2 的 4 场测试中，t4_detects_checksum_tampering 通过率为 0/4 (0%)！`,
+          good: `Holistic 在 V2 的两次重复中 t4 通过率为 2/2 (100%)，总探针 12/12 全通。` },
+        { name: 'V3 · Surgical (r1/r2)', stat: '5/6 · 138L', state: 'ochre', sub: '无拼写容错 (consesus 漏召回)',
+          bad: `[V3-wish-article-search · tier4_surgical_only]\nr1 (158行 · 5/6) 与 r2 (117行 · 5/6) 仅实现了基础分词匹配，未实现编辑距离拼写容错，搜 "consesus" 返回空数组 (t3 = false)。`,
+          good: `[V3 · tier4_holistic_wish (r1=660L, r2=613L, 均 6/6)]\n完整实现 BM25/TF-IDF 标题加权、有界 Levenshtein 拼写容错、正则转义、标签过滤与同 ID 更新去重。` },
+        { name: 'V3 · Holistic (r1/r2)', stat: '6/6 · 637L', state: 'moss', sub: 'BM25+编辑距离容错+高亮',
+          bad: `Surgical 组仅写 117~158 行，缺少模糊容错与摘要高亮。`,
+          good: `Holistic 组平均编写 637 行高质量搜索引擎代码，6/6 探针全通。` },
+        { name: 'V4 · Surgical (r1/r2)', stat: '5/6 · 96L', state: 'ochre', sub: '无非法端口校验与 freeze 保护',
+          bad: `[V4-wish-config-loader · tier4_surgical_only]\nr1 (101行 · 5/6) 与 r2 (91行 · 5/6) 仅实现了递归合并，未对传入 port: -999 做合法性校验，也未做 Object.freeze 保护 (t6 = false)。`,
+          good: `[V4 · tier4_holistic_wish (r1=303L, r2=303L, 均 6/6)]\n实现深拷贝合并、拦截 __proto__/constructor 污染、环境变量类型强转、Schema 校验与递归冻结。` },
+        { name: 'V4 · Holistic (r1/r2)', stat: '6/6 · 303L', state: 'moss', sub: '深拷贝+防原型污染+类型强转',
+          bad: `初始代码仅 18 行 Object.assign，既会污染 DEFAULT_CONFIG 单例，又存在原型污染漏洞。`,
+          good: `Holistic 组在 r1 与 r2 中均拿到 6/6 满分。` },
+        { name: 'Batch1 · L1-L4 预跑', stat: '5 Runs', state: 'cerulean', sub: '发现题目列太细无法测出模糊偷懒',
+          bad: `[批次一 L1–L4 经验]\n当题目把子功能全写出来时，Control 也能照单抓药拿到 9/10；而写 "Before coding, expand spec" 则导致 Turn 1 停机。`,
+          good: `[演进价值]\n促使我们将评测升级为 11~12 字真模糊许愿 + Internal Thinking 静默推演。` },
+        { name: 'Batch2 · M1-M3 预跑', stat: '4 Runs', state: 'cerulean', sub: '确立 100% 纯动态探针评分标准',
+          bad: `[批次二 M1–M3 经验]\n发现混合正则加分不够严苛，因此升级为批次三 V1–V4 的 100% 纯动态运行时行为探针。`,
+          good: `[最终成效]\n批次三 24 场实验清晰拉开了 Surgical (66.7%)、Control (79.2%) 与 Holistic (100.0%) 的差距。` }
+      ];
+
+      let curLazyTile = 0;
+      const lazyGrid = document.getElementById('lazy-grid');
+      lazyGrid.innerHTML = LAZY_TILES.map((t, i) => `
+        <div class="slot-tile state-${t.state} ${i === curLazyTile ? 'selected' : ''}" data-lt="${i}">
+          <div class="slot-tile-head"><span>${t.name}</span><span>${t.stat}</span></div>
+          <div class="slot-tile-sub">${t.sub}</div>
+        </div>
+      `).join('');
+
+      function renderLazyTile(idx, animate) {
+        curLazyTile = idx;
+        const t = LAZY_TILES[idx] || LAZY_TILES[0];
+        lazyGrid.querySelectorAll('.slot-tile').forEach((el, i) => el.classList.toggle('selected', i === idx));
+        if (animate) UI.pulseDrawer('lazy-drawer');
+        document.getElementById('lazy-dl-title').textContent = `❌ ${t.name} · 问题与短板剖析`;
+        document.getElementById('lazy-dl-code').textContent = t.bad;
+        document.getElementById('lazy-dr-title').textContent = `✔ ${t.name} · 改进与实测结论`;
+        document.getElementById('lazy-dr-code').textContent = t.good;
+      }
+
+      lazyGrid.querySelectorAll('.slot-tile').forEach((el, i) => {
+        el.addEventListener('click', () => renderLazyTile(i, true));
+      });
+
+      const LAZY_STEPS = [
+        { badge: 'INSIGHT 01 / 04', score: 50.0, focus: [10, 11], tile: 10 },
+        { badge: 'INSIGHT 02 / 04', score: 66.7, focus: [0, 4, 6, 8], tile: 0 },
+        { badge: 'INSIGHT 03 / 04', score: 79.2, focus: [1, 3], tile: 1 },
+        { badge: 'INSIGHT 04 / 04', score: 100.0, focus: [2, 5, 7, 9], tile: 2 }
+      ];
+
+      UI.bindScrollyStage({
+        sectionId: 'lazy-scrolly',
+        dotsId: 'lazy-dots',
+        drawerId: 'lazy-drawer',
+        onStepChange: (idx) => {
+          const s = LAZY_STEPS[idx] || LAZY_STEPS[0];
+          document.getElementById('lazy-step-badge').textContent = s.badge;
+          UI.animateNumber(document.getElementById('lazy-score-num'), s.score, (v) => v.toFixed(1));
+          lazyGrid.querySelectorAll('.slot-tile').forEach((el, i) => {
+            const f = s.focus.includes(i);
+            el.classList.toggle('focused', f);
+            el.classList.toggle('dimmed', !f);
+          });
+          renderLazyTile(s.tile, false);
+        }
+      });
+
+      // Populate Table 3B (Early Batches L1-L4 & M1-M3)
+      const earlyRuns = [...(studyData.lazyV1 || []), ...(studyData.lazyV2 || [])];
+      document.getElementById('lazy-early-tbody').innerHTML = earlyRuns.map(r => {
+        const sc = r.completeness || {};
+        const note = r.turns === 1 && sc.linesCount <= 30
+          ? '触发 Turn 1 只输出 Markdown 方案直接停机（暴露出不能写 "Before coding, expand spec"）'
+          : `完成构建与验证（耗时 ${r.elapsedSec}s，执行命令 ${r.commandsRunCount} 次）`;
+        return `<tr>
+          <td><strong>${r.runId}</strong></td>
+          <td>${r.domain || r.taskId}</td>
+          <td><code>${r.variantKey}</code></td>
+          <td><span class="badge ${sc.score >= 8 ? 'moss' : 'ochre'}">${sc.score}/${sc.maxScore || 10} · ${sc.linesCount || 0} 行</span></td>
+          <td style="font-size:12.5px;color:var(--ink-body);">${note}</td>
+        </tr>`;
+      }).join('');
+
+      // Interactive Code & Probe Diff Workbench
+      const LAZY_TASKS = [
+        { id: 'V1-wish-checkout-guard', name: 'V1 · 下单接口防重与限流', file: 'src/checkout.mjs', compareLeftVar: 'tier4_surgical_only', compareLeftRep: 1 },
+        { id: 'V2-wish-sqlite-migrator', name: 'V2 · SQLite 数据库迁移器', file: 'src/migrator.mjs', compareLeftVar: 'control_stock', compareLeftRep: 1 },
+        { id: 'V3-wish-article-search', name: 'V3 · 本地文章检索引擎', file: 'src/article_search.mjs', compareLeftVar: 'tier4_surgical_only', compareLeftRep: 2 },
+        { id: 'V4-wish-config-loader', name: 'V4 · 配置深合并加载器', file: 'src/config_loader.mjs', compareLeftVar: 'tier4_surgical_only', compareLeftRep: 1 }
+      ];
+
+      let curLazyTask = LAZY_TASKS[0];
+      const selBox = document.getElementById('lazy-task-selector');
+      selBox.innerHTML = LAZY_TASKS.map((t, i) => `
+        <button class="selector-btn ${i === 0 ? 'active' : ''}" data-ltid="${t.id}">
+          <div class="sel-top"><span>${t.name}</span><span class="badge moss">Holistic 6/6</span></div>
+          <div class="sel-sub">目标文件: ${t.file}</div>
+        </button>
+      `).join('');
+
+      selBox.querySelectorAll('.selector-btn').forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+          curLazyTask = LAZY_TASKS[i];
+          selBox.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderLazyInspector();
+        });
+      });
+
+      function renderLazyInspector() {
+        const t = curLazyTask;
+        const leftRun = (studyData.lazy24 || []).find(r => r.taskId === t.id && r.variantKey === t.compareLeftVar && r.rep === t.compareLeftRep);
+        const rightRun = (studyData.lazy24 || []).find(r => r.taskId === t.id && r.variantKey === 'tier4_holistic_wish' && r.rep === 1);
+
+        document.getElementById('lazy-insp-title').textContent = `${t.name} (${t.file})`;
+        document.getElementById('lazy-insp-sub').textContent = `对比左侧 ${t.compareLeftVar} (${leftRun?.completeness?.score || 0}/6) 与右侧 tier4_holistic_wish (${rightRun?.completeness?.score || 6}/6)`;
+
+        const detailsL = leftRun?.completeness?.details || {};
+        const detailsR = rightRun?.completeness?.details || {};
+        const probeKeys = Object.keys(detailsR).filter(k => k.startsWith('t'));
+
+        document.getElementById('lazy-probe-grid').innerHTML = probeKeys.map(k => {
+          const passL = detailsL[k] === true;
+          const passR = detailsR[k] === true;
+          return `<div class="probe-item">
+            <span>${k}</span>
+            <span>
+              <span class="badge ${passL ? 'ochre' : 'clay'}">左:${passL ? 'PASS' : 'FAIL'}</span>
+              <span class="badge ${passR ? 'moss' : 'clay'}">右:${passR ? 'PASS' : 'FAIL'}</span>
+            </span>
+          </div>`;
+        }).join('');
+
+        const samples = studyData.lazyCodeSamples?.[t.id] || {};
+        const leftCode = samples[t.compareLeftVar]?.[`r${t.compareLeftRep}`] || '// N/A';
+        const rightCode = samples['tier4_holistic_wish']?.r1 || '// N/A';
+
+        document.getElementById('lazy-left-code-title').textContent = `❌ ${t.compareLeftVar} (r${t.compareLeftRep}) 真实代码`;
+        document.getElementById('lazy-left-lines').textContent = `${leftRun?.completeness?.score || 0}/6 · ${leftRun?.completeness?.linesCount || 0} Lines`;
+        document.getElementById('lazy-left-code-box').textContent = leftCode;
+
+        document.getElementById('lazy-right-code-title').textContent = `✔ tier4_holistic_wish (r1) 真实代码`;
+        document.getElementById('lazy-right-lines').textContent = `${rightRun?.completeness?.score || 6}/6 · ${rightRun?.completeness?.linesCount || 0} Lines`;
+        document.getElementById('lazy-right-code-box').textContent = rightCode;
+      }
+
+      renderLazyInspector();
+    })();
+  </script>
+</body>
+</html>

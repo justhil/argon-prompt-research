@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实验一：Agent 编码幻觉深度实证 (第一次测试 32 场 + 第二次 Delulu 72 场) — Argon 实验室</title>
+  <link rel="stylesheet" href="assets/editorial.css" />
+  <style>
+    .fact-boundary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .fact-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line-soft);
+      border-radius: 11px;
+      padding: 16px 18px;
+    }
+    .fact-card h4 {
+      font-family: var(--font-serif);
+      font-size: 16.5px;
+      margin: 6px 0 8px;
+    }
+    .fact-card p, .fact-card li {
+      font-size: 13.2px;
+      color: var(--ink-body);
+      line-height: 1.62;
+    }
+    .fact-card ul {
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .trace-turn-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .trace-turn-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line-soft);
+      border-radius: 9px;
+      padding: 11px 14px;
+      transition: border-color 180ms ease;
+    }
+    .trace-turn-card:hover {
+      border-color: var(--line-strong);
+    }
+    .trace-turn-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      margin-bottom: 6px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .trace-thinking {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--ink-body);
+      background: var(--bg-white-soft);
+      border-left: 3px solid var(--cerulean-ink);
+      padding: 7px 10px;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      margin-top: 6px;
+    }
+    .variant-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .vtab-btn {
+      padding: 5px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--line-soft);
+      background: var(--bg-card);
+      font-family: var(--font-mono);
+      font-size: 11.2px;
+      cursor: pointer;
+      transition: background-color 160ms ease, color 160ms ease;
+    }
+    .vtab-btn.active {
+      background: var(--ink-main);
+      color: var(--bg-paper);
+      border-color: var(--ink-main);
+    }
+    @media (max-width: 1060px) {
+      .fact-boundary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="brand-group">
+        <span class="brand-dot"></span>
+        <span class="brand-title">Gemini 4 Argon 实证研究实验室</span>
+        <span class="brand-sub">Sub-Page 01 · 32 + 72 = 104 Coding Sessions</span>
+      </div>
+      <nav class="nav-pills">
+        <a class="nav-pill" href="index.html"><span class="pill-num">00</span>总览与三大舞台</a>
+        <a class="nav-pill active" href="lab-hallucination.html"><span class="pill-num">01</span>编码幻觉子页 (32+72场)</a>
+        <a class="nav-pill" href="lab-aesthetics.html"><span class="pill-num">02</span>前端审美子页 (12+22场)</a>
+        <a class="nav-pill" href="lab-completeness.html"><span class="pill-num">03</span>防偷懒完成度子页 (33场)</a>
+      </nav>
+    </div>
+    <div class="scroll-progress-track">
+      <div class="scroll-progress-bar" id="global-progress-bar"></div>
+    </div>
+  </header>
+
+  <div class="floating-chapter-pill">
+    <span class="floating-chapter-dot"></span>
+    <span id="floating-chapter-text">实验一：Agent 编码幻觉深度拆解 · 0%</span>
+  </div>
+
+  <main class="page-wrap">
+    <!-- Split Hero -->
+    <section class="split-hero" id="sec-hero">
+      <div class="hero-canvas-box grid-surface feather-mask">
+        <canvas id="hallu-canvas"></canvas>
+        <div class="canvas-overlay-badges">
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--clay-ink);"></span>
+            <span>第一次测试 (32场 T1–T8) · C0/T-Gen 50% 通过 vs Tier4 100%</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--ochre-ink);"></span>
+            <span>第二次测试 (72场 Delulu k=3) · C0 0/24 通过 (87.5% 首轮盲改)</span>
+          </div>
+          <div class="stream-tag">
+            <span class="stream-dot" style="background: var(--moss-ink);"></span>
+            <span>第 4 档护栏组 · 两批次合计 32/32 (100%) 通过 · 0 处幻觉残留</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <div class="eyebrow reveal" style="--delay: 0ms;">Experiment 01 · Batch 1 (32 Runs) + Batch 2 (72 Runs) = 104 Agent Sessions</div>
+        <h1 class="hero-title reveal" style="--delay: 60ms;">Agent 编码环境幻觉实证：基于 104 场工具调用遥测与 Thinking 推理链的严谨分析</h1>
+        <p class="hero-lead reveal" style="--delay: 120ms;">
+          本页完整呈现我们在 <code>/workspace/argon-prompt-research</code> 执行的<strong>两批独立编码幻觉实验</strong>：第一批为自建 8 道多文件工程陷阱 × 4 组提示词变体（32 场）；第二批为引入 Microsoft 2026.05 公开基准 <code>microsoft/delulu</code> 真实开源仓库题后的 8 题核心集 × 3 变体 × <code>k=3</code> 重复采样（72 场）。我们严格基于落盘的工具调用序列与 <code>reasoning_content</code> 思维链原文展开分析，不作超出实验证据的臆测。
+        </p>
+
+        <div class="hero-kpis reveal" style="--delay: 180ms;">
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">第一次测试 (32场 · T1-T8)</div>
+            <div class="kpi-mini-val" style="color: var(--moss-ink);">8/8 <span style="font-size:12.5px;color:var(--ink-muted)">vs C0 4/8</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">第二次测试 (72场 · k=3)</div>
+            <div class="kpi-mini-val" style="color: var(--moss-ink);">24/24 <span style="font-size:12.5px;color:var(--ink-muted)">vs C0 0/24</span></div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">Tier 4 目标依赖先读率</div>
+            <div class="kpi-mini-val" style="color: var(--cerulean-ink);">100% <span style="font-size:12.5px;color:var(--ink-muted)">(70/70文件次)</span></div>
+          </div>
+        </div>
+
+        <div class="hero-actions reveal" style="--delay: 240ms;">
+          <a class="btn-pill primary" href="#sec-fact-boundary">1. 严谨证据边界与成因分析 ↓</a>
+          <a class="btn-pill" href="#stage-batch1">2. 第一次测试舞台 (32场) ↓</a>
+          <a class="btn-pill" href="#stage-batch2">3. 第二次 Delulu 舞台 (72场) ↓</a>
+          <a class="btn-pill" href="#sec-inspector">4. 104 场逐轮轨迹检视器 ↓</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 1: Epistemic Rigor & Evidence Boundary (No Uncertain Claims)
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-fact-boundary">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">Epistemic Rigor &amp; Causality Audit · 事实与推论的严格边界</div>
+          <h2 class="sec-title">我们在 104 场实验中直接观测到了什么？什么属于不应武断下结论的边界？</h2>
+          <p class="sec-desc">为确保技术报告的严谨性，我们将“可由实验日志 100% 证实的观测事实”、“从思维链原文直接提取的因果链路”与“受控实验变量边界”明确区分如下。</p>
+        </div>
+        <span class="badge moss">Evidence-Grounded Analysis</span>
+      </div>
+
+      <div class="fact-boundary-grid">
+        <div class="fact-card">
+          <span class="badge moss">1. 100% 直接观测证实的实证事实 (Observed Facts)</span>
+          <h4>工具调用序列与代码残留的硬性统计</h4>
+          <ul>
+            <li><strong>空白桩 vs 半成品的显著分水岭</strong>：当待修函数为空桩（<code>throw new Error("TODO")</code>）时，无护栏对照组也会主动调用 <code>read_file</code>；但当入口文件已有 15~30 行代码且包含一处显眼的<strong>表面浅层 Bug</strong>（如漏写 <code>return</code>、<code>* 1000</code> 乘除写反、漏清空 <code>input.value = ''</code>）时，<code>C0</code> 在 <code>k=3</code> 的 24 场中有 <strong>21 场（87.5%）在 Turn 1 零次调用 <code>read_file</code> 直接调用 <code>edit_file</code></strong>。</li>
+            <li><strong>通用口号（<code>T-Gen</code>）完全无效</strong>：在第一批 32 场实验中，加入 <code>"IMPORTANT: Do not hallucinate. Be accurate and careful"</code> 后，通过率仍为 <strong>4/8 (50.0%)</strong>，残留幻觉符号数反而达到 <strong>24 处</strong>（高于原版 <code>C0</code> 的 21 处）。</li>
+            <li><strong>第 4 档护栏组（<code>T-Tier4</code>）的零方差表现</strong>：在第一批（8/8 场）与第二批 <code>k=3</code>（24/24 场）共 32 场独立会话中，达成 <strong>100% 目标依赖文件先读后改（合计 70/70 文件次）、100% 隐藏 Oracle 通过、0 处幻觉符号残留</strong>。</li>
+          </ul>
+        </div>
+
+        <div class="fact-card">
+          <span class="badge cerulean">2. 从 Thinking 思维链原文直接提取的机制 (Direct Trace Evidence)</span>
+          <h4>为什么模型不觉得自己在“编造幻觉”？</h4>
+          <ul>
+            <li><strong>浅层归因满足（Surface-Bug Satisficing）</strong>：检查盲改场次的 <code>reasoning_content</code> 可见，模型在看到表面 Bug 后会直接写下 <em>"The bug is clear from the code... I'll use edit_file to fix it"</em>。一旦找到一个能合理解释报错的浅层原因，模型便立即停止向底层模块深挖。</li>
+            <li><strong>调用处上下文盲信（Implicit Call-Site Trust）</strong>：当入口文件里已经写着 <code>message.notifyLimit(...)</code>（Delulu <code>D1</code>），或者同一文件上方出现了合法的 <code>Result.ok(...)</code>（自建 <code>T2</code>）时，模型在思维链中将其视作“当前仓库已存在的既有事实”，因此哪怕收到 <code>"Do not hallucinate"</code> 的警告，它也认为保留 <code>notifyLimit</code> 或补写对称的 <code>Result.err</code> 是顺理成章的。</li>
+            <li><strong>旁路冒烟测试麻痹</strong>：运行默认 <code>npm test</code> 看到仅覆盖 Happy-Path 的 <code>smoke.test.mjs</code> 绿灯后，模型立即结束回合，不再验证异常分支里的外部方法签名。</li>
+          </ul>
+        </div>
+
+        <div class="fact-card">
+          <span class="badge ochre">3. 严谨的方法论边界 (What We Do Not Overclaim)</span>
+          <h4>拒绝不可证伪的黑盒猜测</h4>
+          <ul>
+            <li><strong>不对未公开预训练配比下定论</strong>：AI Studio 72 词系统指令中确实写有 <code>"March 2025–March 2026 facts... feel unfamiliar from thinner coverage... do not abstain from low confidence or hedge"</code>。这是可查证的官方提示词文本事实；至于 Google 内部基础预训练与中期续训的具体语料比例与 RL 奖励函数公式，属于闭源黑盒，我们不在报告中将其断言为既定事实。</li>
+            <li><strong>组合干预而非单一词魔法</strong>：<code>T-Tier4</code> 的 100% 成功率来自<strong>三项具体的约束协同作用</strong>：① 点名反转 <code>"do not abstain from low confidence or hedge"</code> 在工作区代码上的适用性；② 显式规定<strong>禁止将调用处（caller call-sites）、注释或 README 当作被导入模块签名的证据</strong>；③ 强制要求在 <code>edit_file</code> 前对被调用的本地模块执行 <code>read_file</code>。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         STAGE A: First Benchmark Batch (Batch 1: T1–T8 × 4 Variants = 32 Runs)
+         ===================================================================== -->
+    <section class="sec-block" id="stage-batch1">
+      <div class="sec-header reveal">
+        <div>
+          <div class="eyebrow">Stage 01A · 第一次测试完整复盘 (Batch 1: T1–T8 × 4 变体 = 32 场多轮会话)</div>
+          <h2 class="sec-title">第一次测试：8 道多文件工程陷阱题 × 4 组提示词变体全矩阵解剖</h2>
+          <p class="sec-desc">这是我们的第一批基线实验，包含全部 4 个提示词变体（<code>C0</code> AI Studio 原版、<code>C1</code> Antigravity 原版、<code>T-Gen</code> 通用防幻觉口号、<code>T-Tier4</code> 第 4 档护栏），完整覆盖 8 类工程编码陷阱。</p>
+        </div>
+        <span class="badge cerulean">32 Multi-Turn Sessions · 8 Tasks × 4 Variants</span>
+      </div>
+
+      <div class="scrolly-section" id="scrolly-b1">
+        <div class="scrolly-steps">
+          <article class="step-card active" data-step="0">
+            <div class="step-badge">Batch 1 · Step 01 / 04 · 4 组提示词变体设计</div>
+            <h3>第一次测试为什么同时设置 C0、C1、T-Gen 与 T-Tier4 四组对照？</h3>
+            <p>
+              为了排除“随便加句提醒就能防幻觉”的侥幸心理，我们在第一次测试（32 场）中设置了严格的 4 级对照：<br>
+              1. <strong><code>C0 (control_aistudio_stock)</code></strong>：包含 AI Studio 顶部 72 词元指令；<br>
+              2. <strong><code>C1 (control_antigravity_stock)</code></strong>：模拟 Antigravity 默认未精简的长系统提示词（含 KI 检索与 Artifact 规则）；<br>
+              3. <strong><code>T-Gen (treatment_generic)</code></strong>：在 <code>C0</code> 基础上追加通用口号 <code>IMPORTANT: Do not hallucinate. Be accurate and careful when writing code</code>；<br>
+              4. <strong><code>T-Tier4 (treatment_tier4_guardrails)</code></strong>：第 4 档原词作用域反转 + 禁止信任调用处/注释签名 + 强制先读后改。
+            </p>
+            <div class="step-meta">右侧仪表盘实时展示这 4 组变体在 8 道题上的综合通过率与残留幻觉数。</div>
+          </article>
+
+          <article class="step-card" data-step="1">
+            <div class="step-badge">Batch 1 · Step 02 / 04 · 同构 API 惯性补全陷阱 (T2 / T7 / T8)</div>
+            <h3>看到同文件有 Result.ok，3 个对照组 100% 盲猜存在 Result.err</h3>
+            <p>
+              在 <code>T2-compiler-analogous-api-trap</code> 中，入口文件顶部导入了 <code>{ Result } from './diagnostics.mjs'</code> 且代码里有一行合法的 <code>Result.ok(...)</code>，而下方错误处理分支写着前人留下的 <code>Result.err(...)</code>、<code>symTab.enterScope(...)</code> 等 7 处未核实调用。
+            </p>
+            <p>
+              实测结果：<code>C0</code>、<code>C1</code>、<code>T-Gen</code> 三组在 Turn 1 <strong>全部（0/4 文件读取）直接调用 <code>edit_file</code></strong> 修补漏写的 <code>return</code>，将 7 处虚构 API 原封不动留在了代码里，Oracle 全部崩溃失败！唯有 <code>T-Tier4</code> 先读取全部 4 个依赖模块，发现真实方法名为 <code>Result.fail</code> 与 <code>symTab.pushScope</code>。
+            </p>
+            <div class="step-meta">同样的全军覆没也发生在 T7（消费幂等锁）与 T8（流式窗口聚合器）上。</div>
+          </article>
+
+          <article class="step-card" data-step="2">
+            <div class="step-badge">Batch 1 · Step 03 / 04 · 死分支残留与 Node v22 新 API 陷阱 (T1 / T4 / T6)</div>
+            <h3>即使主路径凑巧跑通，对照组仍在异常分支残留伪方法，或在 node:sqlite 上写旧 API</h3>
+            <p>
+              • 在 <code>T1-settlement-decoy</code> 中：<code>C0</code>、<code>C1</code>、<code>T-Gen</code> 虽然修好了主路径漏传的 <code>req.currency</code>，但对文件下方冲正补偿分支里的 <code>this.ledger.refundDebit</code> 等 3 处过时方法名视而不见（均残留 3 处幻觉），仅 <code>T-Tier4</code> 主动读完 3 个依赖文件将其全部清零；<br>
+              • 在 <code>T6-node-sqlite-and-argon-spec</code> 中：<code>T-Gen</code> 在修改 Node.js v22+ 原生 <code>node:sqlite</code> 的 <code>DatabaseSync</code> 时，未能识别 <code>db.pragma(...)</code> 是第三方库 <code>better-sqlite3</code> 的方法，直接导致运行时抛错 <code>FAIL</code>。
+            </p>
+            <div class="step-meta">点击右侧舞台上的 T1、T4、T6 色块，可查看具体的错误调用与修复对比。</div>
+          </article>
+
+          <article class="step-card" data-step="3">
+            <div class="step-badge">Batch 1 · Step 04 / 04 · 第一次测试 32 场终局结论</div>
+            <h3>T-Tier4 达成 8/8 (100%) 通过、22/22 依赖先读、0 处幻觉残留</h3>
+            <p>
+              汇总第一次测试的全部 32 场会话：<br>
+              • <strong>Oracle 通过率</strong>：<code>C0</code> 为 50.0% (4/8)，<code>C1</code> 为 62.5% (5/8)，<code>T-Gen</code> 为 50.0% (4/8)，<strong><code>T-Tier4</code> 为 100.0% (8/8)</strong>；<br>
+              • <strong>最终残留幻觉调用总数</strong>：<code>C0</code> 残留 21 处，<code>C1</code> 残留 21 处，<code>T-Gen</code> 残留 24 处，<strong><code>T-Tier4</code> 为 0 处</strong>。
+            </p>
+            <div class="step-meta">下方紧接着提供第一次测试 32 场的完整数据表，以及第二次测试 (Microsoft Delulu k=3 72 场) 的独立舞台。</div>
+          </article>
+        </div>
+
+        <!-- Sticky Stage B1 Right -->
+        <div class="sticky-stage grid-surface">
+          <div class="stage-topbar">
+            <div class="stage-title-group">
+              <span class="stage-step-indicator" id="b1-step-badge">BATCH 1 · STEP 01 / 04</span>
+              <span class="stage-heading" id="b1-step-title">第一次测试：8 道多文件工程题 × 4 变体 (32 场)</span>
+            </div>
+            <span class="stage-counter-pill">T-Tier4 通过率：<strong id="b1-pass-num" data-current-val="100">100</strong>% (8/8)</span>
+          </div>
+
+          <div class="step-dots-bar" id="b1-dots"></div>
+
+          <!-- 4 Variant Meters for Batch 1 -->
+          <div class="cmeter-group">
+            <div class="cmeter-row">
+              <span>C0 · AI Studio 原版</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:50%;background:var(--clay-dot);"></div></div>
+              <span style="color:var(--clay-ink);font-weight:600;">4/8 (50.0%) · 先读 12/22 · 残留 21 处</span>
+            </div>
+            <div class="cmeter-row">
+              <span>C1 · Antigravity 原版</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:62.5%;background:var(--ochre-dot);"></div></div>
+              <span style="color:var(--ochre-ink);font-weight:600;">5/8 (62.5%) · 先读 12/22 · 残留 21 处</span>
+            </div>
+            <div class="cmeter-row">
+              <span>T-Gen · 通用防幻觉口号</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:50%;background:var(--clay-dot);"></div></div>
+              <span style="color:var(--clay-ink);font-weight:600;">4/8 (50.0%) · 先读 12/22 · 残留 24 处</span>
+            </div>
+            <div class="cmeter-row">
+              <span>T-Tier4 · 第 4 档原词反转护栏</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:100%;background:var(--moss-dot);"></div></div>
+              <span style="color:var(--moss-ink);font-weight:600;">8/8 (100.0%) · 先读 22/22 · 残留 0 处</span>
+            </div>
+          </div>
+
+          <!-- 8 Tiles for T1-T8 -->
+          <div class="stage-grid-4x3" id="b1-grid"></div>
+
+          <div class="stage-drawer" id="b1-drawer">
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--clay-ink);" id="b1-dl-title">❌ 第一次测试 · 对照组 (C0/C1/T-Gen) 表现</span>
+                <span class="badge clay">Batch 1 Control</span>
+              </div>
+              <pre class="drawer-code" id="b1-dl-code"></pre>
+            </div>
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--moss-ink);" id="b1-dr-title">✔ 第一次测试 · T-Tier4 护栏组表现</span>
+                <span class="badge moss">Batch 1 Tier 4</span>
+              </div>
+              <pre class="drawer-code" id="b1-dr-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch 1 Dedicated Full Table (32 Runs) -->
+      <div class="data-table-wrap reveal" style="margin-top: 20px;">
+        <div style="padding:12px 16px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+          <span>表 1A · 第一次测试完整明细账本 (T1–T8 × 4 变体 = 32 场多轮 Agent 实验)</span>
+          <span class="badge cerulean">coding_matrix_results.json</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>题目 ID 与工程场景</th>
+              <th>表面浅层诱饵 vs 底层隐藏签名陷阱</th>
+              <th>C0 · AI Studio 原版</th>
+              <th>C1 · Antigravity 原版</th>
+              <th>T-Gen · 通用口号</th>
+              <th>T-Tier4 · 第4档护栏</th>
+            </tr>
+          </thead>
+          <tbody id="table-batch1-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         STAGE B: Second Benchmark Batch (Batch 2: Microsoft Delulu k=3 = 72 Runs)
+         ===================================================================== -->
+    <section class="sec-block" id="stage-batch2">
+      <div class="sec-header reveal">
+        <div>
+          <div class="eyebrow">Stage 01B · 第二次测试完整复盘 (Batch 2: Microsoft Delulu 2026.05 + 核心集 k=3 = 72 场)</div>
+          <h2 class="sec-title">第二次测试：引入 Microsoft Delulu (2026.05) 真实开源仓库题与 k=3 重复采样</h2>
+          <p class="sec-desc">摒弃偏向竞赛算法的 AAAI CodeHalu，直接采用 Microsoft 2026 年 5 月发布的真实 GitHub 仓库编码幻觉基准 <code>microsoft/delulu</code>（<code>arXiv:2605.07024</code>），通过 3 次独立重复运行（共 72 场）检验统计置信度。</p>
+        </div>
+        <span class="badge moss">72 Sessions · 8 Tasks × 3 Variants × k=3 Repetitions</span>
+      </div>
+
+      <div class="scrolly-section" id="scrolly-b2">
+        <div class="scrolly-steps">
+          <article class="step-card active" data-step="0">
+            <div class="step-badge">Batch 2 · Step 01 / 04 · 公开基准甄选</div>
+            <h3>为什么排除 AAAI CodeHalu，选择 Microsoft Delulu (2026.05) 与 SWE 仓库级幻觉？</h3>
+            <p>
+              在调研公开数据集时，我们核查了 AAAI 2025 的 <code>CodeHalu</code>，发现其样本均为单函数算法竞赛题（如求数组边界、动态规划），测试的是逻辑推理错误而非真实工程中的“跨文件 API 签名捏造”。
+            </p>
+            <p>
+              相反，Microsoft 2026.05 发布的 <code>microsoft/delulu</code> 基于 319 个真实 GitHub 仓库的 1,947 个提交构建，专门标注了模型在真实项目上下文中捏造不存在的方法名（<code>method</code>）、多余参数（<code>parameter</code>）与未定义导入（<code>import</code>）的黄金正负样本。
+            </p>
+            <div class="step-meta">右侧展示了我们从 delulu.csv 提取的 4 道真实仓库题 (D1–D4) 与 4 道高对抗多文件题 (T2/T4/T7/T8)。</div>
+          </article>
+
+          <article class="step-card" data-step="1">
+            <div class="step-badge">Batch 2 · Step 02 / 04 · Delulu D1 &amp; D2 实测复盘</div>
+            <h3>ShareThrift 的 message.notifyLimit 与 AyakoBot 的 commander.setWithExpiry</h3>
+            <p>
+              • <strong><code>D1 (simnova/sharethrift)</code></strong>：Delulu 记录的真实模型幻觉是将 <code>message.info(...)</code> 虚构为 <code>message.notifyLimit(...)</code>。在 <code>r1/r2/r3</code> 三次重复中，<code>C0</code> 100% 在 Turn 1 只补上 <code>input.value = ''</code> 就退出，0 次读取 <code>src/ui/message.mjs</code>，<strong>0/3 通过</strong>；而 <code>T-Tier4</code> <strong>3/3 全部先读 <code>message.mjs</code> 并修正为 <code>message.info</code></strong>。<br>
+              • <strong><code>D2 (AyakoBot/Ayako-v2)</code></strong>：Delulu 记录的真实幻觉是将 Redis <code>ChainableCommander.setex</code> 虚构为 <code>.setWithExpiry</code>。<code>C0</code> 与 <code>C1</code> 在全部 6 场中 100% 只改了 <code>/ 1000</code> 算术错，<strong>0/6 通过</strong>；<code>T-Tier4</code> <strong>3/3 全部先读 <code>redis_commander.mjs</code> 并修正为 <code>.setex</code></strong>。
+            </p>
+            <div class="step-meta">点击右侧舞台的 D1 或 D2 色块，可对比 Delulu 原始报错与 Agent 轨迹。</div>
+          </article>
+
+          <article class="step-card" data-step="2">
+            <div class="step-badge">Batch 2 · Step 03 / 04 · Delulu D3 &amp; D4 实测复盘</div>
+            <h3>Autumn Stripe 的 removeDiscount 与 PostCSS 的 isTokenIdent 多余参数</h3>
+            <p>
+              • <strong><code>D3 (useautumn/autumn)</code></strong>：Delulu 记录的幻觉是将 <code>customers.deleteDiscount</code> 写成 <code>customers.removeDiscount</code>。<code>C0</code> 与 <code>C1</code> 在 6 场中全部在 Turn 1 只把 <code>-1</code> 改成 <code>0</code>，0 次读取 <code>customer_resource.mjs</code>，<strong>0/6 通过</strong>；<code>T-Tier4</code> <strong>3/3 全部通过</strong>。<br>
+              • <strong><code>D4 (csstools/postcss-plugins)</code></strong>：Delulu 记录的参数幻觉是给只收 1 个参数的 <code>isTokenIdent(tok)</code> 传了第 2 个配置对象 <code>{ strict: true }</code>（报错 <code>Expected 0-1 arguments, but got 2</code>）。<code>C0</code> 与 <code>C1</code> 在 6 场中全部只把 <code>join(':')</code> 改为 <code>join('.')</code>，<strong>0/6 通过</strong>；<code>T-Tier4</code> <strong>3/3 全部先读 <code>ident_check.mjs</code> 并移除多余参数</strong>。
+            </p>
+            <div class="step-meta">在 4 道 Delulu 开源仓库真题上，C0 12 场 0 胜 (0/12)，T-Tier4 12 场全胜 (12/12)。</div>
+          </article>
+
+          <article class="step-card" data-step="3">
+            <div class="step-badge">Batch 2 · Step 04 / 04 · k=3 统计显著性总结</div>
+            <h3>72 场重复采样零波动：0/24 (0.0%) → 24/24 (100.0%)</h3>
+            <p>
+              跨 <code>rep=1, 2, 3</code> 三轮独立运行（每变体 24 场，共 72 场）：<br>
+              • <strong><code>C0 (control_aistudio_stock)</code></strong>：<code>r1=0/8, r2=0/8, r3=0/8</code>（总计 <strong>0/24 = 0.0%</strong>，盲改 21/24 场，残留 66 处幻觉）；<br>
+              • <strong><code>C1 (control_antigravity_stock)</code></strong>：<code>r1=1/8, r2=1/8, r3=1/8</code>（总计 <strong>3/24 = 12.5%</strong>，盲改 21/24 场，残留 58 处幻觉）；<br>
+              • <strong><code>T-Tier4 (treatment_tier4_guardrails)</code></strong>：<code>r1=8/8, r2=8/8, r3=8/8</code>（总计 <strong>24/24 = 100.0%</strong>，盲改 0/24 场，48/48 依赖文件先读，残留 0 处幻觉）。
+            </p>
+            <div class="step-meta">三次独立重复实验的极低方差证实该防幻觉效果高度稳定、非随机偶发。</div>
+          </article>
+        </div>
+
+        <!-- Sticky Stage B2 Right -->
+        <div class="sticky-stage grid-surface">
+          <div class="stage-topbar">
+            <div class="stage-title-group">
+              <span class="stage-step-indicator" id="b2-step-badge">BATCH 2 · STEP 01 / 04</span>
+              <span class="stage-heading" id="b2-step-title">第二次测试：Microsoft Delulu + 核心集 (k=3 · 72 场)</span>
+            </div>
+            <span class="stage-counter-pill">k=3 累计残留幻觉：<strong id="b2-hallu-num" data-current-val="66">66</strong> 处 → 0 处</span>
+          </div>
+
+          <div class="step-dots-bar" id="b2-dots"></div>
+
+          <div class="cmeter-group">
+            <div class="cmeter-row">
+              <span>C0 · AI Studio 原版 (k=3)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:2%;background:var(--clay-dot);"></div></div>
+              <span style="color:var(--clay-ink);font-weight:600;">0/24 (0.0%) · 盲改 21/24 · 残留 66 处</span>
+            </div>
+            <div class="cmeter-row">
+              <span>C1 · Antigravity 原版 (k=3)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:12.5%;background:var(--ochre-dot);"></div></div>
+              <span style="color:var(--ochre-ink);font-weight:600;">3/24 (12.5%) · 盲改 21/24 · 残留 58 处</span>
+            </div>
+            <div class="cmeter-row">
+              <span>T-Tier4 · 第 4 档护栏 (k=3)</span>
+              <div class="cmeter-track"><div class="cmeter-fill" style="width:100%;background:var(--moss-dot);"></div></div>
+              <span style="color:var(--moss-ink);font-weight:600;">24/24 (100.0%) · 先读 48/48 · 残留 0 处</span>
+            </div>
+          </div>
+
+          <div class="stage-grid-4x3" id="b2-grid"></div>
+
+          <div class="stage-drawer" id="b2-drawer">
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--clay-ink);" id="b2-dl-title">❌ Delulu 公开集 / 对照组 k=3 表现</span>
+                <span class="badge clay">k=3 Control</span>
+              </div>
+              <pre class="drawer-code" id="b2-dl-code"></pre>
+            </div>
+            <div class="drawer-col">
+              <div class="drawer-col-head">
+                <span style="color: var(--moss-ink);" id="b2-dr-title">✔ 第 4 档护栏组 k=3 表现</span>
+                <span class="badge moss">k=3 Tier 4 (3/3 PASS)</span>
+              </div>
+              <pre class="drawer-code" id="b2-dr-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch 2 Dedicated Full Table (72 Runs) -->
+      <div class="data-table-wrap reveal" style="margin-top: 20px;">
+        <div style="padding:12px 16px;background:var(--bg-card);border-bottom:1px solid var(--line-soft);font-family:var(--font-mono);font-size:12px;font-weight:600;display:flex;justify-content:space-between;">
+          <span>表 1B · 第二次测试完整明细账本 (8 题 × 3 变体 × k=3 次独立重复 = 72 场实验)</span>
+          <span class="badge moss">public_delulu_k3_results.json</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>题目 ID 与真实开源仓库来源</th>
+              <th>Delulu 标注幻觉类型与真实 API 契约</th>
+              <th>C0 · AI Studio 原版 (r1 | r2 | r3)</th>
+              <th>C1 · Antigravity 原版 (r1 | r2 | r3)</th>
+              <th>T-Tier4 · 第4档护栏 (r1 | r2 | r3)</th>
+            </tr>
+          </thead>
+          <tbody id="table-batch2-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: Interactive 104-Session Trajectory & Thinking Trace Inspector
+         ===================================================================== -->
+    <section class="sec-block reveal" id="sec-inspector">
+      <div class="sec-header">
+        <div>
+          <div class="eyebrow">104-Session Trajectory &amp; Thinking Trace Inspector · 全量轨迹检视台</div>
+          <h2 class="sec-title">点击任意题目、变体与重复轮次 (r1/r2/r3)，查看真实的逐轮工具调用与 Thinking 原文</h2>
+          <p class="sec-desc">下方直接加载 <code>coding_matrix_results.json</code>（32场）与 <code>public_delulu_k3_results.json</code>（72场）的全部 104 条会话记录。</p>
+        </div>
+      </div>
+
+      <div class="explorer-grid">
+        <div class="explorer-sidebar" id="task-selector-list"></div>
+        <div class="explorer-main">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line-soft);padding-bottom:12px;">
+            <div>
+              <h3 style="font-family:var(--font-serif);font-size:19px;" id="insp-task-title">选择左侧题目查看详情</h3>
+              <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink-muted);margin-top:3px;" id="insp-task-meta"></div>
+            </div>
+            <div class="variant-tabs" id="insp-variant-tabs"></div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="insp-kpi-row"></div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:11.5px;font-weight:600;margin-bottom:8px;color:var(--ink-body);">逐轮工具调用与内部 Thinking 推理链原文 (Turn-by-Turn Trace):</div>
+            <div class="trace-turn-list" id="insp-turn-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <a href="index.html" style="color:var(--ink-body);">← 返回总览主站</a>
+      <a href="lab-aesthetics.html" style="color:var(--moss-ink);font-weight:600;">下一篇：实验二 · 前端审美双批次实证 (12+22场) →</a>
+    </footer>
+  </main>
+
+  <script src="assets/study-data.js"></script>
+  <script src="assets/editorial-common.js"></script>
+  <script>
+    (function () {
+      const UI = window.EditorialUI;
+      const data = window.ARGON_STUDY_DATA || { coding32: [], delulu72: [] };
+
+      UI.initGlobalChoreography([
+        { id: 'sec-hero', label: '编码幻觉双批次总览' },
+        { id: 'sec-fact-boundary', label: '事实边界与思维链因果' },
+        { id: 'stage-batch1', label: '第一次测试：32场全变体矩阵' },
+        { id: 'stage-batch2', label: '第二次测试：Delulu k=3 (72场)' },
+        { id: 'sec-inspector', label: '104场逐轮轨迹检视器' }
+      ]);
+
+      UI.initParticleStreamCanvas('hallu-canvas', { count: 980 });
+
+      const TASK_META = [
+        { id: 'T1-settlement-decoy', short: 'T1 · 订单结算冲正', batch: 1, src: '自建多文件陷阱 (16文件)', trap: '表面漏传 req.currency + 底层 refundDebit / releaseCoupon / recordFailure 3处旧方法名漂移' },
+        { id: 'T2-compiler-analogous-api-trap', short: 'T2 · 编译器作用域', batch: 12, src: '自建同构API陷阱 (k=3)', trap: '表面漏写 return + 同文件 Result.ok 诱导盲猜 Result.err / enterScope / emitLoadConst 等 7 处虚构调用' },
+        { id: 'T3-dag-scheduler-decoy', short: 'T3 · DAG 调度死锁', batch: 1, src: '自建跨模块状态陷阱 (13文件)', trap: '表面 > 比较符 + 底层 LeasePool 漏标终态与 RetryPolicy 退避乘零' },
+        { id: 'T4-query-planner-decoy', short: 'T4 · 列式查询计划器', batch: 12, src: '自建多文件陷阱 (k=3)', trap: '表面操作符大小写 bug + 未读 TableRegistry.lookupTable 与 PredicateArena.compilePredicate' },
+        { id: 'T5-mux-protocol-decoy', short: 'T5 · 多路复用协议栈', batch: 1, src: '自建同构状态机陷阱 (12文件)', trap: '同构 4 分支状态机 + FrameCodec 使用 str.length 导致中文 UTF-8 截断' },
+        { id: 'T6-node-sqlite-and-argon-spec', short: 'T6 · node:sqlite 审计', batch: 1, src: '自建 Node v22 新API陷阱', trap: 'Node v22+ 原生 DatabaseSync 误用 better-sqlite3 的 .pragma() 与 .transaction()' },
+        { id: 'T7-consumer-idempotency-dlq', short: 'T7 · 消费幂等锁与DLQ', batch: 12, src: '自建多文件陷阱 (k=3)', trap: '表面状态写反 + hasProcessed / markProcessed / acquireLock / pushDeadLetter 等 5 处签名盲猜' },
+        { id: 'T8-stream-window-aggregator', short: 'T8 · 流式窗口聚合器', batch: 12, src: '自建多文件陷阱 (k=3)', trap: '表面均值乘除写错 + stateBackend.loadBucket / saveBucket / sink.flushMetric 等 4 处签名盲猜' },
+        { id: 'D1-delulu-sharethrift-method', short: 'D1 · ShareThrift 上传', batch: 2, src: 'microsoft/delulu #76743897a697', trap: '表面漏写 input.value="" + Delulu 真题：虚构 message.notifyLimit (真实方法为 message.info)' },
+        { id: 'D2-delulu-ayakobot-method', short: 'D2 · AyakoBot 批处理', batch: 2, src: 'microsoft/delulu #c78e023450b5', trap: '表面 expireMs*1000 写反 + Delulu 真题：虚构 commander.setWithExpiry (真实方法为 commander.setex)' },
+        { id: 'D3-delulu-autumn-stripe', short: 'D3 · Autumn 折扣移除', batch: 2, src: 'microsoft/delulu #ddf38b4aa065', trap: '表面空列表返回 -1 + Delulu 真题：虚构 customers.removeDiscount (真实方法为 deleteDiscount)' },
+        { id: 'D4-delulu-csstools-param', short: 'D4 · PostCSS 级联层', batch: 2, src: 'microsoft/delulu #147ec8b99423', trap: '表面 join(":") 写错 + Delulu 真题：给单参数函数 isTokenIdent(tok) 多传 { strict: true } 抛 TypeError' }
+      ];
+
+      // =======================================================================
+      // Stage 1A: Batch 1 (T1-T8 x 4 Variants = 32 Runs)
+      // =======================================================================
+      const b1Tasks = TASK_META.slice(0, 8);
+      const b1Grid = document.getElementById('b1-grid');
+      let b1SelIdx = 1; // T2
+
+      function getB1Run(taskId, vKey) {
+        return data.coding32.find(r => r.taskId === taskId && r.variantKey === vKey);
+      }
+
+      b1Grid.innerHTML = b1Tasks.map((t, i) => {
+        const c0 = getB1Run(t.id, 'control_aistudio_stock');
+        const t4 = getB1Run(t.id, 'treatment_tier4_guardrails');
+        const st = (!c0?.oraclePassed || (c0?.residualHallucinatedSymbolsCount || 0) > 0) ? 'clay' : 'moss';
+        return `<div class="slot-tile state-${st} ${i === b1SelIdx ? 'selected' : ''}" data-b1="${i}">
+          <div class="slot-tile-head"><span>${t.short}</span><span>C0:${c0?.oraclePassed ? 'PASS*' : 'FAIL'} → T4:PASS</span></div>
+          <div class="slot-tile-sub">C0幻觉:${c0?.residualHallucinatedSymbolsCount || 0} → T4:${t4?.residualHallucinatedSymbolsCount || 0}</div>
+        </div>`;
+      }).join('');
+
+      function renderB1Detail(idx, animate) {
+        b1SelIdx = idx;
+        const tm = b1Tasks[idx] || b1Tasks[0];
+        b1Grid.querySelectorAll('.slot-tile').forEach((el, i) => el.classList.toggle('selected', i === idx));
+        if (animate) UI.pulseDrawer('b1-drawer');
+
+        const c0 = getB1Run(tm.id, 'control_aistudio_stock');
+        const tg = getB1Run(tm.id, 'treatment_generic');
+        const t4 = getB1Run(tm.id, 'treatment_tier4_guardrails');
+
+        document.getElementById('b1-dl-title').textContent = `❌ ${tm.short} · C0 & T-Gen (第一次测试)`;
+        document.getElementById('b1-dl-code').textContent =
+          `[C0 AI Studio 原版]: Oracle=${c0?.oraclePassed ? 'PASS' : 'FAIL'} | 先读依赖=${c0?.targetFilesReadBeforeFirstEdit}/${c0?.targetFilesTotal} | 首轮盲改=${c0?.blindFirstEdit} | 残留幻觉=${c0?.residualHallucinatedSymbolsCount} (${(c0?.residualHallucinatedSymbols || []).join(', ') || '无'})\n` +
+          `[T-Gen 通用口号]: Oracle=${tg?.oraclePassed ? 'PASS' : 'FAIL'} | 先读依赖=${tg?.targetFilesReadBeforeFirstEdit}/${tg?.targetFilesTotal} | 首轮盲改=${tg?.blindFirstEdit} | 残留幻觉=${tg?.residualHallucinatedSymbolsCount}\n` +
+          `[C0 Turn 1 Thinking]: ${(c0?.turnTrace?.[0]?.reasoningPreview || '').slice(0, 240)}`;
+
+        document.getElementById('b1-dr-title').textContent = `✔ ${tm.short} · T-Tier4 (第一次测试)`;
+        document.getElementById('b1-dr-code').textContent =
+          `[T-Tier4 第4档护栏]: Oracle=${t4?.oraclePassed ? 'PASS' : 'FAIL'} | 先读依赖=${t4?.targetFilesReadBeforeFirstEdit}/${t4?.targetFilesTotal} (100%) | 首轮盲改=${t4?.blindFirstEdit} | 残留幻觉=${t4?.residualHallucinatedSymbolsCount}\n` +
+          `[T-Tier4 Turn 1 Thinking]: ${(t4?.turnTrace?.[0]?.reasoningPreview || '').slice(0, 280)}`;
+      }
+
+      b1Grid.querySelectorAll('.slot-tile').forEach((el, i) => {
+        el.addEventListener('click', () => renderB1Detail(i, true));
+      });
+
+      const B1_STEP_FOCUS = [
+        { badge: 'BATCH 1 · STEP 01 / 04', focus: [0, 1, 2, 3, 4, 5, 6, 7], tile: 1 },
+        { badge: 'BATCH 1 · STEP 02 / 04', focus: [1, 6, 7], tile: 1 },
+        { badge: 'BATCH 1 · STEP 03 / 04', focus: [0, 3, 5], tile: 5 },
+        { badge: 'BATCH 1 · STEP 04 / 04', focus: [0, 1, 2, 3, 4, 5, 6, 7], tile: 6 }
+      ];
+
+      UI.bindScrollyStage({
+        sectionId: 'scrolly-b1',
+        dotsId: 'b1-dots',
+        drawerId: 'b1-drawer',
+        onStepChange: (idx) => {
+          const cfg = B1_STEP_FOCUS[idx] || B1_STEP_FOCUS[0];
+          document.getElementById('b1-step-badge').textContent = cfg.badge;
+          b1Grid.querySelectorAll('.slot-tile').forEach((el, i) => {
+            const f = cfg.focus.includes(i);
+            el.classList.toggle('focused', f);
+            el.classList.toggle('dimmed', !f);
+          });
+          renderB1Detail(cfg.tile, false);
+        }
+      });
+
+      // Populate Table 1A (Batch 1: 32 Runs)
+      function fmtB1Cell(r) {
+        if (!r) return '—';
+        const cls = r.oraclePassed && r.residualHallucinatedSymbolsCount === 0 ? 'moss' : (r.oraclePassed ? 'ochre' : 'clay');
+        return `<span class="badge ${cls}">${r.oraclePassed ? 'PASS' : 'FAIL'}</span>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);margin-top:3px;">
+            先读:${r.targetFilesReadBeforeFirstEdit}/${r.targetFilesTotal} · 盲改:${r.blindFirstEdit ? '是' : '否'} · 幻觉:${r.residualHallucinatedSymbolsCount}
+          </div>`;
+      }
+
+      document.getElementById('table-batch1-tbody').innerHTML = b1Tasks.map(tm => {
+        const c0 = getB1Run(tm.id, 'control_aistudio_stock');
+        const c1 = getB1Run(tm.id, 'control_antigravity_stock');
+        const tg = getB1Run(tm.id, 'treatment_generic');
+        const t4 = getB1Run(tm.id, 'treatment_tier4_guardrails');
+        return `<tr>
+          <td><strong>${tm.short}</strong><div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">${tm.id}</div></td>
+          <td style="max-width:320px;font-size:12.8px;color:var(--ink-body);">${tm.trap}</td>
+          <td>${fmtB1Cell(c0)}</td>
+          <td>${fmtB1Cell(c1)}</td>
+          <td>${fmtB1Cell(tg)}</td>
+          <td>${fmtB1Cell(t4)}</td>
+        </tr>`;
+      }).join('');
+
+      // =======================================================================
+      // Stage 1B: Batch 2 (Delulu + Core Set k=3 = 72 Runs)
+      // =======================================================================
+      const b2TaskIds = [
+        'D1-delulu-sharethrift-method',
+        'D2-delulu-ayakobot-method',
+        'D3-delulu-autumn-stripe',
+        'D4-delulu-csstools-param',
+        'T2-compiler-analogous-api-trap',
+        'T4-query-planner-decoy',
+        'T7-consumer-idempotency-dlq',
+        'T8-stream-window-aggregator'
+      ];
+      const b2Tasks = b2TaskIds.map(id => TASK_META.find(t => t.id === id));
+      const b2Grid = document.getElementById('b2-grid');
+      let b2SelIdx = 0;
+
+      function getB2Runs(taskId, vKey) {
+        return data.delulu72
+          .filter(r => (r.baseTaskId || r.taskId.replace(/__r\d+$/, '')) === taskId && r.variantKey === vKey)
+          .sort((a, b) => (a.rep || 1) - (b.rep || 1));
+      }
+
+      b2Grid.innerHTML = b2Tasks.map((t, i) => {
+        const c0s = getB2Runs(t.id, 'control_aistudio_stock');
+        const t4s = getB2Runs(t.id, 'treatment_tier4_guardrails');
+        const c0Pass = c0s.filter(x => x.oraclePassed).length;
+        const t4Pass = t4s.filter(x => x.oraclePassed).length;
+        return `<div class="slot-tile state-clay ${i === b2SelIdx ? 'selected' : ''}" data-b2="${i}">
+          <div class="slot-tile-head"><span>${t.short}</span><span>C0:${c0Pass}/3 → T4:${t4Pass}/3</span></div>
+          <div class="slot-tile-sub">${t.src}</div>
+        </div>`;
+      }).join('');
+
+      function renderB2Detail(idx, animate) {
+        b2SelIdx = idx;
+        const tm = b2Tasks[idx] || b2Tasks[0];
+        b2Grid.querySelectorAll('.slot-tile').forEach((el, i) => el.classList.toggle('selected', i === idx));
+        if (animate) UI.pulseDrawer('b2-drawer');
+
+        const c0s = getB2Runs(tm.id, 'control_aistudio_stock');
+        const c1s = getB2Runs(tm.id, 'control_antigravity_stock');
+        const t4s = getB2Runs(tm.id, 'treatment_tier4_guardrails');
+
+        document.getElementById('b2-dl-title').textContent = `❌ ${tm.short} · C0 & C1 (k=3 重复实验)`;
+        document.getElementById('b2-dl-code').textContent =
+          `[来源]: ${tm.src}\n` +
+          `[C0 三次重复]: ` + c0s.map(r => `r${r.rep || 1}:${r.oraclePassed ? 'PASS' : 'FAIL'}(先读${r.targetFilesReadBeforeFirstEdit}/${r.targetFilesTotal},幻觉${r.residualHallucinatedSymbolsCount})`).join(' | ') + `\n` +
+          `[C1 三次重复]: ` + c1s.map(r => `r${r.rep || 1}:${r.oraclePassed ? 'PASS' : 'FAIL'}(先读${r.targetFilesReadBeforeFirstEdit}/${r.targetFilesTotal},幻觉${r.residualHallucinatedSymbolsCount})`).join(' | ') + `\n` +
+          `[C0 r1 Turn 1 Thinking]: ${(c0s[0]?.turnTrace?.[0]?.reasoningPreview || '').slice(0, 220)}`;
+
+        document.getElementById('b2-dr-title').textContent = `✔ ${tm.short} · T-Tier4 (k=3 重复实验)`;
+        document.getElementById('b2-dr-code').textContent =
+          `[T-Tier4 三次重复]: ` + t4s.map(r => `r${r.rep || 1}:${r.oraclePassed ? 'PASS' : 'FAIL'}(先读${r.targetFilesReadBeforeFirstEdit}/${r.targetFilesTotal},幻觉${r.residualHallucinatedSymbolsCount})`).join(' | ') + `\n` +
+          `[T-Tier4 r1 Turn 1 Thinking]: ${(t4s[0]?.turnTrace?.[0]?.reasoningPreview || '').slice(0, 280)}`;
+      }
+
+      b2Grid.querySelectorAll('.slot-tile').forEach((el, i) => {
+        el.addEventListener('click', () => renderB2Detail(i, true));
+      });
+
+      const B2_STEP_FOCUS = [
+        { badge: 'BATCH 2 · STEP 01 / 04', focus: [0, 1, 2, 3, 4, 5, 6, 7], tile: 0, hallu: 66 },
+        { badge: 'BATCH 2 · STEP 02 / 04', focus: [0, 1], tile: 1, hallu: 66 },
+        { badge: 'BATCH 2 · STEP 03 / 04', focus: [2, 3], tile: 2, hallu: 58 },
+        { badge: 'BATCH 2 · STEP 04 / 04', focus: [0, 1, 2, 3, 4, 5, 6, 7], tile: 3, hallu: 0 }
+      ];
+
+      UI.bindScrollyStage({
+        sectionId: 'scrolly-b2',
+        dotsId: 'b2-dots',
+        drawerId: 'b2-drawer',
+        onStepChange: (idx) => {
+          const cfg = B2_STEP_FOCUS[idx] || B2_STEP_FOCUS[0];
+          document.getElementById('b2-step-badge').textContent = cfg.badge;
+          UI.animateNumber(document.getElementById('b2-hallu-num'), cfg.hallu, (v) => String(Math.round(v)));
+          b2Grid.querySelectorAll('.slot-tile').forEach((el, i) => {
+            const f = cfg.focus.includes(i);
+            el.classList.toggle('focused', f);
+            el.classList.toggle('dimmed', !f);
+          });
+          renderB2Detail(cfg.tile, false);
+        }
+      });
+
+      // Populate Table 1B (Batch 2: 72 Runs k=3)
+      function fmtB2Cell(runs) {
+        if (!runs || runs.length === 0) return '—';
+        const passCnt = runs.filter(r => r.oraclePassed).length;
+        const cls = passCnt === 3 ? 'moss' : (passCnt === 0 ? 'clay' : 'ochre');
+        const badges = runs.map(r => `<span class="badge ${r.oraclePassed ? 'moss' : 'clay'}">r${r.rep || 1}:${r.oraclePassed ? 'PASS' : 'FAIL'}</span>`).join(' ');
+        const readSum = runs.reduce((s, r) => s + r.targetFilesReadBeforeFirstEdit, 0);
+        const readMax = runs.reduce((s, r) => s + r.targetFilesTotal, 0);
+        const halSum = runs.reduce((s, r) => s + r.residualHallucinatedSymbolsCount, 0);
+        return `<div>${badges}</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);margin-top:4px;">
+            合计:${passCnt}/3 通过 · 先读:${readSum}/${readMax} · 累计幻觉:${halSum}处
+          </div>`;
+      }
+
+      document.getElementById('table-batch2-tbody').innerHTML = b2Tasks.map(tm => {
+        const c0s = getB2Runs(tm.id, 'control_aistudio_stock');
+        const c1s = getB2Runs(tm.id, 'control_antigravity_stock');
+        const t4s = getB2Runs(tm.id, 'treatment_tier4_guardrails');
+        return `<tr>
+          <td><strong>${tm.short}</strong><div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);">${tm.src}</div></td>
+          <td style="max-width:330px;font-size:12.8px;color:var(--ink-body);">${tm.trap}</td>
+          <td>${fmtB2Cell(c0s)}</td>
+          <td>${fmtB2Cell(c1s)}</td>
+          <td>${fmtB2Cell(t4s)}</td>
+        </tr>`;
+      }).join('');
+
+      // =======================================================================
+      // Section 4: Interactive 104-Session Trajectory Inspector
+      // =======================================================================
+      const allRuns = [...data.coding32, ...data.delulu72];
+      let curTaskId = 'D1-delulu-sharethrift-method';
+
+      function findRunsForTask(taskId, variantKey) {
+        const map = new Map();
+        for (const r of allRuns) {
+          const base = r.baseTaskId || r.taskId.replace(/__r\d+$/, '');
+          if (base === taskId && r.variantKey === variantKey) {
+            const rep = r.rep || 1;
+            map.set(rep, r);
+          }
+        }
+        return Array.from(map.values()).sort((a, b) => (a.rep || 1) - (b.rep || 1));
+      }
+
+      const sidebar = document.getElementById('task-selector-list');
+      sidebar.innerHTML = TASK_META.map(tm => {
+        const t4 = findRunsForTask(tm.id, 'treatment_tier4_guardrails');
+        const c0 = findRunsForTask(tm.id, 'control_aistudio_stock');
+        const c0Pass = c0.filter(x => x.oraclePassed).length;
+        const t4Pass = t4.filter(x => x.oraclePassed).length;
+        return `<button class="selector-btn ${tm.id === curTaskId ? 'active' : ''}" data-tid="${tm.id}">
+          <div class="sel-top">
+            <span>${tm.short}</span>
+            <span class="badge ${c0Pass === 0 ? 'clay' : 'ochre'}">C0:${c0Pass}/${c0.length} → T4:${t4Pass}/${t4.length}</span>
+          </div>
+          <div class="sel-sub">${tm.src}</div>
+        </button>`;
+      }).join('');
+
+      sidebar.querySelectorAll('.selector-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          curTaskId = btn.dataset.tid;
+          sidebar.querySelectorAll('.selector-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderInspectorTask();
+        });
+      });
+
+      function renderInspectorTask() {
+        const tm = TASK_META.find(x => x.id === curTaskId) || TASK_META[0];
+        document.getElementById('insp-task-title').textContent = `${tm.short} — ${tm.trap}`;
+        document.getElementById('insp-task-meta').textContent = `数据来源: ${tm.src}`;
+
+        const candidates = [];
+        for (const vKey of ['control_aistudio_stock', 'control_antigravity_stock', 'treatment_generic', 'treatment_tier4_guardrails']) {
+          const list = findRunsForTask(tm.id, vKey);
+          for (const r of list) {
+            const shortV = vKey === 'control_aistudio_stock' ? 'C0·AIStudio'
+              : vKey === 'control_antigravity_stock' ? 'C1·Antigravity'
+              : vKey === 'treatment_generic' ? 'T-Gen·通用口号'
+              : 'T-Tier4·第4档护栏';
+            candidates.push({
+              label: `${shortV} (r${r.rep || 1}) · ${r.oraclePassed ? 'PASS' : 'FAIL'}`,
+              run: r
+            });
+          }
+        }
+
+        const tabsEl = document.getElementById('insp-variant-tabs');
+        tabsEl.innerHTML = candidates.map((c, i) =>
+          `<button class="vtab-btn ${i === 0 ? 'active' : ''}" data-cidx="${i}">${c.label}</button>`
+        ).join('');
+
+        tabsEl.querySelectorAll('.vtab-btn').forEach((b, i) => {
+          b.addEventListener('click', () => {
+            tabsEl.querySelectorAll('.vtab-btn').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            renderRunDetail(candidates[i].run);
+          });
+        });
+
+        if (candidates.length > 0) {
+          renderRunDetail(candidates[0].run);
+        }
+      }
+
+      function renderRunDetail(r) {
+        const kpiEl = document.getElementById('insp-kpi-row');
+        kpiEl.innerHTML = `
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">隐藏 Oracle 验收结果</div>
+            <div class="kpi-mini-val" style="color:${r.oraclePassed ? 'var(--moss-ink)' : 'var(--clay-ink)'}">${r.oraclePassed ? 'PASS' : 'FAIL'}</div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">编辑前读取目标依赖</div>
+            <div class="kpi-mini-val">${r.targetFilesReadBeforeFirstEdit} / ${r.targetFilesTotal}</div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">第 1 轮是否直接盲改</div>
+            <div class="kpi-mini-val" style="color:${r.blindFirstEdit ? 'var(--clay-ink)' : 'var(--moss-ink)'}">${r.blindFirstEdit ? '是 (Blind Edit)' : '否 (先读后改)'}</div>
+          </div>
+          <div class="kpi-mini">
+            <div class="kpi-mini-label">代码残留幻觉调用</div>
+            <div class="kpi-mini-val" style="color:${r.residualHallucinatedSymbolsCount > 0 ? 'var(--clay-ink)' : 'var(--moss-ink)'}">${r.residualHallucinatedSymbolsCount} 处</div>
+          </div>
+        `;
+
+        const listEl = document.getElementById('insp-turn-list');
+        listEl.innerHTML = (r.turnTrace || []).map(t => {
+          const tools = (t.toolCalls || []).map(tc => `${tc.name}(${JSON.stringify(tc.args || {}).slice(0, 68)})`).join(', ') || '(无工具调用 · 输出最终回复)';
+          return `<div class="trace-turn-card">
+            <div class="trace-turn-head">
+              <strong>Turn ${t.turn} · 工具调用: <code>${tools.replace(/</g, '&lt;')}</code></strong>
+              <span style="color:var(--ink-muted)">${t.modelUsed || 'gemini-4-argon'}</span>
+            </div>
+            ${t.reasoningPreview ? `<div class="trace-thinking"><strong>Thinking:</strong> ${t.reasoningPreview.replace(/</g, '&lt;')}</div>` : ''}
+            ${t.content ? `<div style="font-size:12.5px;margin-top:6px;color:var(--ink-body);">${t.content.replace(/</g, '&lt;')}</div>` : ''}
+          </div>`;
+        }).join('');
+      }
+
+      renderInspectorTask();
+    })();
+  </script>
+</body>
+</html>

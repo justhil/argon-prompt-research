@@ -1,0 +1,1480 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOLIA // 卡片盒双链笔记与文献批注工作室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 种子#2: 青瓷植物雾绿配深林墨色 (Botanical Celadon & Deep Forest Ink) */
+    --bg-celadon: #E6EFE9;
+    --bg-celadon-deep: #DAE6DF;
+    --bg-paper: #F4F8F5;
+    --bg-card-active: #FCFDFC;
+    --ink-forest: #13261C;
+    --ink-pine: #365243;
+    --ink-moss: #627D6E;
+    --ink-faint: #94ACA0;
+    
+    /* 标本馆功能色 */
+    --accent-terracotta: #B84A27; /* 朱砂陶土 - 永久笔记 / 焦点 */
+    --accent-ochre: #C88A2B;      /* 藤黄琥珀 - 闪念笔记 / 高亮 */
+    --accent-verdigris: #216853;  /* 铜绿 - 文献笔记 / 双链 */
+    
+    --hl-bg: rgba(200, 138, 43, 0.16);
+    --hl-bg-active: rgba(184, 74, 39, 0.22);
+    --link-bg: rgba(33, 104, 83, 0.10);
+    --link-bg-hover: rgba(33, 104, 83, 0.22);
+
+    --border-hairline: 1px solid rgba(19, 38, 28, 0.14);
+    --border-heavy: 2px solid #13261C;
+    --border-dashed: 1px dashed rgba(19, 38, 28, 0.28);
+
+    --font-serif: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+    --font-body: 'Noto Serif SC', 'Source Han Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-celadon);
+    color: var(--ink-forest);
+    font-family: var(--font-body);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 植物羊皮纸微噪点纹理层 */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+  }
+
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(19, 38, 28, 0.2);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-forest);
+  }
+
+  /* ================= 顶部标本馆档案栏 ================= */
+  .top-ledger {
+    height: 46px;
+    border-bottom: var(--border-heavy);
+    display: grid;
+    grid-template-columns: 340px 1fr 330px;
+    align-items: center;
+    background-color: var(--bg-celadon);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .ledger-brand {
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-right: var(--border-hairline);
+    font-weight: 600;
+  }
+
+  .brand-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .brand-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--ink-forest);
+    display: inline-block;
+    transform: rotate(45deg);
+  }
+
+  .ledger-center {
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    border-right: var(--border-hairline);
+    color: var(--ink-pine);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .breadcrumb span.folio-id {
+    background: var(--ink-forest);
+    color: var(--bg-paper);
+    padding: 2px 6px;
+    font-weight: 500;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: var(--border-hairline);
+    background: var(--bg-paper);
+    padding: 4px 10px;
+    width: 240px;
+  }
+
+  .search-box input {
+    border: none;
+    background: transparent;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-forest);
+    width: 100%;
+    outline: none;
+  }
+
+  .search-box input::placeholder {
+    color: var(--ink-faint);
+  }
+
+  .ledger-right {
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--ink-moss);
+  }
+
+  .btn-new-slip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--ink-forest);
+    color: var(--bg-celadon);
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn-new-slip:hover {
+    background: var(--accent-terracotta);
+    color: #fff;
+  }
+
+  /* ================= 主体三栏非对称架构 ================= */
+  .studio-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 340px 1fr 330px;
+    height: calc(100vh - 46px);
+    overflow: hidden;
+  }
+
+  /* ================= 1. 左侧：卡片索引流 (Zettel Index) ================= */
+  .col-index {
+    border-right: var(--border-hairline);
+    background: var(--bg-celadon-deep);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .filter-bar {
+    padding: 14px 16px;
+    border-bottom: var(--border-hairline);
+    background: var(--bg-celadon);
+  }
+
+  .filter-section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-moss);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .type-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: var(--border-hairline);
+    background: var(--bg-paper);
+    margin-bottom: 10px;
+  }
+
+  .type-tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 6px 4px;
+    text-align: center;
+    cursor: pointer;
+    border-right: var(--border-hairline);
+    color: var(--ink-pine);
+    background: transparent;
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    transition: all 0.15s;
+  }
+
+  .type-tab:last-child {
+    border-right: none;
+  }
+
+  .type-tab:hover {
+    background: rgba(19, 38, 28, 0.05);
+  }
+
+  .type-tab.active {
+    background: var(--ink-forest);
+    color: var(--bg-paper);
+    font-weight: 600;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .tag-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border: var(--border-hairline);
+    background: rgba(244, 248, 245, 0.6);
+    color: var(--ink-pine);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tag-pill:hover, .tag-pill.active {
+    background: var(--accent-verdigris);
+    color: #fff;
+    border-color: var(--accent-verdigris);
+  }
+
+  .card-stream {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* 卢曼索引卡片实体造型 */
+  .zettel-card {
+    background: var(--bg-paper);
+    border: var(--border-hairline);
+    padding: 14px 16px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    /* 右上角标本切角视觉 */
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  }
+
+  .zettel-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--ink-faint);
+    transition: width 0.2s ease, background 0.2s ease;
+  }
+
+  .zettel-card[data-type="permanent"]::before { background: var(--accent-terracotta); }
+  .zettel-card[data-type="literature"]::before { background: var(--accent-verdigris); }
+  .zettel-card[data-type="fleeting"]::before { background: var(--accent-ochre); }
+
+  .zettel-card:hover {
+    transform: translateX(3px);
+    background: var(--bg-card-active);
+    box-shadow: -3px 4px 12px rgba(19, 38, 28, 0.06);
+  }
+
+  .zettel-card.active {
+    background: var(--bg-card-active);
+    border-color: var(--ink-forest);
+    box-shadow: -4px 6px 16px rgba(19, 38, 28, 0.1);
+    transform: translateX(4px);
+  }
+
+  .zettel-card.active::before {
+    width: 6px;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .card-id {
+    font-weight: 600;
+    color: var(--ink-forest);
+    letter-spacing: 0.03em;
+  }
+
+  .card-badge {
+    font-size: 9px;
+    padding: 1px 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 1px solid currentColor;
+  }
+
+  .badge-permanent { color: var(--accent-terracotta); background: rgba(184, 74, 39, 0.06); }
+  .badge-literature { color: var(--accent-verdigris); background: rgba(33, 104, 83, 0.06); }
+  .badge-fleeting { color: var(--accent-ochre); background: rgba(200, 138, 43, 0.08); }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink-forest);
+    margin-bottom: 6px;
+  }
+
+  .card-excerpt {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ink-pine);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: var(--border-dashed);
+    padding-top: 7px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-moss);
+  }
+
+  .card-tags-mini {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* ================= 2. 中部：主阅读与旁注手稿台 ================= */
+  .col-manuscript {
+    background: var(--bg-paper);
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    /* 细微的古籍分栏参考线背景 */
+    background-image: linear-gradient(to right, transparent 63.5%, rgba(19, 38, 28, 0.09) 63.5%, rgba(19, 38, 28, 0.09) calc(63.5% + 1px), transparent calc(63.5% + 1px));
+  }
+
+  .manuscript-sheet {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 42px 36px 96px 44px;
+  }
+
+  /* 档案头部元数据表 */
+  .folio-meta-header {
+    display: grid;
+    grid-template-columns: 63.5% 36.5%;
+    border-top: var(--border-heavy);
+    border-bottom: var(--border-hairline);
+    padding: 18px 0;
+    margin-bottom: 36px;
+  }
+
+  .folio-title-zone {
+    padding-right: 36px;
+  }
+
+  .folio-super {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-terracotta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .folio-main-title {
+    font-family: var(--font-serif);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--ink-forest);
+    letter-spacing: -0.01em;
+  }
+
+  .folio-subtitle-en {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 21px;
+    color: var(--ink-moss);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  .folio-spec-table {
+    padding-left: 24px;
+    border-left: var(--border-hairline);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted rgba(19, 38, 28, 0.15);
+    padding-bottom: 3px;
+  }
+
+  .spec-key {
+    color: var(--ink-moss);
+  }
+
+  .spec-val {
+    color: var(--ink-forest);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  /* 段落与侧边批注对齐网格 (核心排版结构) */
+  .reading-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .para-row {
+    display: grid;
+    grid-template-columns: 63.5% 36.5%;
+    align-items: start;
+    position: relative;
+  }
+
+  .para-main {
+    padding-right: 38px;
+    position: relative;
+    font-size: 16.5px;
+    line-height: 1.92;
+    color: var(--ink-forest);
+    text-align: justify;
+  }
+
+  .para-num {
+    position: absolute;
+    left: -32px;
+    top: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    user-select: none;
+  }
+
+  /* 首字下沉 (仅第一段) */
+  .para-row:first-child .para-main::first-letter {
+    float: left;
+    font-family: var(--font-serif);
+    font-size: 52px;
+    line-height: 0.85;
+    padding-top: 4px;
+    padding-right: 10px;
+    padding-bottom: 2px;
+    color: var(--ink-forest);
+    font-weight: 700;
+  }
+
+  /* 行间文献高亮句 */
+  .hl-span {
+    background-color: var(--hl-bg);
+    border-bottom: 1.5px solid var(--accent-ochre);
+    padding: 1px 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .hl-span sup {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-terracotta);
+    font-weight: 600;
+    margin-left: 2px;
+  }
+
+  .hl-span:hover, .hl-span.active {
+    background-color: var(--hl-bg-active);
+    border-bottom-color: var(--accent-terracotta);
+    color: #000;
+  }
+
+  /* 行内双向链接 [[WikiLink]] */
+  .wiki-link {
+    font-family: var(--font-body);
+    background-color: var(--link-bg);
+    color: var(--accent-verdigris);
+    border-bottom: 1px dashed var(--accent-verdigris);
+    padding: 0 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    line-height: 1.4;
+  }
+
+  .wiki-link::before {
+    content: "[[";
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.6;
+  }
+  .wiki-link::after {
+    content: "]]";
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.6;
+  }
+
+  .wiki-link:hover {
+    background-color: var(--accent-verdigris);
+    color: #fff;
+  }
+
+  /* 侧边批注栏 (Marginalia Gutter) */
+  .para-marginalia {
+    padding-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .marginalia-note {
+    background: rgba(230, 239, 233, 0.55);
+    border-left: 2px solid var(--ink-moss);
+    padding: 10px 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-pine);
+    position: relative;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+  }
+
+  /* 批注与正文之间的连接细刻度线 */
+  .marginalia-note::before {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 14px;
+    width: 22px;
+    height: 1px;
+    background: rgba(19, 38, 28, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .marginalia-note:hover, .marginalia-note.active {
+    background: var(--bg-celadon);
+    border-left-width: 4px;
+    border-left-color: var(--accent-terracotta);
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(19, 38, 28, 0.07);
+    color: var(--ink-forest);
+  }
+
+  .marginalia-note:hover::before, .marginalia-note.active::before {
+    background: var(--accent-terracotta);
+    width: 20px;
+  }
+
+  .marg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-moss);
+    margin-bottom: 4px;
+  }
+
+  .marg-marker {
+    color: var(--accent-terracotta);
+    font-weight: 600;
+  }
+
+  .marg-type {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 9px;
+    padding: 0 4px;
+    background: rgba(19, 38, 28, 0.06);
+  }
+
+  .marg-author {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  /* 底部手稿增补批注工具条 */
+  .manuscript-footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: var(--border-heavy);
+    display: grid;
+    grid-template-columns: 63.5% 36.5%;
+  }
+
+  .citation-box {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-pine);
+    padding-right: 36px;
+  }
+
+  .citation-box strong {
+    display: block;
+    color: var(--ink-forest);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .add-marg-box {
+    padding-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .add-marg-box textarea {
+    width: 100%;
+    height: 60px;
+    border: var(--border-hairline);
+    background: var(--bg-celadon);
+    padding: 8px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-forest);
+    resize: none;
+    outline: none;
+  }
+
+  .add-marg-box textarea:focus {
+    border-color: var(--ink-forest);
+    background: #fff;
+  }
+
+  .add-marg-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hint-tip {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-moss);
+  }
+
+  /* ================= 3. 右侧：知识拓扑图谱与反向链接 ================= */
+  .col-synapse {
+    border-left: var(--border-hairline);
+    background: var(--bg-celadon);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 18px;
+    border-bottom: var(--border-hairline);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-celadon-deep);
+  }
+
+  /* SVG 双链小图谱视窗 */
+  .graph-viewport {
+    height: 290px;
+    position: relative;
+    border-bottom: var(--border-heavy);
+    background-color: var(--bg-paper);
+    /* 植物标本测绘十字坐标网 */
+    background-image: 
+      radial-gradient(var(--ink-faint) 0.75px, transparent 0.75px),
+      linear-gradient(to right, rgba(19, 38, 28, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(19, 38, 28, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px, 100px 100px, 100px 100px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  #zettelkasten-svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+
+  #zettelkasten-svg:active {
+    cursor: grabbing;
+  }
+
+  .graph-legend {
+    position: absolute;
+    bottom: 8px;
+    left: 10px;
+    display: flex;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-pine);
+    background: rgba(244, 248, 245, 0.88);
+    padding: 3px 8px;
+    border: var(--border-hairline);
+    pointer-events: none;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .legend-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  /* 反向引用与出链列表 */
+  .links-inspector {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .link-group-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-moss);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: var(--border-hairline);
+    padding-bottom: 4px;
+  }
+
+  .backlink-card {
+    background: var(--bg-paper);
+    border: var(--border-hairline);
+    padding: 11px 13px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+  }
+
+  .backlink-card:hover {
+    border-color: var(--ink-forest);
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(19, 38, 28, 0.06);
+  }
+
+  .bl-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-verdigris);
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .bl-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-forest);
+    margin-bottom: 5px;
+  }
+
+  .bl-snippet {
+    font-size: 11.5px;
+    color: var(--ink-pine);
+    line-height: 1.5;
+    background: rgba(230, 239, 233, 0.5);
+    padding: 6px 8px;
+    border-left: 2px solid var(--accent-verdigris);
+  }
+
+  /* SVG 内部节点样式 */
+  .graph-edge {
+    stroke: rgba(19, 38, 28, 0.22);
+    stroke-width: 1.2px;
+    transition: all 0.25s;
+  }
+
+  .graph-edge.active-edge {
+    stroke: var(--ink-forest);
+    stroke-width: 1.8px;
+    stroke-dasharray: none;
+  }
+
+  .graph-node {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .graph-node text {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    fill: var(--ink-forest);
+    pointer-events: none;
+    font-weight: 500;
+  }
+
+  /* 顶部轻量反馈 Toast */
+  .toast-banner {
+    position: fixed;
+    bottom: 20px;
+    right: 24px;
+    background: var(--ink-forest);
+    color: var(--bg-celadon);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 10px 16px;
+    border-left: 4px solid var(--accent-terracotta);
+    box-shadow: 0 8px 24px rgba(19, 38, 28, 0.22);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+  }
+
+  .toast-banner.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- 顶部标本馆档案栏 -->
+<header class="top-ledger">
+  <div class="ledger-brand">
+    <div class="brand-title">
+      <span class="brand-dot"></span>
+      <span>HERBARIUM ZETTEL // 植物志卡片盒</span>
+    </div>
+    <span style="color: var(--ink-moss)">BOX.04</span>
+  </div>
+
+  <div class="ledger-center">
+    <div class="breadcrumb">
+      <span>ARCHIVE</span>
+      <span>/</span>
+      <span id="header-type-label">PERMANENT</span>
+      <span>/</span>
+      <span class="folio-id" id="header-id-badge">ZK-14.2a</span>
+    </div>
+
+    <div class="search-box">
+      <span>⌕</span>
+      <input type="text" id="search-input" placeholder="检索编号、正文或概念标签..." />
+    </div>
+  </div>
+
+  <div class="ledger-right">
+    <span id="stats-counter">7 FOLIOS · 14 LINKS</span>
+    <button class="btn-new-slip" id="btn-create-fleeting" title="快速录入一张闪念笔记">
+      <span>+ 闪念速记</span>
+    </button>
+  </div>
+</header>
+
+<!-- 三栏主体工作台 -->
+<main class="studio-grid">
+
+  <!-- 1. 左侧：卡片盒索引流 -->
+  <aside class="col-index">
+    <div class="filter-bar">
+      <div class="filter-section-label">
+        <span>卡片分类过滤 // TAXONOMY</span>
+        <span id="filter-count">7 项</span>
+      </div>
+      <div class="type-tabs" id="type-tabs">
+        <button class="type-tab active" data-filter="all">全部</button>
+        <button class="type-tab" data-filter="permanent">永久</button>
+        <button class="type-tab" data-filter="literature">文献</button>
+        <button class="type-tab" data-filter="fleeting">闪念</button>
+      </div>
+      <div class="filter-section-label" style="margin-top: 6px;">
+        <span>索引词根 // DESCRIPTORS</span>
+      </div>
+      <div class="tag-cloud" id="tag-cloud">
+        <!-- JS 动态生成标签 -->
+      </div>
+    </div>
+
+    <div class="card-stream" id="card-stream">
+      <!-- JS 动态渲染卡片列表 -->
+    </div>
+  </aside>
+
+  <!-- 2. 中部：主阅读与侧边栏批注手稿区 -->
+  <section class="col-manuscript" id="manuscript-scroll">
+    <article class="manuscript-sheet">
+      
+      <!-- 档案规格头 -->
+      <header class="folio-meta-header">
+        <div class="folio-title-zone">
+          <div class="folio-super">
+            <span id="ms-code">ZK-14.2a</span>
+            <span>·</span>
+            <span id="ms-type-badge">永久笔记 PERMANENT</span>
+          </div>
+          <h1 class="folio-main-title" id="ms-title">林冠羞避与卡片盒的边界自治</h1>
+          <div class="folio-subtitle-en" id="ms-subtitle">Crown Shyness & Boundary Autonomy in Luhmann's Slip-Box</div>
+        </div>
+
+        <div class="folio-spec-table">
+          <div class="spec-row">
+            <span class="spec-key">档案分支 FOLIO</span>
+            <span class="spec-val" id="ms-branch">14 / 植物形态与知识论</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">录入日期 DATED</span>
+            <span class="spec-val" id="ms-date">2025-04-18</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">文献源头 SOURCE</span>
+            <span class="spec-val" id="ms-source">Putz et al. (1984)</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">批注密度 MARGINALIA</span>
+            <span class="spec-val" id="ms-marg-count">4 处批注</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 正文与侧边栏批注行对位容器 -->
+      <div class="reading-blocks" id="reading-blocks">
+        <!-- JS 动态渲染段落与旁注 -->
+      </div>
+
+      <!-- 底部文献出处与批注追加工具 -->
+      <footer class="manuscript-footer">
+        <div class="citation-box">
+          <strong>BIBLIOGRAPHIC RECORD // 文献源考</strong>
+          <p id="ms-citation">Putz, F. E., Parker, G. G., & Archibald, R. M. (1984). Mechanical abrasion and intercrown spacing. American Midland Naturalist, 112(1), 24-28.</p>
+        </div>
+
+        <div class="add-marg-box">
+          <textarea id="new-marg-input" placeholder="在当前手稿末尾增补页边批注 (Marginalia)..."></textarea>
+          <div class="add-marg-actions">
+            <span class="hint-tip">自动锚定至末段 · 墨色归档</span>
+            <button class="btn-new-slip" id="btn-submit-marg">镌刻批注 ↵</button>
+          </div>
+        </div>
+      </footer>
+
+    </article>
+  </section>
+
+  <!-- 3. 右侧：双向链接小图谱与反向引用 -->
+  <aside class="col-synapse">
+    <div class="panel-header">
+      <span>TOPOLOGY // 局部双链网络</span>
+      <span id="graph-focus-id" style="color: var(--accent-terracotta)">ZK-14.2a</span>
+    </div>
+
+    <div class="graph-viewport">
+      <svg id="zettelkasten-svg" viewBox="0 0 330 290"></svg>
+      <div class="graph-legend">
+        <span class="legend-item"><i class="legend-dot" style="background:var(--accent-terracotta)"></i>永久</span>
+        <span class="legend-item"><i class="legend-dot" style="background:var(--accent-verdigris)"></i>文献</span>
+        <span class="legend-item"><i class="legend-dot" style="background:var(--accent-ochre)"></i>闪念</span>
+      </div>
+    </div>
+
+    <div class="panel-header">
+      <span>SYNAPSE // 双向链接与反向引用</span>
+    </div>
+
+    <div class="links-inspector">
+      <div>
+        <div class="link-group-title">
+          <span>↙ 反向引用 (BACKLINKS / INCOMING)</span>
+          <span id="incoming-count">0</span>
+        </div>
+        <div id="backlinks-container"></div>
+      </div>
+
+      <div>
+        <div class="link-group-title">
+          <span>↗ 正文引出 (OUTGOING LINKS)</span>
+          <span id="outgoing-count">0</span>
+        </div>
+        <div id="outlinks-container"></div>
+      </div>
+    </div>
+  </aside>
+
+</main>
+
+<div class="toast-banner" id="toast">已切换至卡片档案</div>
+
+<script>
+/**
+ * 卡片盒双链笔记与文献批注数据集
+ * 主题：植物形态学、菌根网络与卢曼卡片盒知识论的交叉研究
+ */
+const ZETTEL_DATA = [
+  {
+    id: "ZK-14.2a",
+    type: "permanent",
+    typeName: "永久笔记 PERMANENT",
+    title: "林冠羞避与卡片盒的边界自治",
+    subtitle: "Crown Shyness & Boundary Autonomy in Luhmann's Slip-Box",
+    branch: "14 / 植物形态与知识论",
+    date: "2025.04.18",
+    source: "Putz et al. (1984); Luhmann (1981)",
+    tags: ["植物形态学", "卡片盒方法", "边界理论"],
+    citation: "Putz, F. E., Parker, G. G., & Archibald, R. M. (1984). Mechanical abrasion and intercrown spacing. American Midland Naturalist, 112(1), 24-28.",
+    excerpt: "成年龙脑香科乔木树冠彼此保持狭长缝隙而不发生交叠，这恰如卢曼卡片盒中每一张原子化笔记的绝缘边界。",
+    paragraphs: [
+      {
+        num: "§01",
+        html: `在热带雨林的仰视摄影中，同种或异种的高大乔木顶冠在横向扩展时，往往会在距离彼此数十厘米处骤然停止生长，留出一道道蜿蜒如河床的透光裂隙——植物学家称之为<span class="hl-span" data-m="m1">「林冠羞避（Crown Shyness）」<sup>[1]</sup></span>。这种互不侵犯并非出于退缩，而是树冠末梢嫩芽对邻近枝条摆动摩擦的机械感知（参见文献 <span class="wiki-link" data-target="ZK-09.1">ZK-09.1 林冠机械磨损假说</span>）。`,
+        marginalia: [
+          {
+            id: "m1",
+            marker: "[1] 形态同构",
+            type: "批注",
+            text: "注意这一留白机制：如果树冠完全交织成密不透风的毯层，底层林木将因彻底失光而死，虫害也会毫无阻碍地跨株蔓延。",
+            author: "— 批注于 04.18 夜"
+          }
+        ]
+      },
+      {
+        num: "§02",
+        html: `当我们将视线移向尼古拉斯·卢曼（Niklas Luhmann）的木质抽屉时，会发现完全相同的构造法则。一张合格的永久笔记必须保持严格的<span class="hl-span" data-m="m2">「概念单株性（Atomic Autonomy）」<sup>[2]</sup></span>：它拒绝写成包罗万象的长篇综述，而是在恰当的边界处主动收束。如果两张卡片的内容发生混杂粘连，它们就失去了在未来被异质主题重新组合的自由度。`,
+        marginalia: [
+          {
+            id: "m2",
+            marker: "[2] 卢曼法则",
+            type: "方法论",
+            text: "卡片越小、边界越清晰，它在长时段内参与不同思维链路重组（Re-contextualization）的概率就呈指数级上升。",
+            author: "— 参见盒 II §4"
+          }
+        ]
+      },
+      {
+        num: "§03",
+        html: `然而，树冠在天空中的彼此退让，掩盖了它们在土壤深处的紧密纠缠。正是因为地上部分保持了清晰的呼吸裂隙，地下的 <span class="wiki-link" data-target="ZK-14.2b">ZK-14.2b 菌根网络与双链拓扑</span> 才能在不摧毁单株独立性的前提下，实现碳水化合物与防御化学信号的跨物种调度。同理，卡片正文的克制，恰恰是为了把连接的权力全部移交给显式的 <span class="wiki-link" data-target="ZK-21.0">ZK-21.0 枝干编码与分叉演化</span>。`,
+        marginalia: []
+      },
+      {
+        num: "§04",
+        html: `因此，我们在批注古籍或撰写卡片时，应当警惕那种试图用宏大分类学去统摄一切的冲动。如歌德在 <span class="wiki-link" data-target="ZK-03.4">ZK-03.4 歌德《植物变形记》原型叶</span> 中所洞察的，复杂的生命形态并非预先画好的蓝图，而是<span class="hl-span" data-m="m3">局部器官在边界约束下不断变奏与折叠的产物<sup>[3]</sup></span>。保持卡片间的「羞避裂隙」，阳光才能照进思维的林下叶层。`,
+        marginalia: [
+          {
+            id: "m3",
+            marker: "[3] 核心命题",
+            type: "综合",
+            text: "自下而上的涌现（Emergence）依赖两个条件：① 节点的高度自治；② 通道的低摩擦连接。缺一不可。",
+            author: "— 永久归档"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "ZK-14.2b",
+    type: "permanent",
+    typeName: "永久笔记 PERMANENT",
+    title: "菌根网络与无中心的双链拓扑",
+    subtitle: "Mycorrhizal Networks & Acentered Bi-directional Topology",
+    branch: "14 / 植物形态与知识论",
+    date: "2025.04.20",
+    source: "Simard et al. (1997); Deleuze (1980)",
+    tags: ["菌根网络", "卡片盒方法", "拓扑学"],
+    citation: "Simard, S. W., et al. (1997). Net transfer of carbon between ectomycorrhizal tree species in the field. Nature, 388(6642), 579-582.",
+    excerpt: "外生菌根真菌在纸桦与花旗松根系间建立双向碳传输，打破了树状层级分类法的垄断，构成真正的块茎式双链。",
+    paragraphs: [
+      {
+        num: "§01",
+        html: `传统的图书馆学分类法（如杜威十进制）是一棵倒立的等级之树：一切概念必须先归入某个主干，再顺着次级枝条找到唯一的末端叶片。但森林生态学家苏珊·西玛德通过同位素追踪发现，森林地下的外生菌根网络（Wood Wide Web）根本不是树状结构，而是<span class="hl-span" data-m="m201">多物种、跨世代交织的无标度网络<sup>[1]</sup></span>。`,
+        marginalia: [
+          {
+            id: "m201",
+            marker: "[1] 同位素实验",
+            type: "实验证据",
+            text: "纸桦（Betula papyrifera）在夏季将固定碳通过菌丝输送给受遮蔽的花旗松；到了冬季常绿的花旗松又反向回馈。",
+            author: "— Nature 1997"
+          }
+        ]
+      },
+      {
+        num: "§02",
+        html: `这直接呼应了我们在 <span class="wiki-link" data-target="ZK-14.2a">ZK-14.2a 林冠羞避与卡片盒的边界自治</span> 中提出的二元结构：地上是彼此独立的树冠个体，地下则是打破科属壁垒的菌丝双链。在卡片盒中，一张关于「宋代青瓷开片应力」的卡片，完全可以通过一条真菌菌丝般的双向链接，直通向 <span class="wiki-link" data-target="ZK-09.1">ZK-09.1 林冠机械磨损假说</span>。`,
+        marginalia: []
+      },
+      {
+        num: "§03",
+        html: `当某一张笔记在长年累月的引用中积累了数十条反向链接时，它就自然演化为西玛德所说的<span class="hl-span" data-m="m202">「枢纽母树（Hub Tree / Mother Tree）」<sup>[2]</sup></span>。我们无需在建库之初就强行规划目录大纲；只需忠实地在每次产生联想时织入一条双链，枢纽节点自会在阅读流转中浮现。详见 <span class="wiki-link" data-target="ZK-18.7">ZK-18.7 枢纽母树与索引卡涌现</span>。`,
+        marginalia: [
+          {
+            id: "m202",
+            marker: "[2] 索引的滞后性",
+            type: "卡片盒原则",
+            text: "绝不预先建立空洞的文件夹！索引卡（Hub Note）应当是卡片群落密集到一定阈值后的自然析出物。",
+            author: "— 结构批注"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "ZK-09.1",
+    type: "literature",
+    typeName: "文献笔记 LITERATURE",
+    title: "Putz (1984): 林冠机械磨损与枝条间距假说",
+    subtitle: "Mechanical Abrasion and Intercrown Spacing in Mangrove Forests",
+    branch: "09 / 森林生态学文献",
+    date: "2025.04.12",
+    source: "American Midland Naturalist, 112(1)",
+    tags: ["植物形态学", "文献考据", "边界理论"],
+    citation: "Putz, F. E., Parker, G. G., & Archibald, R. M. (1984). Mechanical abrasion and intercrown spacing. American Midland Naturalist, 112(1), 24-28.",
+    excerpt: "对哥斯达黎加黑红树林（Avicennia germinans）的实地测量表明，强风引起的树冠摇摆幅度与林冠羞避裂隙宽度呈强正相关。",
+    paragraphs: [
+      {
+        num: "§01",
+        html: `作者在哥斯达黎加瓜纳卡斯特省的纯林冠层进行了为期两年的观测。研究否定了此前流行的「叶片遮光抑制假说」，指出在强风频繁吹拂的黑红树林中，<span class="hl-span" data-m="m301">相邻树冠在风力驱动下发生周期性碰撞，折断了彼此最外缘的顶芽与嫩叶<sup>[1]</sup></span>。`,
+        marginalia: [
+          {
+            id: "m301",
+            marker: "[1] 实测数据",
+            type: "文献摘录",
+            text: "相关系数 r = 0.78 (p < 0.01)。当作者用尼龙绳人为固定相邻两棵红树使其无法随风摇摆后，林冠裂隙在6个月内逐渐闭合。",
+            author: "— p.26 Table 2"
+          }
+        ]
+      },
+      {
+        num: "§02",
+        html: `这一现象极具哲学启发性：边界并非某种静态的围墙，而是<span class="hl-span" data-m="m302">两个动态系统在持续高频接触与微损耗中达成的动态平衡区<sup>[2]</sup></span>。这为我的永久笔记 <span class="wiki-link" data-target="ZK-14.2a">ZK-14.2a 林冠羞避与卡片盒的边界自治</span> 提供了最坚实的经验自然科学支点。`,
+        marginalia: [
+          {
+            id: "m302",
+            marker: "[2] 转译线索",
+            type: "闪念触发",
+            text: "阅读时不仅要摘抄作者结论，更要追问：这一机制在我的核心研究领域（知识组织）中有何同构物？",
+            author: "— 读后转译"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "ZK-03.4",
+    type: "literature",
+    typeName: "文献笔记 LITERATURE",
+    title: "歌德《植物变形记》中的原型叶（Urpflanze）",
+    subtitle: "Goethe's Metamorphosis of Plants & The Archetypal Leaf",
+    branch: "03 / 自然哲学与博物史",
+    date: "2025.03.29",
+    source: "Goethe, J. W. (1790). Versuch die Metamorphose der Pflanzen zu erklären",
+    tags: ["植物形态学", "文献考据", "歌德"],
+    citation: "Goethe, J. W. von (1790). Versuch die Metamorphose der Pflanzen zu erklären. Ettinger, Gotha.",
+    excerpt: "「从子叶到花萼、花瓣、雄蕊乃至果实，一切植物附属器官本质上都是同一片原型叶在收缩与舒张节律中的变形。」",
+    paragraphs: [
+      {
+        num: "§01",
+        html: `1787年歌德在西西里岛帕勒莫植物园漫步时顿悟：自然界并不存在一个固定不变的植物模具，相反，<span class="hl-span" data-m="m401">整株显花植物向上的生长史，就是「叶（Blatt）」这一基本形态单元经过六次交替收缩（Kontraktion）与扩张（Ausdehnung）的连续拓扑变形<sup>[1]</sup></span>。`,
+        marginalia: [
+          {
+            id: "m401",
+            marker: "[1] 六重变奏",
+            type: "形态学",
+            text: "种子(极度收缩) → 茎生叶(扩张) → 花萼(收缩) → 花冠(扩张) → 生殖蕊(收缩) → 果实(最大扩张)。",
+            author: "— §73-§84"
+          }
+        ]
+      },
+      {
+        num: "§02",
+        html: `歌德厌恶林奈那种把植物肢解成雄蕊数目并塞入僵死格子的做法。他追求的是在流动中把握形态（Morphologie）。这与 <span class="wiki-link" data-target="ZK-21.0">ZK-21.0 枝干编码与分叉演化</span> 的精神完全一致：每一张简单的卡片就是一片「原型叶」，而整部专著不过是这片叶子在双链空间中的连续变奏。同时参见 <span class="wiki-link" data-target="ZK-14.2a">ZK-14.2a 林冠羞避与卡片盒的边界自治</span>。`,
+        marginalia: []
+      }
+    ]
+  },
+  {
+    id: "ZK-21.0",
+    type: "permanent",
+    typeName: "永久笔记 PERMANENT",
+    title: "枝干编码（Folgezettel）与概念的分叉演化",
+    subtitle: "Alphanumeric Branching Codes & Conceptual Speciation",
+    branch: "21 / 编码与检索系统",
+    date: "2025.04.05",
+    source: "Schmidt, J. F. K. (2016)",
+    tags: ["卡片盒方法", "拓扑学"],
+    citation: "Schmidt, J. F. K. (2016). Niklas Luhmann's Card Index: Thinking Tool, Communication Partner, Publication Machine.",
+    excerpt: "数字与字母交替的后缀（如 14.2a1b）并非为了排序，而是为了在物理线性的木抽屉里强行开辟无限的树枝分叉点。",
+    paragraphs: [
+      {
+        num: "§01",
+        html: `许多现代双链笔记软件的用户认为，既然有了全文搜索与虚拟双链，卢曼当年的「数字+字母交替编码（Folgezettel）」就已经沦为过时的历史遗物。这种看法忽略了编码带来的<span class="hl-span" data-m="m501">认知阻力与位置锚定感<sup>[1]</sup></span>。`,
+        marginalia: [
+          {
+            id: "m501",
+            marker: "[1] 适度摩擦",
+            type: "认知科学",
+            text: "完全无摩擦的自动归档会导致大脑放弃在录入瞬间进行深度比较；手动决定新卡片插在哪张旧卡片之后，本身就是一次高强度的思想分娩。",
+            author: "— 关键辨析"
+          }
+        ]
+      },
+      {
+        num: "§02",
+        html: `当我们在 <span class="wiki-link" data-target="ZK-14.2a">ZK-14.2a 林冠羞避与卡片盒的边界自治</span> 之后衍生出 <span class="wiki-link" data-target="ZK-14.2b">ZK-14.2b 菌根网络与双链拓扑</span> 时，字母后缀清楚地记录了思想发生分蘖（Tillering）的解剖学位置——正如 <span class="wiki-link" data-target="ZK-03.4">ZK-03.4 歌德《植物变形记》原型叶</span> 中茎节处萌发的腋芽。`,
+        marginalia: []
+      }
+    ]
+  },
+  {
+    id: "ZK-18.7",
+    type: "fleeting",
+    typeName: "闪念笔记 FLEETING",
+    title: "枢纽母树与索引卡的滞后涌现机制",
+    subtitle: "Hub Trees & The Delayed Emergence of Structure Notes",
+    branch: "18 / 待整理闪念盒",
+    date: "2025.04.22",
+    source: "林间漫步速记",
+    tags: ["菌根网络", "闪念待整", "拓扑学"],
+    citation: "Field Notebook #07, Entry 42. Unprocessed fleeting thought.",
+    excerpt: "清晨观察老樟树根系隆起路面有感：能不能设计一种算法，当卡片盒内某局部子图的聚类系数超过 0.65 时，才提示创建结构索引卡？",
+    paragraphs: [
+      {
+        num: "§01",
+        html: `今天在植物园温室旁看到一株百年苦槠，其地表裸露的板根周围共生着大量牛肝菌子实体。忽然想到：我们在做学术笔记时，总是习惯先列一个雄心勃勃的「十章目录」，然后再去填塞材料——这就像在荒地上先画好树冠投影，再命令种子按图纸长成大树一样荒谬。`,
+        marginalia: [
+          {
+            id: "m601",
+            marker: "[!] 待升华",
+            type: "闪念提醒",
+            text: "本周内需将此闪念与 ZK-14.2b 合并提炼，转化为关于「结构笔记（Structure Note）」生成时机的正式永久卡。",
+            author: "— 待办事项"
+          }
+        ]
+      },
+      {
+        num: "§02",
+        html: `应当彻底倒过来：先让孤立的观察像孢子一样自由萌发，通过 <span class="wiki-link" data-target="ZK-14.2b">ZK-14.2b 菌根网络与双链拓扑</span> 彼此勾连；直到某处菌丝结成致密的菌核（Sclerotium），再顺势立起一块路标牌。还需对照 <span class="wiki-link" data-target="ZK-25.3">ZK-25.3 标本压制失水率与文本提纯</span>。`,
+        marginalia: []
+      }
+    ]
+  },
+  {
+    id: "ZK-25.3",
+    type: "fleeting",
+    typeName: "闪念笔记 FLEETING",
+    title: "标本压制失水率与文献笔记的去修辞提纯",
+    subtitle: "Herbarium Desiccation & De-rhetoricizing Literature Notes",
+    branch: "25 / 标本馆技艺类比",
+    date: "2025.04.24",
+    source: "标本室操作手册旁注",
+    tags: ["文献考据", "闪念待整"],
+    citation: "Herbarium Technique Memo. Pressing & Drying Protocol.",
+    excerpt: "新鲜采集的植物枝叶含水量高达80%，若不经瓦楞纸与吸水草纸迅速压干，数日内必霉变腐烂；直接复制粘贴的原文高亮亦然。",
+    paragraphs: [
+      {
+        num: "§01",
+        html: `植物标本馆的第一戒律是「彻底脱水」。鲜嫩多汁的叶片看似生机勃勃，但放进标本柜不到一周就会被霉菌吞噬；唯有在标本夹中用草纸吸干水分、压平叶脉，它才能在两百年后依然向分类学家清晰展示叶缘锯齿与气孔排布。`,
+        marginalia: [
+          {
+            id: "m701",
+            marker: "[1] 严禁摘抄",
+            type: "戒律",
+            text: "未用自己语言重述（Paraphrase）的原文大段高亮，就是未脱水的湿叶片，放进卡片盒只会造成信息腐败。",
+            author: "— 核心训诫"
+          }
+        ]
+      },
+      {
+        num: "§02",
+        html: `写文献笔记（如 <span class="wiki-link" data-target="ZK-09.1">ZK-09.1 林冠机械磨损假说</span>）正是给原文「脱水压制」的过程：榨干原作者的修辞水分与语境赘肉，只保留干爽、坚韧、可长期保存的论证叶脉，最后再缝合到 <span class="wiki-link" data-target="ZK-18.7">ZK-18.7 枢纽母树与索引卡涌现</span> 的台纸上。`,
+        marginalia: []
+      }
+    ]
+  }
+];
+
+// 状态管理
+let state = {
+  activeCardId: "ZK-14.2a",
+  filterType: "all",
+  filterTag: null,
+  searchQuery: ""
+};
+
+// 从卡片正文中动态解析出所有双链关系边 (Edges)
+function computeGraphLinks() {
+  const edges = [];
+  const wikiRegex = /data-target="([^"]+)"/g;
+  
+  ZETTEL_DATA.forEach(card => {
+    const targets = new Set();
+    card.paragraphs.forEach(p => {
+      let match;
+      while ((match = wikiRegex.exec(p.html)) !== null) {
+        targets.add(match[1]);
+      }
+    });
+    targets.forEach(targetId => {
+      if (ZETTEL_DATA.some(c => c.id === targetId)) {
+        edges.push({ source: card.id, target: targetId });
+      }
+    });
+  });
+  return edges;
+}
+
+// 获取所有唯一标签
+function getAllTags() {
+  const tagSet = new Set();
+  ZETTEL_DATA.forEach(c => c.tags.forEach(t => tagSet.add(t)));
+  return Array.from(tagSet);
+}
+
+// 显示轻量通知
+let toastTimer = null;
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+}
+
+// 渲染左侧标签云
+function renderTagCloud() {
+  const container = document.getElementById("tag-cloud");
+  const tags = getAllTags();
+  container.innerHTML = tags.map(tag => `
+    <span class="tag-pill ${state.filterTag === tag ? 'active' : ''}" data-tag="${tag}">
+      #${tag}
+    </span>
+  `).join("");
+
+  container.querySelectorAll(".tag-pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      const clickedTag = pill.getAttribute("data-tag");
+      state.filterTag = (state.filterTag === clickedTag) ? null : clickedTag;
+      renderTagCloud();
+      renderCardStream();
+    });
+  });
+}
+
+// 渲染左侧卡片索引流
+function renderCardStream() {
+  const stream = document.getElementById("card-stream");
+  const q = state.searchQuery.trim().toLowerCase();
+
+  const filtered = ZETTEL_DATA.filter(card => {
+    const matchType = state.filterType === "all" || card.type === state.filterType;
+    const matchTag = !state.filterTag || card.tags.includes(state.filterTag);
+    const matchSearch = !q || 
+      card.id.toLowerCase().includes(q) ||
+      card.title.toLowerCase().includes(q) ||
+      card.excerpt.toLowerCase().includes(q) ||
+      card.tags.some(t => t.toLowerCase().includes(q));
+    return matchType && matchTag && matchSearch;
+  });
+
+  document.getElementById("filter-count").textContent = `${filtered.length} 项`;
+
+  if (filtered.length === 0) {
+    stream.innerHTML = `
+      <div style="padding: 32px 12px; text-align:center; font-family:var(--font-mono); font-size:11px; color:var(--ink-moss); border:var(--border-dashed);">
+        [ 未检索到匹配的标本卡片 ]<br><br>请尝试重置分类或标签筛选器
+      </div>
+    `;
+    return;
+  }
+
+  const badgeLabels = {
+    permanent: "永久 PERMANENT",

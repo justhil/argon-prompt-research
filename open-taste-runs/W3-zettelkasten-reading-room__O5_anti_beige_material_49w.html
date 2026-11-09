@@ -1,0 +1,1410 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUHMANN // ARCHIVE — Zettelkasten & Marginalia Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 物理载体提炼：比勒费尔德大学档案馆 · 钢制抽屉、牛皮索引卡、年代久远的亚麻纸与铁胆墨水 */
+    --bg-cabinet: #31342E;        /* 橄榄灰钢制档案柜外壳 */
+    --bg-drawer: #DCD7CA;         /* 亚麻灰褐色抽屉槽底 */
+    --bg-card: #E6E1D5;           /* 未漂白棉浆卡片纸 */
+    --bg-card-active: #EFECE4;    /* 抽出的高光阅读纸面 */
+    --bg-manila: #D5C7A9;         /* 马尼拉牛皮分栏隔板 */
+    
+    --ink-primary: #1B1A18;       /* 碳素钢笔黑 */
+    --ink-secondary: #4E4C46;     /* 褪色铁胆墨水 */
+    --ink-muted: #78746A;         /* 铅笔批注灰 */
+    --ink-faint: #ABA69B;         /* 金属印章淡痕 */
+
+    --accent-vermilion: #B83A24;  /* 档案校对朱砂红（Folgezettel 编码与重点） */
+    --accent-vermilion-bg: rgba(184, 58, 36, 0.1);
+    --accent-ochre: #C48B28;      /* 黄铜标牌与荧光笔暖赭色 */
+    --accent-ochre-bg: rgba(196, 139, 40, 0.18);
+    --accent-prussian: #2A4B5C;   /* 普鲁士蓝钢笔（文献源与外链） */
+    --accent-prussian-bg: rgba(42, 75, 92, 0.12);
+    --accent-forest: #355843;     /* 森林绿墨水（闪念手记） */
+
+    --rule-heavy: 2px solid #1B1A18;
+    --rule-solid: 1px solid #9E998E;
+    --rule-dashed: 1px dashed #ABA69B;
+    --rule-red: 1px solid rgba(184, 58, 36, 0.35);
+
+    --font-serif: 'Newsreader', 'Noto Serif SC', Georgia, serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-cabinet);
+    color: var(--ink-primary);
+    font-family: var(--font-serif);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 噪点肌理覆层 */
+  .paper-grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.28;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.14'/%3E%3C/svg%3E");
+  }
+
+  /* 顶部钢制档案柜铭牌栏 */
+  .top-rail {
+    height: 40px;
+    background: #252723;
+    border: 1px solid #454840;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    color: #D2CEC3;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .top-rail .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brass-plate {
+    background: linear-gradient(180deg, #C7A66B 0%, #A6854B 100%);
+    color: #181613;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 1px;
+    border: 1px solid #6E552B;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 1px 2px rgba(0,0,0,0.5);
+    letter-spacing: 0.1em;
+    font-size: 10px;
+  }
+
+  .breadcrumb-trail {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    max-width: 50vw;
+    scrollbar-width: none;
+  }
+
+  .crumb {
+    color: #9E9B91;
+    cursor: pointer;
+    padding: 2px 6px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .crumb:hover {
+    color: #EFECE4;
+    border-color: #5C5A52;
+  }
+  .crumb.current {
+    color: #E3B35A;
+    border-color: rgba(227, 179, 90, 0.4);
+    background: rgba(227, 179, 90, 0.08);
+  }
+  .crumb-sep {
+    color: #5C5A52;
+  }
+
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .status-led {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #87A878;
+    box-shadow: 0 0 6px #87A878;
+    margin-right: 6px;
+  }
+
+  /* 主工作台骨架 */
+  .studio-frame {
+    flex: 1;
+    background: var(--bg-drawer);
+    border: 1px solid #4A4D45;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.25);
+    display: grid;
+    grid-template-columns: 330px 1fr 340px;
+    overflow: hidden;
+  }
+
+  /* ================= 左侧：卡片索引流 (ZETTELKASTEN TRAY) ================= */
+  .pane-index {
+    background: var(--bg-drawer);
+    border-right: var(--rule-solid);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .pane-header {
+    padding: 12px 14px 10px;
+    border-bottom: var(--rule-heavy);
+    background: var(--bg-card);
+  }
+
+  .pane-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+
+  .pane-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-primary);
+  }
+
+  .pane-counter {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-vermilion);
+    font-weight: 600;
+  }
+
+  .search-box {
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  .search-box input {
+    width: 100%;
+    background: var(--bg-card-active);
+    border: var(--rule-solid);
+    padding: 6px 10px 6px 26px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-primary);
+    outline: none;
+  }
+  .search-box input:focus {
+    border-color: var(--ink-primary);
+    box-shadow: inset 2px 0 0 var(--accent-vermilion);
+  }
+  .search-icon {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  /* 档案分栏耳标 (Manila Divider Tabs) */
+  .filter-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+
+  .tab-btn {
+    background: var(--bg-manila);
+    border: 1px solid #9E9580;
+    border-bottom: none;
+    padding: 5px 4px 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    text-align: center;
+    border-radius: 3px 3px 0 0;
+    transition: all 0.12s;
+    position: relative;
+  }
+
+  .tab-btn:hover {
+    background: #DFD3B8;
+    color: var(--ink-primary);
+  }
+
+  .tab-btn.active {
+    background: var(--bg-drawer);
+    color: var(--ink-primary);
+    font-weight: 600;
+    border-top: 2px solid var(--accent-vermilion);
+    padding-top: 4px;
+  }
+
+  /* 关键词标签云 */
+  .tag-strip {
+    padding: 8px 14px;
+    background: #D5D0C3;
+    border-bottom: var(--rule-solid);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .tag-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    background: var(--bg-card);
+    border: 1px solid #B5B0A3;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .tag-pill:hover, .tag-pill.active {
+    background: var(--ink-primary);
+    color: var(--bg-card-active);
+    border-color: var(--ink-primary);
+  }
+
+  /* 卡片抽屉滚动区 */
+  .card-stream {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 12px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card-stream::-webkit-scrollbar,
+  .desk-scroll::-webkit-scrollbar,
+  .backlinks-list::-webkit-scrollbar {
+    width: 5px;
+  }
+  .card-stream::-webkit-scrollbar-thumb,
+  .desk-scroll::-webkit-scrollbar-thumb,
+  .backlinks-list::-webkit-scrollbar-thumb {
+    background: #A8A396;
+  }
+
+  /* 物理索引卡 (DIN A6 Slip) */
+  .zettel-slip {
+    background: var(--bg-card);
+    border: 1px solid #ABA69B;
+    border-top: 2px solid #8E897E;
+    padding: 11px 12px 10px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.06);
+  }
+
+  /* 档案打孔装饰 */
+  .zettel-slip::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--bg-drawer);
+    border: 1px solid #ABA69B;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.2);
+  }
+
+  .zettel-slip:hover {
+    background: var(--bg-card-active);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .zettel-slip.active {
+    background: var(--bg-card-active);
+    border-color: var(--ink-primary);
+    border-left: 4px solid var(--accent-vermilion);
+    box-shadow: 2px 4px 12px rgba(0,0,0,0.14);
+  }
+
+  .slip-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    border-bottom: var(--rule-red);
+    padding-bottom: 4px;
+  }
+
+  .folgezettel-id {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-vermilion);
+    letter-spacing: 0.02em;
+  }
+
+  .slip-type-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    letter-spacing: 0.05em;
+    border: 1px solid currentColor;
+  }
+  .type-permanent { color: var(--accent-vermilion); background: var(--accent-vermilion-bg); }
+  .type-literature { color: var(--accent-prussian); background: var(--accent-prussian-bg); }
+  .type-fleeting { color: var(--accent-forest); background: rgba(53, 88, 67, 0.12); }
+
+  .slip-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--ink-primary);
+    margin-bottom: 5px;
+  }
+
+  .slip-excerpt {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .slip-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    padding-right: 16px;
+  }
+
+  /* ================= 中部：主阅读与批注工作室 (READING & MARGINALIA DESK) ================= */
+  .pane-desk {
+    background: #D6D1C4;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .desk-toolbar {
+    height: 41px;
+    background: var(--bg-card);
+    border-bottom: var(--rule-heavy);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .tool-btn {
+    background: transparent;
+    border: 1px solid #9E998E;
+    padding: 3px 9px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.12s;
+  }
+  .tool-btn:hover {
+    background: var(--ink-primary);
+    color: var(--bg-card-active);
+    border-color: var(--ink-primary);
+  }
+  .tool-btn.active-mode {
+    background: var(--accent-ochre-bg);
+    border-color: var(--accent-ochre);
+    color: #6E4B0C;
+    font-weight: 600;
+  }
+
+  .desk-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px 60px;
+  }
+
+  /* 实体手稿纸张 (DIN A4 Archival Sheet with Wide Margin) */
+  .manuscript-sheet {
+    max-width: 980px;
+    margin: 0 auto;
+    background: var(--bg-card-active);
+    border: 1px solid #B5B0A4;
+    box-shadow: 
+      0 1px 2px rgba(0,0,0,0.07),
+      0 8px 24px rgba(27,26,24,0.12),
+      4px 4px 0 #DFDBD0,
+      5px 5px 0 #9E998E;
+    position: relative;
+    min-height: calc(100% - 10px);
+  }
+
+  /* 卡片顶部红双线标尺 (Classic Index Card Header Rule) */
+  .sheet-header {
+    padding: 28px 36px 20px;
+    border-bottom: 3px double rgba(184, 58, 36, 0.55);
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 24px;
+    align-items: end;
+  }
+
+  .sheet-id-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .sheet-folgezettel {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent-vermilion);
+    background: var(--accent-vermilion-bg);
+    padding: 2px 10px;
+    border: 1px solid rgba(184, 58, 36, 0.35);
+    letter-spacing: 0.03em;
+  }
+
+  .sheet-branch-nav {
+    display: flex;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .branch-chip {
+    padding: 2px 7px;
+    border: 1px dashed #9E998E;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .branch-chip:hover {
+    border-style: solid;
+    border-color: var(--accent-vermilion);
+    color: var(--accent-vermilion);
+    background: var(--accent-vermilion-bg);
+  }
+
+  .sheet-title {
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.28;
+    color: var(--ink-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .sheet-subtitle {
+    margin-top: 6px;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--ink-secondary);
+  }
+
+  /* 档案印章元数据块 */
+  .archival-stamp {
+    border: 1.5px solid var(--ink-secondary);
+    padding: 8px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+    line-height: 1.55;
+    background: rgba(220, 215, 202, 0.35);
+    position: relative;
+  }
+  .archival-stamp::before {
+    content: 'BIELEFELD // ZETTEL';
+    display: block;
+    font-weight: 600;
+    border-bottom: 1px solid var(--ink-secondary);
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+  }
+
+  /* 正文与侧边栏双栏网格 (62% 主正文 + 38% 批注边栏) */
+  .sheet-body-grid {
+    display: grid;
+    grid-template-columns: 1fr 290px;
+    position: relative;
+  }
+
+  /* 贯穿上下的朱砂垂直批注分割线 */
+  .prose-column {
+    padding: 28px 32px 48px 36px;
+    border-right: 1px solid rgba(184, 58, 36, 0.35);
+    user-select: text;
+  }
+
+  .prose-block {
+    position: relative;
+    margin-bottom: 22px;
+    font-size: 16.5px;
+    line-height: 1.82;
+    color: var(--ink-primary);
+    text-align: justify;
+  }
+
+  .prose-block::before {
+    content: attr(data-para);
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    user-select: none;
+  }
+
+  .prose-quote {
+    margin: 22px 0;
+    padding: 12px 18px;
+    border-left: 3px solid var(--accent-prussian);
+    background: rgba(220, 215, 202, 0.45);
+    font-style: italic;
+    font-size: 15.5px;
+    line-height: 1.75;
+    color: var(--ink-secondary);
+  }
+
+  /* 行间高亮与批注锚点 (Inline Marginalia Highlights) */
+  .hl-span {
+    background: linear-gradient(180deg, transparent 15%, var(--accent-ochre-bg) 15%, var(--accent-ochre-bg) 90%, transparent 90%);
+    border-bottom: 1.5px solid var(--accent-ochre);
+    cursor: pointer;
+    padding: 0 2px;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .hl-span.hl-vermilion {
+    background: linear-gradient(180deg, transparent 15%, var(--accent-vermilion-bg) 15%, var(--accent-vermilion-bg) 90%, transparent 90%);
+    border-bottom: 1.5px solid var(--accent-vermilion);
+  }
+
+  .hl-span.hl-prussian {
+    background: linear-gradient(180deg, transparent 15%, var(--accent-prussian-bg) 15%, var(--accent-prussian-bg) 90%, transparent 90%);
+    border-bottom: 1.5px solid var(--accent-prussian);
+  }
+
+  .hl-span:hover, .hl-span.active {
+    background: rgba(196, 139, 40, 0.38);
+    color: #000;
+  }
+  .hl-span.hl-vermilion:hover, .hl-span.hl-vermilion.active {
+    background: rgba(184, 58, 36, 0.25);
+  }
+  .hl-span.hl-prussian:hover, .hl-span.hl-prussian.active {
+    background: rgba(42, 75, 92, 0.25);
+  }
+
+  .hl-sup {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent-vermilion);
+    vertical-align: super;
+    margin-left: 2px;
+    user-select: none;
+  }
+
+  /* 正文内双向链接 (Wiki / Zettel Link) */
+  .zettel-link {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--accent-vermilion);
+    background: rgba(184, 58, 36, 0.07);
+    border: 1px solid rgba(184, 58, 36, 0.3);
+    padding: 1px 6px;
+    margin: 0 2px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.14s;
+    vertical-align: baseline;
+  }
+
+  .zettel-link:hover {
+    background: var(--accent-vermilion);
+    color: var(--bg-card-active);
+    border-color: var(--accent-vermilion);
+  }
+
+  /* 侧边批注栏 (Marginalia Column) */
+  .marginalia-column {
+    padding: 24px 18px 48px 18px;
+    background: rgba(230, 225, 213, 0.45);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .marginalia-header {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    border-bottom: var(--rule-dashed);
+    padding-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .margin-note {
+    background: var(--bg-card);
+    border: 1px solid #C2BDB0;
+    border-left: 3px solid var(--accent-ochre);
+    padding: 10px 11px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: all 0.16s ease;
+    position: relative;
+  }
+
+  .margin-note.note-vermilion { border-left-color: var(--accent-vermilion); }
+  .margin-note.note-prussian { border-left-color: var(--accent-prussian); }
+
+  /* 指向正文的虚线连接器 */
+  .margin-note::before {
+    content: '';
+    position: absolute;
+    left: -19px;
+    top: 14px;
+    width: 16px;
+    border-top: 1px dashed var(--accent-vermilion);
+    opacity: 0.45;
+    transition: opacity 0.15s;
+  }
+
+  .margin-note:hover, .margin-note.active {
+    background: #FFFDF8;
+    border-color: var(--ink-primary);
+    border-left-width: 4px;
+    transform: translateX(-4px);
+    box-shadow: 2px 3px 10px rgba(0,0,0,0.09);
+    color: var(--ink-primary);
+  }
+
+  .margin-note:hover::before, .margin-note.active::before {
+    opacity: 1;
+    border-top-style: solid;
+    border-top-width: 1.5px;
+  }
+
+  .margin-note-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    margin-bottom: 5px;
+    color: var(--ink-muted);
+  }
+
+  .margin-ref-num {
+    font-weight: 600;
+    color: var(--accent-vermilion);
+  }
+
+  .margin-author {
+    font-style: italic;
+  }
+
+  /* 新增批注输入区 */
+  .add-margin-box {
+    margin-top: 8px;
+    border: 1px dashed #9E998E;
+    padding: 10px;
+    background: rgba(255,255,255,0.35);
+  }
+
+  .add-margin-box textarea {
+    width: 100%;
+    border: 1px solid #B5B0A4;
+    background: var(--bg-card-active);
+    padding: 6px 8px;
+    font-family: var(--font-serif);
+    font-size: 12px;
+    color: var(--ink-primary);
+    resize: vertical;
+    min-height: 54px;
+    outline: none;
+    margin-bottom: 6px;
+  }
+
+  .sheet-footer {
+    border-top: var(--rule-solid);
+    padding: 16px 36px;
+    background: var(--bg-card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-secondary);
+  }
+
+  /* ================= 右侧：双向链接图谱与反向引用 (SYNAPSE & BACKLINKS) ================= */
+  .pane-synapse {
+    background: var(--bg-drawer);
+    border-left: var(--rule-solid);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .graph-container {
+    height: 295px;
+    background: #DFDBD0;
+    border-bottom: var(--rule-heavy);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 坐标方格纸底纹 */
+  .graph-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-size: 20px 20px;
+    background-image: 
+      linear-gradient(to right, rgba(120, 116, 106, 0.14) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(120, 116, 106, 0.14) 1px, transparent 1px);
+    pointer-events: none;
+  }
+
+  .graph-overlay-head {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .graph-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(230, 225, 213, 0.9);
+    border: 1px solid #9E998E;
+    padding: 2px 7px;
+    color: var(--ink-primary);
+  }
+
+  .graph-legend {
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--ink-muted);
+    pointer-events: none;
+  }
+
+  #synapse-svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+  #synapse-svg:active {
+    cursor: grabbing;
+  }
+
+  /* 反向链接与引用上下文列表 */
+  .backlinks-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .backlinks-header {
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border-bottom: var(--rule-solid);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .backlinks-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .link-group-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    margin: 4px 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .link-group-label::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px dashed #B5B0A4;
+  }
+
+  .backlink-card {
+    background: var(--bg-card);
+    border: 1px solid #B5B0A4;
+    padding: 10px 11px;
+    cursor: pointer;
+    transition: all 0.14s;
+  }
+
+  .backlink-card:hover {
+    background: var(--bg-card-active);
+    border-color: var(--ink-primary);
+    box-shadow: 2px 2px 0 var(--accent-vermilion);
+    transform: translate(-1px, -1px);
+  }
+
+  .bl-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .bl-id {
+    color: var(--accent-vermilion);
+    font-weight: 600;
+  }
+
+  .bl-rel {
+    font-size: 9px;
+    padding: 1px 5px;
+    background: #D5D0C3;
+    color: var(--ink-secondary);
+  }
+
+  .bl-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-primary);
+    margin-bottom: 5px;
+  }
+
+  .bl-snippet {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--ink-secondary);
+    background: rgba(220, 215, 202, 0.5);
+    padding: 5px 8px;
+    border-left: 2px solid var(--ink-muted);
+    font-style: italic;
+  }
+
+  .bl-snippet mark {
+    background: var(--accent-vermilion-bg);
+    color: var(--accent-vermilion);
+    font-style: normal;
+    font-weight: 600;
+    padding: 0 2px;
+  }
+
+  /* 划词浮动批注工具条 */
+  .selection-popover {
+    position: fixed;
+    z-index: 1000;
+    background: #1B1A18;
+    color: #EFECE4;
+    border: 1px solid #6E6A5F;
+    padding: 5px 8px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .popover-btn {
+    background: transparent;
+    border: 1px solid #5C5950;
+    color: #EFECE4;
+    padding: 2px 7px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .popover-btn:hover {
+    background: var(--accent-vermilion);
+    border-color: var(--accent-vermilion);
+  }
+
+  @media (max-width: 1200px) {
+    .studio-frame {
+      grid-template-columns: 280px 1fr 290px;
+    }
+    .sheet-body-grid {
+      grid-template-columns: 1fr 230px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="paper-grain"></div>
+
+<!-- 划词浮动工具条 -->
+<div id="selection-popover" class="selection-popover">
+  <span>批注选中文本:</span>
+  <button class="popover-btn" onclick="createInlineAnnotation('ochre')">赭黄高亮</button>
+  <button class="popover-btn" onclick="createInlineAnnotation('vermilion')">朱砂批注</button>
+</div>
+
+<!-- 顶部钢制档案柜状态栏 -->
+<header class="top-rail">
+  <div class="brand">
+    <span class="brass-plate">ZETTELKASTEN // ABT. II</span>
+    <span>NIKLAS LUHMANN ARCHIVE STUDIO — FOLGEZETTEL & MARGINALIA</span>
+  </div>
+  <div class="breadcrumb-trail" id="breadcrumb-trail">
+    <!-- JS 动态渲染阅读轨迹 -->
+  </div>
+  <div class="top-actions">
+    <span><i class="status-led"></i>SLIP-BOX SYNCED</span>
+    <span>CARDS: <strong id="total-cards-stat">8</strong></span>
+  </div>
+</header>
+
+<!-- 三栏式工作室主体 -->
+<main class="studio-frame">
+
+  <!-- 1. 左侧：卡片索引流 (ZETTELKASTEN TRAY) -->
+  <aside class="pane-index">
+    <div class="pane-header">
+      <div class="pane-title-row">
+        <span class="pane-title">I. 卡片盒索引流 // КАРТОТЕКА</span>
+        <span class="pane-counter" id="filtered-count">8 SLIPS</span>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search-input" placeholder="检索编码 (如 1/1a)、标题或正文..." oninput="handleSearch(this.value)">
+      </div>
+      <div class="filter-tabs">
+        <button class="tab-btn active" onclick="setTypeFilter('all', this)">全部</button>
+        <button class="tab-btn" onclick="setTypeFilter('permanent', this)">永久笔记</button>
+        <button class="tab-btn" onclick="setTypeFilter('literature', this)">文献笔记</button>
+        <button class="tab-btn" onclick="setTypeFilter('fleeting', this)">闪念笔记</button>
+      </div>
+    </div>
+
+    <div class="tag-strip" id="tag-strip">
+      <!-- 动态标签筛选 -->
+    </div>
+
+    <div class="card-stream" id="card-stream">
+      <!-- 动态渲染 A6 索引卡 -->
+    </div>
+  </aside>
+
+  <!-- 2. 中部：主阅读与批注工作室 (READING & MARGINALIA DESK) -->
+  <section class="pane-desk">
+    <div class="desk-toolbar">
+      <div class="toolbar-left">
+        <span id="current-type-indicator" style="font-weight:600; color:var(--accent-vermilion);">[PERMANENTZETTEL]</span>
+        <span style="color:var(--ink-muted)">|</span>
+        <span id="word-count-stat">780 字 · 4 处侧边批注</span>
+      </div>
+      <div class="toolbar-right">
+        <button class="tool-btn" onclick="toggleFocusMarginalia(this)" title="突出显示所有行间高亮与批注连线">
+          <span>※</span> 批注透镜
+        </button>
+        <button class="tool-btn" onclick="navigateRandomSlip()" title="随机漫游卡片盒以触发意外偶得 (Serendipity)">
+          <span>⚄</span> 偶得漫游
+        </button>
+      </div>
+    </div>
+
+    <div class="desk-scroll" id="desk-scroll">
+      <article class="manuscript-sheet" id="manuscript-sheet">
+        <!-- JS 动态渲染当前手稿与侧边栏批注 -->
+      </article>
+    </div>
+  </section>
+
+  <!-- 3. 右侧：双向链接小图谱与反向引用 (SYNAPSE & BACKLINKS) -->
+  <aside class="pane-synapse">
+    <div class="graph-container">
+      <div class="graph-grid-bg"></div>
+      <div class="graph-overlay-head">
+        <span class="graph-badge">II. 局部关系图谱 // FOLGEZETTEL TOPOLOGY</span>
+        <span class="graph-badge" id="graph-center-id">21/3d</span>
+      </div>
+      <svg id="synapse-svg" viewBox="0 0 340 295"></svg>
+      <div class="graph-legend">
+        <span>● 朱砂: 永久笔记</span>
+        <span>■ 普鲁士蓝: 文献源</span>
+        <span>▲ 森林绿: 闪念</span>
+      </div>
+    </div>
+
+    <div class="backlinks-section">
+      <div class="backlinks-header">
+        <span>III. 双向链接与引文上下文</span>
+        <span id="backlinks-count" style="color:var(--accent-vermilion)">5 LINKS</span>
+      </div>
+      <div class="backlinks-list" id="backlinks-list">
+        <!-- JS 动态渲染正向链接与反向引用卡片 -->
+      </div>
+    </div>
+  </aside>
+
+</main>
+
+<script>
+/**
+ * 卡片盒数据库 (Zettelkasten Corpus)
+ * 围绕卢曼卡片盒理论、历史边注传统 (Marginalia)、控制论与文本超链接构建深度学术内容
+ */
+const ZETTEL_DB = [
+  {
+    id: "21/3d",
+    type: "permanent",
+    typeName: "永久笔记 · PERMANENT",
+    title: "作为第二记忆与对话伙伴的卡片盒系统",
+    subtitle: "Kommunikation mit Zettelkästen: 超越线性分类的涌现结构",
+    date: "1981-04-12",
+    drawer: "Kasten II · 科学理论",
+    tags: ["#系统论", "#卢曼", "#偶得机制", "#结构耦合"],
+    prevBranch: "21/3c",
+    nextBranch: "21/3d1",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `要想与卡片盒产生真正的思想对话，必须首先放弃传统的「按主题预设分类」执念。在常规笔记本中，分类大纲先于内容存在；而在卡片盒中，<span class="hl-span hl-vermilion" data-note="m1">秩序是从局部连接与分支生长中事后涌现的<sup class="hl-sup">[1]</sup></span>。当系统积累足够高的内部复杂性时，它会反过来向研究者提出始料未及的组合可能。`
+      },
+      {
+        num: "§2",
+        html: `卢曼将这种机制依赖于固定的实体位置编号（即 <a class="zettel-link" onclick="selectZettel('21/3d1')">↗ 21/3d1 接续编码与分支生长</a>）。一张卡片一旦获得如 <code>21/3d</code> 的身份，便获得了跨越主题疆界的锚点，使其能随时与远端的控制论文献 <a class="zettel-link" onclick="selectZettel('Lit:Ashby1956')">↗ Lit:Ashby1956 必要多样性定律</a> 建立异质突触。`
+      },
+      {
+        num: "§3",
+        quote: `“没有卡片盒，我根本无法思考。我只是把事情写在不同纸条上，而真正负责建立深层联想并给我惊喜的，是卡片盒本身。” —— 尼克拉斯·卢曼《与卡片盒交流》`
+      },
+      {
+        num: "§4",
+        html: `在这个意义上，卡片盒不再是消极的外部存储容器，而是<span class="hl-span" data-note="m2">一个具有自身演化历史的「结构耦合（Structural Coupling）」伙伴<sup class="hl-sup">[2]</sup></span>。当我们在页边写下批注（参见 <a class="zettel-link" onclick="selectZettel('14/2a')">↗ 14/2a 页边留白与对话拓扑</a>），或为两张相隔十年的卡片补上一条反向索引时，文本便脱离了孤立作者的控制，进入了自创生（Autopoiesis）的知识网络。关于如何将阅读批注转化为原子卡片，可对照 <a class="zettel-link" onclick="selectZettel('Lit:Grafton1997')">↗ Lit:Grafton1997 早期现代学者边注</a> 与未整理的 <a class="zettel-link" onclick="selectZettel('Fl:042')">↗ Fl:042 偶得性的拓扑阻力</a>。`
+      }
+    ],
+    marginalia: [
+      {
+        id: "m1",
+        ref: "[1]",
+        color: "vermilion",
+        author: "A. 档案校注",
+        date: "1984.11",
+        text: "关键分野：亚里士多德式的树状分类目录（Tree）会扼杀跨学科的横向意外联系；而局部网格（Rhizome）允许任意节点在不破坏全局的情况下无限分叉。"
+      },
+      {
+        id: "m2",
+        ref: "[2]",
+        color: "ochre",
+        author: "M. 批注",
+        date: "1989.03",
+        text: "借用马图拉纳（Maturana）的生物学概念：人类意识系统与卡片盒物理符号系统互相激扰，双方都无法单方面还原为对方。"
+      }
+    ]
+  },
+  {
+    id: "21/3d1",
+    type: "permanent",
+    typeName: "永久笔记 · PERMANENT",
+    title: "Folgezettel：接续编码的分支生长与非线性拓扑",
+    subtitle: "数字与字母交替背后的「思维生长年轮」",
+    date: "1981-04-19",
+    drawer: "Kasten II · 科学理论",
+    tags: ["#编码法", "#卢曼", "#非线性", "#拓扑学"],
+    prevBranch: "21/3d",
+    nextBranch: "21/3d1a",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `为什么在纯全文检索时代，我们依然需要保留卢曼式的接续编码（Folgezettel）？直接紧跟在 <a class="zettel-link" onclick="selectZettel('21/3d')">↗ 21/3d 作为对话伙伴的卡片盒</a> 之后，本卡探讨编码本身的认识论意义。当我们在 <code>21/3</code> 后插入 <code>21/3a</code>，再从中间衍生出 <code>21/3a1</code> 时，<span class="hl-span hl-vermilion" data-note="m21_1">编码序列忠实记录了问题意识开枝散叶的时间与逻辑脉络<sup class="hl-sup">[1]</sup></span>。`
+      },
+      {
+        num: "§2",
+        html: `纯扁平的双链笔记（仅靠无序 UUID 连接）虽然灵活，却丧失了「抽屉中的物理邻近性」。在木制抽屉里，翻阅一张卡片必然会顺带看到它前后的分支卡片——这种<span class="hl-span hl-prussian" data-note="m21_2">摩擦感与物理邻域浏览（Neighborhood Browsing）<sup class="hl-sup">[2]</sup></span>正是触发深层综合的温床，正如 <a class="zettel-link" onclick="selectZettel('Fl:042')">↗ Fl:042 偶得性的拓扑阻力</a> 所言。`
+      },
+      {
+        num: "§3",
+        html: `这种树状主干与网状交叉引用并存的混合架构，早在范内瓦·布什的缩微胶片机器 <a class="zettel-link" onclick="selectZettel('Lit:Bush1945')">↗ Lit:Bush1945 Memex与联想轨迹</a> 中就已初现端倪，并在 <a class="zettel-link" onclick="selectZettel('14/2b')">↗ 14/2b 超文本之前的纸质指针</a> 中得到了历史印证。`
+      }
+    ],
+    marginalia: [
+      {
+        id: "m21_1",
+        ref: "[1]",
+        color: "vermilion",
+        author: "K. 索引按语",
+        date: "1985.02",
+        text: "Folgezettel 并非死板的十进制分类法（Dewey Decimal），它的编号不代表层级从属，仅代表「这一思绪由此处分岔引发」。"
+      },
+      {
+        id: "m21_2",
+        ref: "[2]",
+        color: "prussian",
+        author: "H. 媒介批注",
+        date: "1992.07",
+        text: "当检索变得过于零成本、零阻力时，大脑便停止了在记忆宫殿中主动勘探的努力。"
+      }
+    ]
+  },
+  {
+    id: "14/2a",
+    type: "permanent",
+    typeName: "永久笔记 · PERMANENT",
+    title: "页边留白（Marginalia）作为批判性阅读的对话拓扑",
+    subtitle: "从文艺复兴学者书房到现代双链批注台",
+    date: "1979-11-05",
+    drawer: "Kasten I · 媒介与修辞",
+    tags: ["#边注学", "#阅读史", "#版式空间", "#对话"],
+    prevBranch: "14/1",
+    nextBranch: "14/2b",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `印刷术确立之后，书籍排版的宽阔页边距并非单纯为了视觉审美，而是<span class="hl-span" data-note="m14_1">预留给读者的战术反击空间与平行实验室<sup class="hl-sup">[1]</sup></span>。正文代表权威与既定命题，而用铁胆墨水或朱砂写下的侧边批注（Marginalia），则构成了对正文的质询、勘误、引申与跨文本接驳。`
+      },
+      {
+        num: "§2",
+        html: `根据 <a class="zettel-link" onclick="selectZettel('Lit:Grafton1997')">↗ Lit:Grafton1997 早期现代学者边注</a> 的考证，16世纪人文主义学者在阅读西塞罗或亚里士多德时，会在页边画下指向性的小手符号（Manicule ☞），并标注另一部典籍的页码。这种页边交叉引用直接孕育了 <a class="zettel-link" onclick="selectZettel('14/2b')">↗ 14/2b 超文本之前的纸质指针</a>。`
+      },
+      {
+        num: "§3",
+        html: `然而，页边批注受困于特定书本的物理装帧。只有当读者将页边最有价值的批注剥离出来，用自己的语言重述并转写进 <a class="zettel-link" onclick="selectZettel('21/3d')">↗ 21/3d 作为对话伙伴的卡片盒</a>，同时保留如 <a class="zettel-link" onclick="selectZettel('Fl:019')">↗ Fl:019 铁胆墨水与朱砂的视觉分层</a> 的色彩编码时，私密批注才真正升格为可重组的概念模块。`
+      }
+    ],
+    marginalia: [
+      {
+        id: "m14_1",
+        ref: "[1]",
+        color: "ochre",
+        author: "E. 版本批注",
+        date: "1980.06",
+        text: "爱伦·坡在《Marginalia》（1844）中写道：『我购买古籍时最看重宽大的书边，因为那里不仅存放着我对作者的赞同，更存放着我与作者的争吵。』"
+      }
+    ]
+  },
+  {
+    id: "14/2b",
+    type: "permanent",
+    typeName: "永久笔记 · PERMANENT",
+    title: "超文本之前的纸质指针：中世纪注释学与百科全书转盘",
+    subtitle: "Glossa Ordinaria 与拉梅利阅读机中的多窗口并置",
+    date: "1980-02-18",
+    drawer: "Kasten I · 媒介与修辞",
+    tags: ["#边注学", "#超文本", "#媒介考古", "#非线性"],
+    prevBranch: "14/2a",
+    nextBranch: "14/3",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `现代人常误以为双向链接与多窗口并置是数字计算机的发明。事实上，中世纪经院哲学的《标准注释圣经》（Glossa Ordinaria）早已采用极其精密的版面拓扑：核心经文居中，行间写满词源微注（Interlinear Gloss），四周则环绕着历代教父的长篇辩驳，直接启发了 <a class="zettel-link" onclick="selectZettel('14/2a')">↗ 14/2a 页边留白与对话拓扑</a>。`
+      },
+      {
+        num: "§2",
+        html: `1588年，意大利工程师阿戈斯蒂诺·拉梅利（Agostino Ramelli）设计了著名的「水车式旋转读书台（Bookwheel）」。<span class="hl-span hl-prussian" data-note="m14b_1">学者无需起身即可在十二部同时摊开的巨著之间平行比对与交叉索引<sup class="hl-sup">[1]</sup></span>——这正是 <a class="zettel-link" onclick="selectZettel('Lit:Bush1945')">↗ Lit:Bush1945 Memex与联想轨迹</a> 的机械先驱，也是 <a class="zettel-link" onclick="selectZettel('21/3d1')">↗ 21/3d1 接续编码与分支生长</a> 的空间化映射。`
+      }
+    ],
+    marginalia: [
+      {
+        id: "m14b_1",
+        ref: "[1]",
+        color: "prussian",
+        author: "R. 机械考古",
+        date: "1983.09",
+        text: "拉梅利转盘利用行星齿轮机构保证书架在旋转时始终保持固定倾角，相当于16世纪的物理多标签页浏览器（Tabbed Browser）。"
+      }
+    ]
+  },
+  {
+    id: "Lit:Grafton1997",
+    type: "literature",
+    typeName: "文献笔记 · LITERATURE",
+    title: "Grafton (1997): 《脚注的趣史》与人文主义批注实践",
+    subtitle: "Anthony Grafton, The Footnote: A Curious History, Harvard UP",
+    date: "1997-09-14",
+    drawer: "Bibliographie · L-G",
+    tags: ["#阅读史", "#边注学", "#文献源", "#考据学"],
+    prevBranch: "Lit:Eisenstein1979",
+    nextBranch: "Lit:Blair2010",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `【文献核心命题】格拉夫顿追溯了现代学术文本中「双层叙事结构」的起源：上层是流畅的历史叙事正文，下层（或侧边）则是严酷的档案证据链与学术论战。<span class="hl-span hl-prussian" data-note="mlit_g1">脚注与侧边注并非文章的附庸，而是现代历史科学合法性的地基<sup class="hl-sup">[1]</sup></span>。`
+      },
+      {
+        num: "§2",
+        html: `【卡片盒转写索引】书中第3章详述了17世纪博学家如何将阅读时的页边批注抄录到按关键词索引的「摘录簿（Commonplace Book）」或早期剪贴纸条柜中。这一历史环节直接支撑了 <a class="zettel-link" onclick="selectZettel('14/2a')">↗ 14/2a 页边留白与对话拓扑</a> 与 <a class="zettel-link" onclick="selectZettel('21/3d')">↗ 21/3d 作为对话伙伴的卡片盒</a> 中关于「批注向永久卡片转化」的论述。`
+      }
+    ],
+    marginalia: [
+      {
+        id: "mlit_g1",
+        ref: "[1]",
+        color: "prussian",
+        author: "文献摘录",
+        date: "p. 64",
+        text: "参见原书第64页：皮埃尔·贝尔（Pierre Bayle）的《历史批判辞典》甚至出现了正文只有两行、而环绕四周的注释与边注占满整页的极端版式。"
+      }
+    ]
+  },
+  {
+    id: "Lit:Bush1945",
+    type: "literature",
+    typeName: "文献笔记 · LITERATURE",
+    title: "Bush (1945): As We May Think — Memex 与永不磨灭的联想轨迹",
+    subtitle: "Vannevar Bush, The Atlantic Monthly, July 1945",
+    date: "1945-07-01",
+    drawer: "Bibliographie · L-B",
+    tags: ["#超文本", "#媒介考古", "#文献源", "#偶得机制"],
+    prevBranch: "Lit:Borges1941",
+    nextBranch: "Lit:Ashby1956",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `【文献核心命题】范内瓦·布什指出，人类科学文献的浩瀚增长正被「人工索引系统的僵化（按字母或树状层级归档）」所拖累。人脑并非按抽屉分类工作，而是通过<span class="hl-span hl-vermilion" data-note="mlit_b1">瞬间的联想跳跃（Association of Thoughts）<sup class="hl-sup">[1]</sup></span>将两个看似无关的条目钉在一起。`
+      },
+      {
+        num: "§2",
+        html: `【与卢曼卡片盒的张力】布什构想的办公桌机器 Memex 允许用户在两份缩微文献间打上永久编码连线，并在透明压板上直接手写页边批注。这与 <a class="zettel-link" onclick="selectZettel('21/3d1')">↗ 21/3d1 接续编码与分支生长</a> 及 <a class="zettel-link" onclick="selectZettel('14/2b')">↗ 14/2b 超文本之前的纸质指针</a> 在结构上完全同构。`
+      }
+    ],
+    marginalia: [
+      {
+        id: "mlit_b1",
+        ref: "[1]",
+        color: "vermilion",
+        author: "原典对照",
+        date: "Sect. 6",
+        text: "Bush 原话：『The human mind operates by association. With one item in its grasp, it snaps instantly to the next that is suggested by the association of thoughts...』"
+      }
+    ]
+  },
+  {
+    id: "Lit:Ashby1956",
+    type: "literature",
+    typeName: "文献笔记 · LITERATURE",
+    title: "Ashby (1956): 《控制论导论》中的必要多样性定律",
+    subtitle: "W. Ross Ashby, An Introduction to Cybernetics, Chapman & Hall",
+    date: "1956-05-20",
+    drawer: "Bibliographie · L-A",
+    tags: ["#系统论", "#控制论", "#文献源", "#结构耦合"],
+    prevBranch: "Lit:Bush1945",
+    nextBranch: "Lit:Grafton1997",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `【文献核心命题】艾什比提出控制论基石「必要多样性定律（Law of Requisite Variety）」：<span class="hl-span" data-note="mlit_a1">一个调节系统要想有效应对外部环境的扰动，其自身内部状态的多样性必须至少不低于外部环境的多样性<sup class="hl-sup">[1]</sup></span>（Only variety can absorb variety）。`
+      },
+      {
+        num: "§2",
+        html: `【知识系统迁移】这解释了为何线性大纲笔记面对复杂学术课题时会迅速崩溃，而 <a class="zettel-link" onclick="selectZettel('21/3d')">↗ 21/3d 作为对话伙伴的卡片盒</a> 能够胜任：因为卡片盒内部通过多向分支与交叉索引，建立起了足以吸纳外部文献复杂性的高维内部网络。`
+      }
+    ],
+    marginalia: [
+      {
+        id: "mlit_a1",
+        ref: "[1]",
+        color: "ochre",
+        author: "控制论批注",
+        date: "Ch. 11",
+        text: "如果笔记系统的拓扑维度低于研究对象的维度，信息就会在记录过程中被严重阉割和扁平化。"
+      }
+    ]
+  },
+  {
+    id: "Fl:042",
+    type: "fleeting",
+    typeName: "闪念笔记 · FLEETING",
+    title: "为什么全自动 AI 语义聚类无法替代手动编织 Folgezettel？",
+    subtitle: "晨间阅读手记：关于认知摩擦与拓扑阻力（Topological Resistance）",
+    date: "1986-10-03",
+    drawer: "Inbox · 临时夹",
+    tags: ["#偶得机制", "#编码法", "#非线性"],
+    prevBranch: "Fl:019",
+    nextBranch: "21/3d",
+    paragraphs: [
+      {
+        num: "§1",
+        html: `今日翻阅卡片盒时突然意识到：最珍贵的洞见往往发生在「手拿一张新卡片，犹豫该把它插在 <a class="zettel-link" onclick="selectZettel('21/3d')">↗ 21/3d 作为对话伙伴的卡片盒</a> 后面，还是插在 <a class="zettel-link" onclick="selectZettel('14/2a')">↗ 14/2a 页边留白与对话拓扑</a> 后面」的那三分钟煎熬里。`
+      },
+      {
+        num: "§2",
+        html: `<span class="hl-span hl-vermilion" data-note="mfl_42">正是这种被迫在既有知识版图中寻找精确坐标的「认知摩擦」，强迫大脑重审旧卡片的隐含前提<sup class="hl-sup">[1]

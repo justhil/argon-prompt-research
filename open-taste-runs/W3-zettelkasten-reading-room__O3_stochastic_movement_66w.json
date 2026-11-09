@@ -1,0 +1,40 @@
+{
+  "runKey": "W3-zettelkasten-reading-room__O3_stochastic_movement_66w",
+  "taskId": "W3-zettelkasten-reading-room",
+  "taskTitle": "双链卡片盒笔记与深度阅读工作室 (Zettelkasten & Deep Reading Studio)",
+  "styleId": "O3_stochastic_movement_66w",
+  "styleLabel": "O3 · 66字设计流派自由演化锚点 (高多样性 + 质感底线)",
+  "rep": 1,
+  "modelUsed": "gemini-4-argon",
+  "elapsedSec": 154.15,
+  "metrics": {
+    "htmlBytes": 49726,
+    "hasDarkBg": false,
+    "darkHexCount": 0,
+    "neonColorHits": 0,
+    "neonColorSamples": [],
+    "linearGradientCount": 0,
+    "neonGlowShadowCount": 0,
+    "backdropBlurCount": 0,
+    "aiEmojiCount": 0,
+    "hasWarmPaper": false,
+    "hasTabularNums": true,
+    "hasSerifFont": true,
+    "slopScore": 0
+  },
+  "palette": {
+    "primaryBg": "#F3F1EC",
+    "allHex": [
+      "#f3f1ec",
+      "#faf8f5",
+      "#ebe8e0",
+      "#e4e0d6",
+      "#efece4",
+      "#181715",
+      "#52504c",
+      "#85827c"
+    ],
+    "rootCss": "/* 瑞士档案网格 + 北欧暖调纸面 + 博朗实体仪器色板 */ --bg-canvas: #F3F1EC; --bg-paper: #FAF8F5; --bg-panel: #EBE8E0; --bg-hover: #E4E0D6; --bg-active: #EFECE4; --ink-primary: #181715; --ink-secondary: #52504C; --ink-muted: #85827C; --ink-faint: #B5B1A8; --border-hairline: #D5D1C8; --border-strong: #181715; /* 实体仪器功能色彩 */ --accent-vermilion: #D13B27; /* 永久笔记 ",
+    "themeNote": ""
+  }
+}
