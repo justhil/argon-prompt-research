@@ -1,0 +1,7 @@
+{
+  "name": "s3-intuition",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/smoke.test.mjs"
+  }
+}

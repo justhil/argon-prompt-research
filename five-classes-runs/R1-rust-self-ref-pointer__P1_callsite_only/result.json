@@ -1,0 +1,36 @@
+{
+  "runId": "R1-rust-self-ref-pointer__P1_callsite_only",
+  "taskId": "R1-rust-self-ref-pointer",
+  "category": "Class4_RustCompiler",
+  "variantKey": "P1_callsite_only",
+  "oraclePassed": true,
+  "oracleError": "",
+  "turns": 2,
+  "readTruncatedSecondHalf": false,
+  "readHeaderParser": false,
+  "rustcCalls": 0,
+  "trace": [
+    {
+      "turn": 1,
+      "reasoning": "",
+      "content": "",
+      "tools": [
+        {
+          "name": "read_file",
+          "args": "{\"path\":\"src/lib.rs\"}"
+        }
+      ]
+    },
+    {
+      "turn": 2,
+      "reasoning": "",
+      "content": "",
+      "tools": [
+        {
+          "name": "edit_file",
+          "args": "{\n                  \"old_text\": \"    pub fn replace_box(&mut self, new_val: i32) {\\n        // BUG: replaces Box without updating raw pointer ptr, causing dangling pointer!\\n        self.data = Box::new(new_val);\\n    }\",\n                  \"path\": \"src/lib.rs\",\n                  \"new_text\": \"    pub fn replace_box(&mut self, new_val: i32) {\\n        self.data = Box::new(new_val);\\n        self.ptr = &*self.data as *const i32;\\n    }\\n\\n    pub fn add(&mut self, delta: i32) {\\n        *self.data += delta;\\n    }\\n\\n    pub fn read_value(&self) -\\u003e i32 {\\n        self.read_via_ptr()\\n    }\"\n                }"
+        }
+      ]
+    }
+  ]
+}

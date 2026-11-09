@@ -1,0 +1,7 @@
+{
+  "name": "s1-trunc",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/smoke.test.mjs"
+  }
+}
